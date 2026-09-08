@@ -327,6 +327,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
+            pointer-events: none;
             background: linear-gradient(
                 to right,
                 rgba(255, 255, 255, 0) 0%,
@@ -427,6 +428,7 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; height: 3px;
+            pointer-events: none;
             background: linear-gradient(90deg, #00F0FF, #A855F7, #10B981, #FF5E62, #00F0FF);
             background-size: 300% 300%;
             animation: quantumLaserSpin 4s infinite linear;
@@ -436,6 +438,7 @@
             content: '';
             position: absolute;
             bottom: 0; left: 0; right: 0; height: 3px;
+            pointer-events: none;
             background: linear-gradient(90deg, #FF5E62, #10B981, #A855F7, #00F0FF, #FF5E62);
             background-size: 300% 300%;
             animation: quantumLaserSpin 4s infinite linear;
@@ -591,6 +594,7 @@
             content: '';
             position: absolute;
             top: -50%; left: -50%; width: 200%; height: 200%;
+            pointer-events: none;
             background: linear-gradient(60deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
             transform: translateX(-100%);
             transition: transform 0.6s ease;
@@ -2454,19 +2458,13 @@
             const rawTopic = (topicHeader && topicHeader.textContent.trim()) ? topicHeader.textContent.trim() : 'EduGen_Asset';
             const topic = rawTopic.replace(/\s+/g, '_');
 
-            if (format === 'print') {
+            if (format === 'print' || format === 'pdf') {
                 window.print();
-                return;
-            }
-
-            let contentHTML = "";
-            let fileName = `${topic}_Worksheet.doc`;
-            let mimeType = "application/msword";
-
-            if (format === 'pptx' || format === 'doc' || format === 'default') {
+            } else if (format === 'pptx' || format === 'doc' || format === 'default') {
+                let contentHTML = "";
+                let fileName = `${topic}_Worksheet.doc`;
+                
                 if (textbookContainer && textbookContainer.style.display !== 'none') {
-                    fileName = `${topic}_Worksheet.doc`;
-                    mimeType = "application/msword";
                     contentHTML = `
                         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                         <head><meta charset='utf-8'><title>${rawTopic} Worksheet</title>
@@ -2481,7 +2479,6 @@
                         </html>`;
                 } else if (videoContainer && videoContainer.style.display !== 'none') {
                     fileName = `${topic}_Presentation.doc`;
-                    mimeType = "application/msword";
                     const slidesList = dummySlides.map((s, i) => `
                         <div style="border: 2px solid #2563EB; padding: 16px; margin-bottom: 16px; border-radius: 8px;">
                             <h3 style="color: #2563EB; margin-top: 0;">Slide ${i + 1}: ${s.title}</h3>
@@ -2500,81 +2497,32 @@
                     contentHTML = `<html><head><meta charset='utf-8'></head><body><h2>${rawTopic}</h2><p>EduGen Studio Asset</p></body></html>`;
                 }
 
+                const blob = new Blob(['\ufeff' + contentHTML], { type: 'application/msword;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+
             } else if (format === 'mp4') {
-                fileName = `${topic}_Presentation_Script.json`;
-                mimeType = "application/json";
-                contentHTML = JSON.stringify({
+                const videoData = JSON.stringify({
                     topic: rawTopic,
                     slides: dummySlides,
                     duration: "30s",
                     generatedBy: "EduGen Studio"
                 }, null, 2);
-            } else if (format === 'pdf') {
-                window.print();
-                return;
+
+                const blob = new Blob([videoData], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${topic}_Presentation_Script.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
             }
-
-            try {
-                // Safe UTF-8 to Base64 conversion
-                const base64Data = btoa(unescape(encodeURIComponent('\ufeff' + contentHTML)));
-                const dataUri = `data:${mimeType};charset=utf-8;base64,${base64Data}`;
-
-                // 1. If running inside Android WebView JS Bridge
-                if (window.AndroidInterface && typeof window.AndroidInterface.saveFile === 'function') {
-                    window.AndroidInterface.saveFile(dataUri, fileName, mimeType);
-                } else {
-                    // 2. Standard Web Download via Anchor Data URI
-                    const link = document.createElement('a');
-                    link.href = dataUri;
-                    link.download = fileName;
-                    link.target = "_blank";
-                    document.body.appendChild(link);
-                    link.click();
-                    setTimeout(() => document.body.removeChild(link), 500);
-                }
-
-                // Show UI Feedback Toast
-                showExportToast(currentLang === 'fr' 
-                    ? `📄 Exportation réussie : ${fileName}` 
-                    : `📄 File Exported Successfully: ${fileName}`);
-
-            } catch (err) {
-                console.error("Export failed:", err);
-                // Fallback to Print dialog
-                window.print();
-            }
-        }
-
-        function showExportToast(message) {
-            let toast = document.getElementById('exportToast');
-            if (!toast) {
-                toast = document.createElement('div');
-                toast.id = 'exportToast';
-                toast.style.cssText = `
-                    position: fixed;
-                    bottom: 24px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: #0F172A;
-                    color: #FFFFFF;
-                    padding: 12px 20px;
-                    border-radius: 30px;
-                    font-size: 13px;
-                    font-weight: 700;
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-                    z-index: 100000;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    transition: opacity 0.3s ease;
-                `;
-                document.body.appendChild(toast);
-            }
-            toast.textContent = message;
-            toast.style.opacity = '1';
-            setTimeout(() => {
-                if (toast) toast.style.opacity = '0';
-            }, 3500);
         }
 
         function closeModal() {
