@@ -930,13 +930,17 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 15mm;
+                margin: 8mm 10mm;
             }
-            body {
+            body, html {
                 background: #ffffff !important;
                 color: #000000 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                height: auto !important;
+                overflow: visible !important;
             }
-            aside.sidebar, .mobile-header, .slider-3d-container, .modal-btns, .slider-3d-header, .btn-secondary, .btn-action, #hiddenSpaces {
+            aside.sidebar, .mobile-header, .slider-3d-container, .modal-btns, .slider-3d-header, .btn-secondary, .btn-action, #hiddenSpaces, .workspace-header, .cards-grid, .batch-panel, button, i.fa-xmark, .modal-title, .modal-desc, #modalHeaderIcon {
                 display: none !important;
             }
             main.workspace {
@@ -950,6 +954,8 @@
                 backdrop-filter: none !important;
                 opacity: 1 !important;
                 pointer-events: auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
             .modal-card {
                 border: none !important;
@@ -959,6 +965,27 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 padding: 0 !important;
+                margin: 0 !important;
+            }
+            #textbookPreviewContainer {
+                border: 1.5px solid #1E3A8A !important;
+                outline: none !important;
+                box-shadow: none !important;
+                max-height: none !important;
+                overflow: visible !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+                margin: 0 !important;
+                padding: 12px !important;
+                border-radius: 8px !important;
+            }
+            #videoPreviewContainer {
+                border: none !important;
+                box-shadow: none !important;
+                aspect-ratio: 16/9 !important;
+                page-break-inside: avoid !important;
             }
         }
 
@@ -2055,16 +2082,76 @@
         }
 
         function exportFile(format) {
-            if (format === 'print') {
+            const textbookContainer = document.getElementById('textbookPreviewContainer');
+            const videoContainer = document.getElementById('videoPreviewContainer');
+            const topicHeader = document.getElementById('tbTopicHeader');
+            const rawTopic = (topicHeader && topicHeader.textContent.trim()) ? topicHeader.textContent.trim() : 'EduGen_Asset';
+            const topic = rawTopic.replace(/\s+/g, '_');
+
+            if (format === 'print' || format === 'pdf') {
                 window.print();
-            } else if (format === 'pdf') {
-                alert(currentLang === 'fr' ? "Génération et téléchargement du PDF haute résolution..." : "Generating & downloading high-resolution PDF...");
-            } else if (format === 'pptx') {
-                alert(currentLang === 'fr' ? "Exportation du fichier PowerPoint (.pptx)..." : "Exporting editable PowerPoint file (.pptx)...");
+            } else if (format === 'pptx' || format === 'doc' || format === 'default') {
+                let contentHTML = "";
+                let fileName = `${topic}_Worksheet.doc`;
+                
+                if (textbookContainer && textbookContainer.style.display !== 'none') {
+                    contentHTML = `
+                        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                        <head><meta charset='utf-8'><title>${rawTopic} Worksheet</title>
+                        <style>
+                            body { font-family: 'Calibri', 'Segoe UI', sans-serif; margin: 20px; color: #1E293B; }
+                            h2 { color: #1E3A8A; font-size: 20px; }
+                        </style>
+                        </head>
+                        <body>
+                            ${textbookContainer.innerHTML}
+                        </body>
+                        </html>`;
+                } else if (videoContainer && videoContainer.style.display !== 'none') {
+                    fileName = `${topic}_Presentation.doc`;
+                    const slidesList = dummySlides.map((s, i) => `
+                        <div style="border: 2px solid #2563EB; padding: 16px; margin-bottom: 16px; border-radius: 8px;">
+                            <h3 style="color: #2563EB; margin-top: 0;">Slide ${i + 1}: ${s.title}</h3>
+                            <p style="font-size: 14px; color: #334155;">${s.desc}</p>
+                        </div>
+                    `).join('');
+                    contentHTML = `
+                        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                        <head><meta charset='utf-8'><title>${rawTopic} Presentation</title></head>
+                        <body>
+                            <h1 style="color: #1E3A8A;">${rawTopic} - Presentation Decks</h1>
+                            ${slidesList}
+                        </body>
+                        </html>`;
+                } else {
+                    contentHTML = `<html><head><meta charset='utf-8'></head><body><h2>${rawTopic}</h2><p>EduGen Studio Asset</p></body></html>`;
+                }
+
+                const blob = new Blob(['\ufeff' + contentHTML], { type: 'application/msword;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+
             } else if (format === 'mp4') {
-                alert(currentLang === 'fr' ? "Téléchargement de la vidéo de leçon MP4..." : "Downloading MP4 video lesson...");
-            } else {
-                alert(currentLang === 'fr' ? "Téléchargement du fichier démarré..." : "Starting file download...");
+                const videoData = JSON.stringify({
+                    topic: rawTopic,
+                    slides: dummySlides,
+                    duration: "30s",
+                    generatedBy: "EduGen Studio"
+                }, null, 2);
+
+                const blob = new Blob([videoData], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${topic}_Presentation_Script.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
             }
         }
 
