@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGen Studio - AI Educational Asset Generator</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-base: #060B13;
+            --bg-card: #0D1526;
+            --bg-card-hover: #131E38;
+            --sapphire-primary: #00F0FF;
+            --sapphire-secondary: #0066FF;
+            --sapphire-glow: rgba(0, 240, 255, 0.4);
+            --gold-start: #FFD700;
+            --gold-end: #FFA500;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-neon: #00F0FF;
+            --sidebar-width: 280px;
+            --sidebar-bg: #040810;
+        }
+
+        /* Dark Themes */
+        body.theme-emerald {
+            --bg-base: #04120D;
+            --bg-card: #0A241A;
+            --bg-card-hover: #103828;
+            --sapphire-primary: #10B981;
+            --sapphire-secondary: #059669;
+            --sapphire-glow: rgba(16, 185, 129, 0.4);
+            --text-main: #F0FDF4;
+            --text-muted: #6EE7B7;
+            --border-neon: #10B981;
+            --sidebar-bg: #020C08;
+        }
+
+        body.theme-amethyst {
+            --bg-base: #0D0714;
+            --bg-card: #190E28;
+            --bg-card-hover: #26163D;
+            --sapphire-primary: #A855F7;
+            --sapphire-secondary: #7C3AED;
+            --sapphire-glow: rgba(168, 85, 247, 0.4);
+            --text-main: #FAF5FF;
+            --text-muted: #D8B4FE;
+            --border-neon: #A855F7;
+            --sidebar-bg: #08040E;
+        }
+
+        body.theme-solar {
+            --bg-base: #140A0A;
+            --bg-card: #281212;
+            --bg-card-hover: #3D1C1C;
+            --sapphire-primary: #FF5E62;
+            --sapphire-secondary: #FF9966;
+            --sapphire-glow: rgba(255, 94, 98, 0.4);
+            --text-main: #FFF5F5;
+            --text-muted: #FCA5A5;
+            --border-neon: #FF5E62;
+            --sidebar-bg: #0E0606;
+        }
+
+        /* Bright / Light Themes */
+        body.theme-light {
+            --bg-base: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --bg-card-hover: #E2E8F0;
+            --sapphire-primary: #2563EB;
+            --sapphire-secondary: #1D4ED8;
+            --sapphire-glow: rgba(37, 99, 235, 0.25);
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            --border-neon: #2563EB;
+            --sidebar-bg: #E2E8F0;
+        }
+
+        body.theme-warm-light {
+            --bg-base: #FFFBEB;
+            --bg-card: #FFFFFF;
+            --bg-card-hover: #FEF3C7;
+            --sapphire-primary: #D97706;
+            --sapphire-secondary: #B45309;
+            --sapphire-glow: rgba(217, 119, 6, 0.25);
+            --text-main: #1E1B4B;
+            --text-muted: #78350F;
+            --border-neon: #D97706;
+            --sidebar-bg: #FEF3C7;
+        }
+
+        body.theme-mint-light {
+            --bg-base: #F0FDF4;
+            --bg-card: #FFFFFF;
+            --bg-card-hover: #DCFCE7;
+            --sapphire-primary: #059669;
+            --sapphire-secondary: #047857;
+            --sapphire-glow: rgba(5, 150, 105, 0.25);
+            --text-main: #064E3B;
+            --text-muted: #047857;
+            --border-neon: #059669;
+            --sidebar-bg: #DCFCE7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* App Layout: Left Sidebar + Main Workspace */
+        .app-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* 1. Left Sidebar Dashboard (Control Panel) */
+        aside.sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg, #040810);
+            border-right: 1px solid rgba(0, 240, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        /* Branding Zone */
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--sapphire-primary), var(--sapphire-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #060B13;
+            box-shadow: 0 0 15px var(--sapphire-glow);
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #FFFFFF, var(--sapphire-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Bilingual Switcher Widget */
+        .lang-switcher-container {
+            background: rgba(13, 21, 38, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 24px;
+        }
+
+        .lang-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .lang-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lang-btn:hover {
+            border-color: var(--sapphire-primary);
+            color: var(--text-main);
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 102, 255, 0.3));
+            border-color: var(--sapphire-primary);
+            color: var(--sapphire-primary);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Navigation Menu */
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-item:hover {
+            background: rgba(0, 240, 255, 0.05);
+            color: var(--text-main);
+            border-color: rgba(0, 240, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(0, 240, 255, 0.15), rgba(0, 102, 255, 0.05));
+            color: var(--sapphire-primary);
+            border-color: rgba(0, 240, 255, 0.3);
+            box-shadow: inset 3px 0 0 var(--sapphire-primary);
+        }
+
+        /* Premium Version Widget at bottom */
+        .premium-widget {
+            background: linear-gradient(145deg, rgba(13, 21, 38, 0.9), rgba(26, 38, 64, 0.9));
+            border: 2px solid var(--gold-start);
+            border-radius: 16px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+        }
+
+        .premium-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gold-start);
+            margin-bottom: 6px;
+        }
+
+        .premium-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+
+        .upgrade-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--gold-start), var(--gold-end));
+            color: #060B13;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.4);
+        }
+
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .upgrade-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Light streak shine animation */
+        .upgrade-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.4) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg) translateX(-100%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(30deg) translateX(-100%); }
+            20% { transform: rotate(30deg) translateX(100%); }
+            100% { transform: rotate(30deg) translateX(100%); }
+        }
+
+        /* 2. Main Workspace Canvas */
+        main.workspace {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 32px;
+            min-height: 100vh;
+            background: radial-gradient(circle at top right, rgba(0, 102, 255, 0.08), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(0, 240, 255, 0.05), transparent 40%);
+        }
+
+        /* Header Section */
+        .workspace-header {
+            margin-bottom: 32px;
+        }
+
+        .workspace-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .workspace-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        /* Tab Content Panels */
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Interactive Parameter Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 28px;
+        }
+
+        /* Quantum Mechanics 101 Stunning Border & Holographic Glow Effects */
+        @keyframes quantumPulse {
+            0% { box-shadow: 0 0 18px rgba(0, 240, 255, 0.35), inset 0 0 15px rgba(0, 240, 255, 0.15); border-color: rgba(0, 240, 255, 0.6); }
+            33% { box-shadow: 0 0 28px rgba(168, 85, 247, 0.45), inset 0 0 20px rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.7); }
+            66% { box-shadow: 0 0 28px rgba(16, 185, 129, 0.45), inset 0 0 20px rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.7); }
+            100% { box-shadow: 0 0 18px rgba(0, 240, 255, 0.35), inset 0 0 15px rgba(0, 240, 255, 0.15); border-color: rgba(0, 240, 255, 0.6); }
+        }
+
+        @keyframes quantumLaserSpin {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .creation-card {
+            background-color: rgba(13, 21, 38, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 24px;
+            border: 2px solid rgba(0, 240, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+            animation: quantumPulse 6s infinite ease-in-out;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Quantum Corner Brackets (Energy Nodes) */
+        .creation-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, #00F0FF, #A855F7, #10B981, #FF5E62, #00F0FF);
+            background-size: 300% 300%;
+            animation: quantumLaserSpin 4s infinite linear;
+        }
+
+        .creation-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, #FF5E62, #10B981, #A855F7, #00F0FF, #FF5E62);
+            background-size: 300% 300%;
+            animation: quantumLaserSpin 4s infinite linear;
+        }
+
+        .quantum-corner-tl, .quantum-corner-tr, .quantum-corner-bl, .quantum-corner-br {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .quantum-corner-tl {
+            top: 6px; left: 6px;
+            border-top: 2px solid var(--sapphire-primary);
+            border-left: 2px solid var(--sapphire-primary);
+        }
+
+        .quantum-corner-tr {
+            top: 6px; right: 6px;
+            border-top: 2px solid var(--sapphire-primary);
+            border-right: 2px solid var(--sapphire-primary);
+        }
+
+        .quantum-corner-bl {
+            bottom: 6px; left: 6px;
+            border-bottom: 2px solid var(--sapphire-primary);
+            border-left: 2px solid var(--sapphire-primary);
+        }
+
+        .quantum-corner-br {
+            bottom: 6px; right: 6px;
+            border-bottom: 2px solid var(--sapphire-primary);
+            border-right: 2px solid var(--sapphire-primary);
+        }
+
+        .creation-card:hover {
+            background-color: rgba(20, 32, 56, 0.95);
+            border-color: #00F0FF;
+            box-shadow: 0 20px 50px rgba(0, 240, 255, 0.5), inset 0 0 35px rgba(0, 240, 255, 0.25);
+            transform: translateY(-6px) scale(1.01);
+        }
+
+        .card-header-flex {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .card-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .icon-sapphire {
+            background: linear-gradient(135deg, #00F0FF, #0066FF);
+        }
+
+        .icon-red {
+            background: linear-gradient(135deg, #FF5E62, #FF9966);
+        }
+
+        .card-titles h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .card-titles p {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        /* Setup Form Styles */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background-color: rgba(6, 11, 19, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--sapphire-primary);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+
+        .form-select option {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        /* Action Buttons */
+        .btn-action {
+            width: 100%;
+            background: linear-gradient(135deg, var(--sapphire-primary), var(--sapphire-secondary));
+            color: #060B13;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 24px rgba(0, 240, 255, 0.35);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-action::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(60deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn-action:hover::after {
+            transform: translateX(100%);
+        }
+
+        .btn-action:hover {
+            filter: brightness(1.15);
+            box-shadow: 0 10px 32px rgba(0, 240, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Batch Queue Panel */
+        .batch-panel {
+            background: rgba(18, 30, 49, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1.5px solid var(--sapphire-primary);
+            border-radius: 18px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 240, 255, 0.2);
+            display: none;
+        }
+
+        .batch-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .batch-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0 16px 0;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .batch-tag {
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid var(--sapphire-primary);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .batch-tag i {
+            cursor: pointer;
+            color: var(--sapphire-primary);
+        }
+
+        .batch-tag i:hover {
+            color: #FF5E62;
+        }
+
+        /* Result Modal / Notification Toast */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(6, 11, 19, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 2px solid var(--sapphire-primary);
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.4);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            padding: 32px;
+            text-align: center;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 48px;
+            color: var(--sapphire-primary);
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .modal-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-main);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(148, 163, 184, 0.2);
+        }
+
+        /* Themes */
+        body.theme-emerald {
+            --bg-base: #040E08;
+            --bg-card: #081C0F;
+            --bg-card-hover: #0E2E19;
+            --sapphire-primary: #00FF88;
+            --sapphire-secondary: #008855;
+            --sapphire-glow: rgba(0, 255, 136, 0.4);
+            --border-neon: #00FF88;
+        }
+        body.theme-amethyst {
+            --bg-base: #0E040E;
+            --bg-card: #1C0819;
+            --bg-card-hover: #2E0E2B;
+            --sapphire-primary: #FF00D4;
+            --sapphire-secondary: #8800AA;
+            --sapphire-glow: rgba(255, 0, 212, 0.4);
+            --border-neon: #FF00D4;
+        }
+        body.theme-solar {
+            --bg-base: #0F0A06;
+            --bg-card: #1E140A;
+            --bg-card-hover: #2E2010;
+            --sapphire-primary: #FF6B00;
+            --sapphire-secondary: #CC3300;
+            --sapphire-glow: rgba(255, 107, 0, 0.4);
+            --border-neon: #FF6B00;
+        }
+        body.theme-light {
+            --bg-base: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --bg-card-hover: #E2E8F0;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --sapphire-primary: #0066FF;
+            --sapphire-secondary: #0044CC;
+            --sapphire-glow: rgba(0, 102, 255, 0.3);
+            --border-neon: #0066FF;
+        }
+
+        /* 3D Swipe Slider Styles */
+        .slider-3d-container {
+            margin-top: 36px;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            padding: 20px 0 40px 0;
+        }
+
+        .slider-3d-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .slider-3d-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .slider-3d-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .slider-ctrl-btn {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: var(--sapphire-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .slider-ctrl-btn:hover {
+            background: rgba(0, 240, 255, 0.25);
+            box-shadow: 0 0 15px var(--sapphire-glow);
+        }
+
+        .slider-3d-viewport {
+            perspective: 1200px;
+            width: 100%;
+            height: 280px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+        }
+
+        .slider-3d-viewport:active {
+            cursor: grabbing;
+        }
+
+        .slider-3d-track {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .slide-card-3d {
+            position: absolute;
+            width: 320px;
+            height: 250px;
+            background: var(--bg-card);
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, border-color 0.3s ease;
+            user-select: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .slide-card-3d.active {
+            border-color: var(--sapphire-primary);
+            box-shadow: 0 0 35px rgba(0, 240, 255, 0.45);
+        }
+
+        .slide-badge {
+            display: inline-block;
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--sapphire-primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: fit-content;
+            margin-bottom: 12px;
+        }
+
+        .slide-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .slide-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        .slide-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+            padding-top: 12px;
+        }
+
+        /* Mobile bottom navigation & responsive layout */
+        .mobile-header {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: #040810;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .menu-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--sapphire-primary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 15mm;
+            }
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            aside.sidebar, .mobile-header, .slider-3d-container, .modal-btns, .slider-3d-header, .btn-secondary, .btn-action, #hiddenSpaces {
+                display: none !important;
+            }
+            main.workspace {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .modal-overlay {
+                position: static !important;
+                background: none !important;
+                backdrop-filter: none !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+            .modal-card {
+                border: none !important;
+                box-shadow: none !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            aside.sidebar {
+                transform: translateX(-100%);
+            }
+            aside.sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            main.workspace {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .mobile-header {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Left Sidebar Dashboard (Control Panel) -->
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <!-- Branding Zone -->
+                <div class="sidebar-brand">
+                    <div class="brand-logo">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div class="brand-title" data-i18n="appTitle">EduGen Studio</div>
+                </div>
+
+                <!-- Toggle Button to Display Hidden Spaces -->
+                <div class="nav-item" onclick="toggleHiddenSpaces()" style="background: rgba(0, 240, 255, 0.08); border: 1px dashed rgba(0, 240, 255, 0.3); margin-bottom: 12px; cursor: pointer;">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span data-i18n="toggleSpaces">Customize & Themes</span>
+                </div>
+
+                <!-- Hidden Spaces Container -->
+                <div id="hiddenSpaces" style="display: none; margin-bottom: 16px;">
+                    <!-- Bilingual Switcher Widget -->
+                    <div class="lang-switcher-container">
+                        <span class="lang-label" data-i18n="targetLang">Target Content Language</span>
+                        <div class="lang-buttons">
+                            <button class="lang-btn active" id="langEnBtn" onclick="setLanguage('en')">English</button>
+                            <button class="lang-btn" id="langFrBtn" onclick="setLanguage('fr')">Français</button>
+                        </div>
+                    </div>
+
+                    <!-- Theme Switcher Widget -->
+                    <div class="lang-switcher-container" style="margin-top: 12px;">
+                        <span class="lang-label" data-i18n="themeLabel">Color Theme Palette</span>
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                            <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">🌙 Dark Themes</span>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                                <button title="Cyber Sapphire (Dark)" onclick="setTheme('sapphire')" id="themeSapphireBtn" style="background: #00F0FF; height: 26px; border-radius: 6px; border: 2px solid white; cursor: pointer;"></button>
+                                <button title="Emerald Cyber (Dark)" onclick="setTheme('emerald')" id="themeEmeraldBtn" style="background: #10B981; height: 26px; border-radius: 6px; border: 2px solid transparent; cursor: pointer;"></button>
+                                <button title="Amethyst Neon (Dark)" onclick="setTheme('amethyst')" id="themeAmethystBtn" style="background: #A855F7; height: 26px; border-radius: 6px; border: 2px solid transparent; cursor: pointer;"></button>
+                                <button title="Sunset Obsidian (Dark)" onclick="setTheme('solar')" id="themeSolarBtn" style="background: #FF5E62; height: 26px; border-radius: 6px; border: 2px solid transparent; cursor: pointer;"></button>
+                            </div>
+                            <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 4px;">☀️ Bright / Light Themes</span>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                                <button title="Pure Crisp Light" onclick="setTheme('light')" id="themeLightBtn" style="background: #2563EB; height: 26px; border-radius: 6px; border: 2px solid transparent; cursor: pointer;"></button>
+                                <button title="Warm Amber Light" onclick="setTheme('warm-light')" id="themeWarmLightBtn" style="background: #D97706; height: 26px; border-radius: 6px; border: 2px solid transparent; cursor: pointer;"></button>
+                                <button title="Mint Fresh Light" onclick="setTheme('mint-light')" id="themeMintLightBtn" style="background: #059669; height: 26px; border-radius: 6px; border: 2px solid transparent; cursor: pointer;"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="sidebar-menu">
+                    <div class="nav-item active" onclick="switchTab('dashboard', this)">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span data-i18n="navDashboard">Dashboard</span>
+                    </div>
+                    <div class="nav-item" onclick="switchTab('worksheets', this)">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <span data-i18n="navWorksheets">Worksheets</span>
+                    </div>
+                    <div class="nav-item" onclick="switchTab('powerpoints', this)">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span data-i18n="navPowerPoints">PowerPoints</span>
+                    </div>
+                    <div class="nav-item" onclick="switchTab('apikey', this)">
+                        <i class="fa-solid fa-key"></i>
+                        <span data-i18n="navApiKey">API Key</span>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- Premium Version Widget -->
+            <div class="premium-widget">
+                <div class="premium-badge">
+                    <i class="fa-solid fa-crown"></i>
+                    <span data-i18n="upgradeTitle">EduGen Pro</span>
+                </div>
+                <p class="premium-desc" data-i18n="upgradeDesc">Unlock AI models & unlimited exports.</p>
+                <button class="upgrade-btn" onclick="triggerUpgrade()" data-i18n="upgradeBtn">Upgrade Now</button>
+            </div>
+
+            <div style="margin-top: 16px; text-align: center; font-size: 11px; color: var(--text-muted); opacity: 0.8; line-height: 1.4;">
+                Created by <strong>Mr. Zaafouri Abdelmalek</strong><br>© All rights reserved
+            </div>
+        </aside>
+
+        <!-- Mobile Header Bar -->
+        <div style="flex-grow: 1; display: flex; flex-direction: column;">
+            <div class="mobile-header">
+                <button class="menu-toggle-btn" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div style="font-weight: 800; font-size: 18px; color: var(--sapphire-primary);" data-i18n="appTitle">EduGen Studio</div>
+                <div style="width: 24px;"></div>
+            </div>
+
+            <!-- Main Workspace Canvas -->
+            <main class="workspace">
+                <!-- Header Section -->
+                <div class="workspace-header">
+                    <h1 class="workspace-title" data-i18n="headerTitle">AI Asset Generator</h1>
+                    <p class="workspace-subtitle" data-i18n="headerSubtitle">Dual-language educational content builder powered by advanced AI modules.</p>
+                </div>
+
+                <!-- Tab 1: Dashboard / Interactive Parameter Cards Grid -->
+                <div class="tab-panel active" id="tab-dashboard">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <button class="btn-secondary" onclick="toggleBatchMode()" id="batchModeToggleBtn" style="max-width: 340px;">
+                            <i class="fa-solid fa-list-check"></i> <span data-i18n="batchModeBtn">Enable Multi-Select Batch Queue</span>
+                        </button>
+                    </div>
+
+                    <!-- Batch Queue Panel (Multi-Select) -->
+                    <div class="batch-panel" id="batchPanel">
+                        <h3 style="font-size: 16px; font-weight: 700; color: var(--sapphire-primary); margin-bottom: 8px;" data-i18n="batchPanelTitle">Batch Queue Manager (Multi-Select Mode)</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="batchPanelDesc">Queue multiple topics to generate a batch of worksheets or presentations in one click.</p>
+                        
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                            <input type="text" id="batchTopicInput" class="form-input" placeholder="Add topic to queue (e.g., Photosynthesis, Calculus)" style="flex: 1;">
+                            <button class="btn-secondary" onclick="addTopicToBatch()" style="flex: 0 0 140px;" data-i18n="addToQueueBtn">Add to Queue</button>
+                        </div>
+
+                        <div class="batch-tags-container" id="batchTagsContainer">
+                            <!-- Queued tags appear here -->
+                        </div>
+
+                        <button class="btn-action" onclick="generateBatch()" style="margin-top: 8px;">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <span data-i18n="generateBatchBtn">Generate Batch Queue (All Topics)</span>
+                        </button>
+                    </div>
+
+                    <!-- 3 Compact Creator Selector Buttons -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+                        <button class="btn-secondary" onclick="toggleCreatorCard('worksheet')" id="btnToggleWorksheet" style="justify-content: center; gap: 8px; padding: 14px; font-size: 13px;">
+                            <i class="fa-solid fa-file-invoice" style="color: var(--sapphire-primary);"></i> <span data-i18n="worksheetTitle">Worksheet</span>
+                        </button>
+                        <button class="btn-secondary" onclick="toggleCreatorCard('ppt')" id="btnTogglePpt" style="justify-content: center; gap: 8px; padding: 14px; font-size: 13px;">
+                            <i class="fa-solid fa-presentation-screen" style="color: #FF5E62;"></i> <span data-i18n="pptTitle">PowerPoint</span>
+                        </button>
+                        <button class="btn-secondary" onclick="toggleCreatorCard('lesson')" id="btnToggleLesson" style="justify-content: center; gap: 8px; padding: 14px; font-size: 13px;">
+                            <i class="fa-solid fa-book-open-reader" style="color: #10B981;"></i> <span data-i18n="lessonPlanTitle">Lesson Plan</span>
+                        </button>
+                    </div>
+
+                    <!-- Collapsible Creation Cards Container -->
+                    <div id="creatorCardsContainer" style="margin-bottom: 24px;">
+                        <!-- Card 1: Worksheet Creator -->
+                        <div class="creation-card" id="cardWorksheet" style="display: none;">
+                            <div class="quantum-corner-tl"></div><div class="quantum-corner-tr"></div>
+                            <div class="quantum-corner-bl"></div><div class="quantum-corner-br"></div>
+                            <div class="card-header-flex">
+                                <div class="card-icon icon-sapphire">
+                                    <i class="fa-solid fa-file-invoice"></i>
+                                </div>
+                                <div class="card-titles">
+                                    <h3 data-i18n="worksheetTitle">Worksheet Creator</h3>
+                                    <p data-i18n="worksheetDesc">Generate comprehensive exercises, quizzes, and answer keys instantly.</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="topicLabel">Topic / Focus</label>
+                                <input type="text" id="worksheetTopic" class="form-input" placeholder="e.g., Photosynthesis, Fractions">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="levelLabel">Level / Class</label>
+                                <select id="worksheetLevel" class="form-select">
+                                    <option value="elem" data-i18n="levelElem">Elementary (Grades 1-5)</option>
+                                    <option value="middle" data-i18n="levelMiddle">Middle School (Grades 6-8)</option>
+                                    <option value="high" data-i18n="levelHigh">High School (Grades 9-12)</option>
+                                    <option value="college" data-i18n="levelCollege">Higher Education / University</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="testTypeLabel">Assessment Type</label>
+                                <select id="worksheetTestType" class="form-select">
+                                    <option value="diagnostic" data-i18n="typeDiagnostic" selected>Diagnostic Test (Placement & Baseline Benchmark)</option>
+                                    <option value="mock" data-i18n="typeMock">Full Mock Exam / Practice Test</option>
+                                    <option value="worksheet" data-i18n="typeStandard">Standard Exercise Worksheet</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="skillsFocusLabel">Language Skills Focus</label>
+                                <select id="worksheetSkillsFocus" class="form-select">
+                                    <option value="trisection" data-i18n="focusTri" selected>Complete (Reading Comprehension + Language + Writing)</option>
+                                    <option value="reading" data-i18n="focusReading">Reading Comprehension & Text Analysis</option>
+                                    <option value="language" data-i18n="focusLanguage">Language Mechanics, Grammar & Vocabulary</option>
+                                    <option value="writing" data-i18n="focusWriting">Guided Writing & Composition Prompts</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="formatLabel">Question Format</label>
+                                <select id="worksheetFormat" class="form-select">
+                                    <option value="mixed" data-i18n="formatMixed">Mixed Quiz & Exercises</option>
+                                    <option value="mcq" data-i18n="formatMcq">Multiple Choice Questions (MCQ)</option>
+                                    <option value="solving" data-i18n="formatSolving">Problem Solving & Short Answer</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="fontLabel">Typography / Font Family</label>
+                                <select id="worksheetFont" class="form-select">
+                                    <option value="modern" data-i18n="fontModern">Modern Sans (Plus Jakarta Sans)</option>
+                                    <option value="classic" data-i18n="fontClassic">Classic Serif (Playfair / Times)</option>
+                                    <option value="clean" data-i18n="fontClean">Clean Minimal (Inter)</option>
+                                    <option value="playful" data-i18n="fontPlayful">Playful Comic (Quicksand)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="illustrationLabel">Illustrations & Visuals</label>
+                                <select id="worksheetIllustrations" class="form-select">
+                                    <option value="vector" data-i18n="illVector">Vector Diagrams & Icons</option>
+                                    <option value="lineart" data-i18n="illLineart">Minimalist Line Art</option>
+                                    <option value="infographics" data-i18n="illInfographics">Educational Infographics</option>
+                                    <option value="none" data-i18n="illNone">Text Only (No Illustrations)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="pageSizeLabel">Page Layout & Paper Size</label>
+                                <select id="worksheetPageSize" class="form-select">
+                                    <option value="a4_portrait" data-i18n="pageA4Port" selected>A4 Portrait (210 × 297 mm Standard Print)</option>
+                                    <option value="a4_landscape" data-i18n="pageA4Land">A4 Landscape (297 × 210 mm Wide Grid)</option>
+                                    <option value="us_letter" data-i18n="pageLetter">US Letter (8.5 × 11 in)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="qrLabel">QR Link / Interactive URL</label>
+                                <input type="text" id="worksheetQr" class="form-input" placeholder="https://example.com/interactive-quiz">
+                            </div>
+                            <button class="btn-action" onclick="generateAsset('worksheet')">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span data-i18n="generateWorksheet">Generate Worksheet</span>
+                            </button>
+                        </div>
+
+                        <!-- Card 2: PowerPoint Designer -->
+                        <div class="creation-card" id="cardPpt" style="display: none;">
+                            <div class="quantum-corner-tl"></div><div class="quantum-corner-tr"></div>
+                            <div class="quantum-corner-bl"></div><div class="quantum-corner-br"></div>
+                            <div class="card-header-flex">
+                                <div class="card-icon icon-red">
+                                    <i class="fa-solid fa-presentation-screen"></i>
+                                </div>
+                                <div class="card-titles">
+                                    <h3 data-i18n="pptTitle">PowerPoint Designer</h3>
+                                    <p data-i18n="pptDesc">Design professional, slide-ready educational decks with structured talking points.</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="pptTopicLabel">Presentation Topic</label>
+                                <input type="text" id="pptTopic" class="form-input" placeholder="e.g., Quantum Physics, World History">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="slideCountLabel">Slide Count</label>
+                                <select id="pptSlides" class="form-select">
+                                    <option value="5" data-i18n="slideCount5">5 Slides (Quick Brief)</option>
+                                    <option value="10" data-i18n="slideCount10">10 Slides (Standard Lesson)</option>
+                                    <option value="15" data-i18n="slideCount15">15 Slides (Deep Dive Masterclass)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="toneLabel">Presentation Tone & Style</label>
+                                <select id="pptTone" class="form-select">
+                                    <option value="academic" data-i18n="toneAcademic">Academic & Formal</option>
+                                    <option value="engaging" data-i18n="toneEngaging">Engaging & Storytelling</option>
+                                    <option value="workshop" data-i18n="toneWorkshop">Interactive Workshop</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="fontLabel">Typography / Font Family</label>
+                                <select id="pptFont" class="form-select">
+                                    <option value="modern" data-i18n="fontModern">Modern Sans (Plus Jakarta Sans)</option>
+                                    <option value="classic" data-i18n="fontClassic">Classic Serif (Playfair / Times)</option>
+                                    <option value="clean" data-i18n="fontClean">Clean Minimal (Inter)</option>
+                                    <option value="playful" data-i18n="fontPlayful">Playful Comic (Quicksand)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="illustrationLabel">Illustrations & Visuals</label>
+                                <select id="pptIllustrations" class="form-select">
+                                    <option value="vector" data-i18n="illVector">Vector Diagrams & Icons</option>
+                                    <option value="lineart" data-i18n="illLineart">Minimalist Line Art</option>
+                                    <option value="infographics" data-i18n="illInfographics">Educational Infographics</option>
+                                    <option value="none" data-i18n="illNone">Text Only (No Illustrations)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="pageSizeLabel">Page Layout & Paper Size</label>
+                                <select id="pptPageSize" class="form-select">
+                                    <option value="wide_16_9" data-i18n="page169" selected>16:9 Widescreen (Presentation Standard)</option>
+                                    <option value="a4_landscape" data-i18n="pageA4Land">A4 Landscape Handout (297 × 210 mm)</option>
+                                    <option value="a4_portrait" data-i18n="pageA4Port">A4 Portrait Print (210 × 297 mm)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="qrLabel">QR Link / Interactive URL</label>
+                                <input type="text" id="pptQr" class="form-input" placeholder="https://example.com/interactive-slides">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px;">
+                                <button class="btn-action" onclick="generateAsset('ppt')">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    <span data-i18n="generatePowerPoint">Generate PPT</span>
+                                </button>
+                                <button class="btn-action" style="background: linear-gradient(135deg, #FF5E62, #FF9966); box-shadow: 0 6px 24px rgba(255, 94, 98, 0.35);" onclick="generateAsset('ppt_video')">
+                                    <i class="fa-solid fa-circle-play"></i>
+                                    <span data-i18n="generatePptVideo">Video Presentation</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Lesson Plan Generator -->
+                        <div class="creation-card" id="cardLesson" style="display: none;">
+                            <div class="quantum-corner-tl"></div><div class="quantum-corner-tr"></div>
+                            <div class="quantum-corner-bl"></div><div class="quantum-corner-br"></div>
+                            <div class="card-header-flex">
+                                <div class="card-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                                    <i class="fa-solid fa-book-open-reader"></i>
+                                </div>
+                                <div class="card-titles">
+                                    <h3 data-i18n="lessonPlanTitle">Lesson Plan Generator</h3>
+                                    <p data-i18n="lessonPlanDesc">Design comprehensive pedagogical lesson plans with objectives, timelines, and homework assignments.</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="topicLabel">Topic / Focus</label>
+                                <input type="text" id="lessonTopic" class="form-input" placeholder="e.g., Photosynthesis, Fractions">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="durationLabel">Session Duration</label>
+                                <select id="lessonDuration" class="form-select">
+                                    <option value="30" data-i18n="dur30">30 Minutes (Mini-Lesson)</option>
+                                    <option value="45" data-i18n="dur45">45 Minutes (Standard Period)</option>
+                                    <option value="60" data-i18n="dur60" selected>60 Minutes (Deep Dive Session)</option>
+                                    <option value="90" data-i18n="dur90">90 Minutes (Block Period)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="pedagogyLabel">Pedagogical Approach</label>
+                                <select id="lessonPedagogy" class="form-select">
+                                    <option value="inquiry" data-i18n="pedInquiry">Inquiry-Based Learning</option>
+                                    <option value="direct" data-i18n="pedDirect">Direct Instruction</option>
+                                    <option value="project" data-i18n="pedProject">Project-Based Learning</option>
+                                    <option value="flipped" data-i18n="pedFlipped">Flipped Classroom</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="fontLabel">Typography / Font Family</label>
+                                <select id="lessonFont" class="form-select">
+                                    <option value="modern" data-i18n="fontModern">Modern Sans (Plus Jakarta Sans)</option>
+                                    <option value="classic" data-i18n="fontClassic">Classic Serif (Playfair / Times)</option>
+                                    <option value="clean" data-i18n="fontClean">Clean Minimal (Inter)</option>
+                                    <option value="playful" data-i18n="fontPlayful">Playful Comic (Quicksand)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="illustrationLabel">Illustrations & Visuals</label>
+                                <select id="lessonIllustrations" class="form-select">
+                                    <option value="vector" data-i18n="illVector">Vector Diagrams & Icons</option>
+                                    <option value="lineart" data-i18n="illLineart">Minimalist Line Art</option>
+                                    <option value="infographics" data-i18n="illInfographics">Educational Infographics</option>
+                                    <option value="none" data-i18n="illNone">Text Only (No Illustrations)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="pageSizeLabel">Page Layout & Paper Size</label>
+                                <select id="lessonPageSize" class="form-select">
+                                    <option value="a4_portrait" data-i18n="pageA4Port" selected>A4 Portrait (210 × 297 mm Standard Print)</option>
+                                    <option value="a4_landscape" data-i18n="pageA4Land">A4 Landscape (297 × 210 mm Overview)</option>
+                                    <option value="us_letter" data-i18n="pageLetter">US Letter (8.5 × 11 in)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="qrLabel">QR Link / Interactive URL</label>
+                                <input type="text" id="lessonQr" class="form-input" placeholder="https://example.com/lesson-resources">
+                            </div>
+                            <button class="btn-action" onclick="generateAsset('lesson')">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span data-i18n="generateLessonPlan">Generate Lesson Plan</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Interactive 3D Swipe Slider Section -->
+                    <div class="slider-3d-container">
+                        <div class="slider-3d-header">
+                            <h3 class="slider-3d-title" data-i18n="sliderSectionTitle">Featured AI Templates</h3>
+                            <div class="slider-3d-controls">
+                                <button class="slider-ctrl-btn" onclick="slidePrev()"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button class="slider-ctrl-btn" onclick="slideNext()"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        <div class="slider-3d-viewport" id="sliderViewport">
+                            <div class="slider-3d-track" id="sliderTrack">
+                                <!-- Card 1 -->
+                                <div class="slide-card-3d" data-index="0">
+                                    <div>
+                                        <span class="slide-badge">PowerPoint</span>
+                                        <h4 class="slide-title">Quantum Mechanics 101</h4>
+                                        <p class="slide-desc">Complete 12-slide animated lesson with quantum states and wave equations.</p>
+                                    </div>
+                                    <div class="slide-footer">
+                                        <span><i class="fa-regular fa-clock"></i> 10 min build</span>
+                                        <span style="color: var(--sapphire-primary); font-weight: 700;">PRO</span>
+                                    </div>
+                                </div>
+                                <!-- Card 2 -->
+                                <div class="slide-card-3d" data-index="1">
+                                    <div>
+                                        <span class="slide-badge" style="background: rgba(255, 94, 98, 0.15); color: #FF5E62;">Worksheet</span>
+                                        <h4 class="slide-title">Advanced Calculus Practice</h4>
+                                        <p class="slide-desc">Derivatives, integrals, and step-by-step answer key for high school seniors.</p>
+                                    </div>
+                                    <div class="slide-footer">
+                                        <span><i class="fa-regular fa-clock"></i> 5 min build</span>
+                                        <span style="color: var(--sapphire-primary); font-weight: 700;">PRO</span>
+                                    </div>
+                                </div>
+                                <!-- Card 3 -->
+                                <div class="slide-card-3d" data-index="2">
+                                    <div>
+                                        <span class="slide-badge" style="background: rgba(255, 215, 0, 0.15); color: var(--gold-start);">Interactive</span>
+                                        <h4 class="slide-title">World History Timeline</h4>
+                                        <p class="slide-desc">Interactive epochs from ancient civilizations to the modern digital era.</p>
+                                    </div>
+                                    <div class="slide-footer">
+                                        <span><i class="fa-regular fa-clock"></i> 8 min build</span>
+                                        <span style="color: var(--gold-start); font-weight: 700;">EXPERT</span>
+                                    </div>
+                                </div>
+                                <!-- Card 4 -->
+                                <div class="slide-card-3d" data-index="3">
+                                    <div>
+                                        <span class="slide-badge">PowerPoint</span>
+                                        <h4 class="slide-title">Cellular Biology & DNA</h4>
+                                        <p class="slide-desc">Visual breakdown of cellular structures, mitosis, and genetics for biology classes.</p>
+                                    </div>
+                                    <div class="slide-footer">
+                                        <span><i class="fa-regular fa-clock"></i> 6 min build</span>
+                                        <span style="color: var(--sapphire-primary); font-weight: 700;">PRO</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Worksheets List View -->
+                <div class="tab-panel" id="tab-worksheets">
+                    <div class="creation-card" style="max-width: 600px;">
+                        <h3 style="margin-bottom: 12px;" data-i18n="navWorksheets">Worksheets</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 20px;" data-i18n="worksheetDesc">Generate comprehensive exercises, quizzes, and answer keys instantly.</p>
+                        <button class="btn-action" onclick="switchTab('dashboard', document.querySelector('.sidebar-menu .nav-item'))">
+                            <i class="fa-solid fa-plus"></i> Create New Worksheet
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 3: PowerPoints List View -->
+                <div class="tab-panel" id="tab-powerpoints">
+                    <div class="creation-card" style="max-width: 600px;">
+                        <h3 style="margin-bottom: 12px;" data-i18n="navPowerPoints">PowerPoints</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 20px;" data-i18n="pptDesc">Design professional, slide-ready educational decks with structured talking points.</p>
+                        <button class="btn-action" onclick="switchTab('dashboard', document.querySelector('.sidebar-menu .nav-item'))">
+                            <i class="fa-solid fa-plus"></i> Create New Presentation
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 4: API Key Management View -->
+                <div class="tab-panel" id="tab-apikey">
+                    <div class="creation-card" style="max-width: 600px;">
+                        <div class="card-header-flex">
+                            <div class="card-icon icon-sapphire">
+                                <i class="fa-solid fa-key"></i>
+                            </div>
+                            <div class="card-titles">
+                                <h3 data-i18n="apiKeyTitle">App & Gemini API Key</h3>
+                                <p data-i18n="apiKeyDesc">Configure your runtime API key securely for AI generation features.</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="apiKeyLabel">Gemini API Key</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="password" id="apiKeyInput" class="form-input" placeholder="Enter API Key or configured via Secrets">
+                                <button class="btn-secondary" style="width: auto; padding: 0 16px;" onclick="toggleApiKeyVisibility()"><i class="fa-solid fa-eye" id="eyeIcon"></i></button>
+                            </div>
+                        </div>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;" data-i18n="apiKeyHelp">
+                            Note: API keys are securely managed via the Secrets panel in AI Studio and accessed via BuildConfig. You can enter or override your key here.
+                        </p>
+                        <button class="btn-action" onclick="saveApiKey()">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span data-i18n="saveKeyBtn">Save API Key</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal-card" style="max-width: 640px; text-align: left; padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="modal-icon" style="font-size: 28px; margin-bottom: 0;" id="modalHeaderIcon">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="modal-title" id="modalTitle" style="margin-bottom: 2px; font-size: 19px;">Asset Generated!</h3>
+                        <p class="modal-desc" id="modalDesc" style="margin-bottom: 0; font-size: 12px;" data-i18n="successMsg">Successfully generated asset! Ready for download.</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; padding: 4px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Colorful Textbook Page Live Preview Container (for Worksheets & Diagnostic Tests) -->
+            <div id="textbookPreviewContainer" style="display: none; background: #FFFFFF; color: #1E293B; border-radius: 18px; padding: 18px; margin-bottom: 16px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.4), 0 10px 30px rgba(0,0,0,0.3); font-family: 'Plus Jakarta Sans', sans-serif; border: 2.5px solid #00F0FF; outline: 3px solid rgba(168, 85, 247, 0.4); max-height: 520px; overflow-y: auto;">
+                
+                <!-- Textbook Page Top Banner -->
+                <div style="background: linear-gradient(135deg, #1E3A8A, #2563EB); color: #FFFFFF; padding: 12px 16px; border-radius: 12px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: #00F0FF; color: #0F172A; font-weight: 800; padding: 3px 8px; border-radius: 6px; font-size: 11px; text-transform: uppercase;">Unit 1</span>
+                            <h2 style="font-size: 18px; font-weight: 800; margin: 0; color: #FFFFFF;" id="tbTopicHeader">Entertaining Myself</h2>
+                        </div>
+                        <div style="font-size: 11px; color: #93C5FD; margin-top: 3px; font-weight: 600;">
+                            Lesson 1: Let's Have Fun &nbsp;•&nbsp; <span style="font-style: italic; color: #E0F2FE;">Hobbies make life brighter! 😊</span>
+                        </div>
+                    </div>
+                    <div style="background: #FEF08A; color: #854D0E; font-weight: 700; font-size: 10px; padding: 6px 10px; border-radius: 8px; border: 1.5px dashed #CA8A04; text-align: center;">
+                        Practice today for a<br>brighter tomorrow! 😊
+                    </div>
+                </div>
+
+                <!-- Main Content Grid: Exercises + Side Callouts -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                    
+                    <!-- Left Column: Sections & Exercises -->
+                    <div>
+                        <!-- Section A: Grammar Practice -->
+                        <div style="margin-bottom: 14px;">
+                            <div style="background: #10B981; color: #FFFFFF; font-weight: 800; font-size: 12px; padding: 5px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                                <span style="background: #047857; color: #FFF; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">A</span>
+                                <span>Grammar Practice</span>
+                                <span style="font-weight: 500; font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 8px; margin-left: 2px;">Like / Don't like / Love / Prefer + verb + -ing</span>
+                            </div>
+
+                            <!-- Ex 1 -->
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px;">
+                                <div style="font-weight: 700; font-size: 11px; color: #0F172A; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                                    <span style="background: #10B981; color: #FFF; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">1</span>
+                                    Complete sentences with correct verb form:
+                                </div>
+                                <div style="font-size: 10px; color: #334155; line-height: 1.7;">
+                                    1. I <span style="border-bottom: 1.5px dotted #3B82F6; color: #2563EB; font-weight: 700; padding: 0 4px;">like playing</span> (play) basketball with my friends.<br>
+                                    2. She doesn't like <span style="border-bottom: 1.5px dotted #3B82F6; padding: 0 12px;"></span> (do) homework.<br>
+                                    3. We love <span style="border-bottom: 1.5px dotted #3B82F6; padding: 0 12px;"></span> (watch) films at the weekend.
+                                </div>
+                            </div>
+
+                            <!-- Ex 2 -->
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px;">
+                                <div style="font-weight: 700; font-size: 11px; color: #0F172A; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                                    <span style="background: #10B981; color: #FFF; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">2</span>
+                                    Choose the correct option:
+                                </div>
+                                <div style="font-size: 10px; color: #334155; line-height: 1.7;">
+                                    1. My sister ( <b>loves</b> / like / liking ) reading adventure stories.<br>
+                                    2. He ( don't like / <b>doesn't like</b> / not like ) swimming.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section B: Language in Context -->
+                        <div style="margin-bottom: 14px;">
+                            <div style="background: #2563EB; color: #FFFFFF; font-weight: 800; font-size: 12px; padding: 5px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                                <span style="background: #1D4ED8; color: #FFF; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">B</span>
+                                <span>Language in Context</span>
+                                <span style="font-weight: 500; font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 8px; margin-left: 2px;">Vocabulary & Expressions</span>
+                            </div>
+
+                            <!-- Dialogue Matching Box -->
+                            <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 8px 10px;">
+                                <div style="font-size: 10px; color: #1E3A8A; font-weight: 700; margin-bottom: 4px;">Complete dialogue with words from box:</div>
+                                <div style="background: #DBEAFE; border: 1px solid #93C5FD; border-radius: 4px; padding: 3px 6px; font-size: 10px; text-align: center; font-weight: 700; color: #1E40AF; margin-bottom: 6px;">
+                                    go &nbsp;•&nbsp; enjoy &nbsp;•&nbsp; don't like &nbsp;•&nbsp; play &nbsp;•&nbsp; prefer &nbsp;•&nbsp; love
+                                </div>
+                                <div style="font-size: 10px; color: #1E293B; line-height: 1.5;">
+                                    <b>Ali:</b> What do you <u>1) enjoy</u> doing in your free time?<br>
+                                    <b>Ben:</b> I really <u>2) love</u> playing football!
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section C: Writing -->
+                        <div>
+                            <div style="background: #8B5CF6; color: #FFFFFF; font-weight: 800; font-size: 12px; padding: 5px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                                <span style="background: #6D28D9; color: #FFF; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">C</span>
+                                <span>Writing</span>
+                                <span style="font-weight: 500; font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 8px; margin-left: 2px;">A short paragraph</span>
+                            </div>
+                            <div style="background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 8px; padding: 8px 10px;">
+                                <div style="font-size: 10px; font-weight: 700; color: #5B21B6; margin-bottom: 4px;">Write a short paragraph (4-5 sentences) about your hobbies:</div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 16px; margin-bottom: 3px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 16px; margin-bottom: 3px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 16px;"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column: Callout Cards & Illustrations -->
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        
+                        <!-- Remember Box -->
+                        <div style="background: #FCE7F3; border: 1.5px solid #F472B6; border-radius: 10px; padding: 8px;">
+                            <div style="font-weight: 800; font-size: 11px; color: #9D174D; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                <i class="fa-solid fa-lightbulb" style="color: #E11D48;"></i>
+                                Remember!
+                            </div>
+                            <ul style="font-size: 9.5px; color: #831843; padding-left: 12px; line-height: 1.4; font-weight: 600;">
+                                <li>like + -ing</li>
+                                <li>don't like + -ing</li>
+                                <li>love + -ing</li>
+                                <li>prefer + -ing</li>
+                            </ul>
+                            <div style="font-size: 8.5px; color: #9D174D; font-style: italic; margin-top: 4px;">
+                                To talk about what we enjoy doing.
+                            </div>
+                        </div>
+
+                        <!-- Spelling Help Box -->
+                        <div style="background: #E0F2FE; border: 1.5px solid #38BDF8; border-radius: 10px; padding: 8px;">
+                            <div style="font-weight: 800; font-size: 11px; color: #075985; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                <i class="fa-solid fa-pencil" style="color: #0284C7;"></i>
+                                Spelling Help!
+                            </div>
+                            <div style="font-size: 9.5px; color: #0C4A6E; font-weight: 600; line-height: 1.4;">
+                                • play → playing<br>
+                                • make → making<br>
+                                • swim → swimming<br>
+                                • run → running
+                            </div>
+                        </div>
+
+                        <!-- Character Badge -->
+                        <div style="background: linear-gradient(135deg, #FEF08A, #FDE047); border: 1.5px solid #EAB308; border-radius: 10px; padding: 8px; text-align: center;">
+                            <div style="font-size: 20px;">👦📚</div>
+                            <div style="font-size: 9px; font-weight: 800; color: #713F12;">Practice makes progress! 😊</div>
+                        </div>
+
+                        <!-- Writing Motivation Box -->
+                        <div style="background: #F3E8FF; border: 1.5px dashed #A855F7; border-radius: 10px; padding: 6px; text-align: center;">
+                            <div style="font-size: 9px; font-weight: 800; color: #6B21A8;">Be creative! Write about what you love! 😊</div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Textbook Page Footer -->
+                <div style="border-top: 1.5px solid #E2E8F0; margin-top: 12px; padding-top: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 700; color: #64748B;">
+                    <span>English Year 6</span>
+                    <span style="background: #2563EB; color: #FFF; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">3</span>
+                    <span>Unit 1 - Lesson 1 &nbsp;•&nbsp; Learn • Practise • Grow</span>
+                </div>
+
+            </div>
+
+            <!-- Video Presentation Preview Player Container (for PowerPoint & Video PPT) -->
+            <div id="videoPreviewContainer" style="display: none; background: #000; border-radius: 12px; overflow: hidden; position: relative; aspect-ratio: 16/9; margin-bottom: 16px; border: 1px solid rgba(0, 240, 255, 0.3);">
+                <div id="videoSlideDisplay" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; background: linear-gradient(135deg, #0d1B2A, #1B263B); color: #fff;">
+                    <span id="videoSlideTag" style="font-size: 10px; text-transform: uppercase; font-weight: 700; color: var(--sapphire-primary); letter-spacing: 1px; margin-bottom: 6px;">AI Video Presentation • Slide 1/5</span>
+                    <h2 id="videoSlideHeading" style="font-size: 18px; font-weight: 800; margin-bottom: 8px; color: #FFFFFF;">Quantum Physics & Wave Mechanics</h2>
+                    <p id="videoSlideText" style="font-size: 12px; color: #CBD5E1; max-width: 85%; line-height: 1.4;">Wave-particle duality explains how matter and light exhibit behaviors of both waves and particles.</p>
+                </div>
+                <!-- Video Player Control Bar -->
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <button id="videoPlayBtn" onclick="toggleVideoPlayback()" style="background: var(--sapphire-primary); border: none; color: #000; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-play" id="videoPlayIcon"></i></button>
+                    <div style="flex: 1; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; overflow: hidden;">
+                        <div id="videoProgressBar" style="width: 0%; height: 100%; background: var(--sapphire-primary); transition: width 0.3s linear;"></div>
+                    </div>
+                    <span id="videoTimeText" style="font-size: 10px; color: #94A3B8; font-family: monospace;">00:00 / 00:30</span>
+                </div>
+            </div>
+
+            <!-- Multi-Format Export Options Grid -->
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.6px; margin-bottom: 8px; display: block;">Export Format & Options</label>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                    <button class="btn-secondary" onclick="exportFile('pdf')" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; padding: 10px;">
+                        <i class="fa-solid fa-file-pdf" style="color: #FF5E62;"></i>
+                        <span data-i18n="exportPdf">Export PDF</span>
+                    </button>
+                    <button class="btn-secondary" onclick="exportFile('pptx')" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; padding: 10px;">
+                        <i class="fa-solid fa-file-powerpoint" style="color: #FF9966;"></i>
+                        <span data-i18n="exportPptx">Export PPTX / Doc</span>
+                    </button>
+                    <button class="btn-secondary" onclick="exportFile('mp4')" id="exportVideoBtn" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; padding: 10px;">
+                        <i class="fa-solid fa-video" style="color: var(--sapphire-primary);"></i>
+                        <span data-i18n="exportVideo">Download MP4 Video</span>
+                    </button>
+                    <button class="btn-secondary" onclick="exportFile('print')" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; padding: 10px;">
+                        <i class="fa-solid fa-print" style="color: #10B981;"></i>
+                        <span data-i18n="exportPrint">Print-Optimized View</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-btns">
+                <button class="btn-secondary" onclick="closeModal()" data-i18n="modalClose">Close Preview</button>
+                <button class="btn-action" style="padding: 12px;" onclick="exportFile('default')">
+                    <i class="fa-solid fa-download"></i>
+                    <span data-i18n="downloadBtn">Download File</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightweight JavaScript Translation Architecture & Interactivity -->
+    <script>
+        const translations = {
+            en: {
+                appTitle: "EduGen Studio",
+                targetLang: "Target Content Language",
+                navDashboard: "Dashboard",
+                navWorksheets: "Worksheets",
+                navPowerPoints: "PowerPoints",
+                upgradeTitle: "EduGen Pro",
+                upgradeDesc: "Unlock AI models & unlimited exports.",
+                upgradeBtn: "Upgrade Now",
+                headerTitle: "AI Asset Generator",
+                headerSubtitle: "Dual-language educational content builder powered by advanced AI modules.",
+                worksheetTitle: "Worksheet Creator",
+                worksheetDesc: "Generate comprehensive exercises, quizzes, and answer keys instantly.",
+                topicLabel: "Topic / Focus",
+                topicPlaceholder: "e.g., Photosynthesis, Fractions",
+                levelLabel: "Level / Class",
+                levelElem: "Elementary (Grades 1-5)",
+                levelMiddle: "Middle School (Grades 6-8)",
+                levelHigh: "High School (Grades 9-12)",
+                levelCollege: "Higher Education / University",
+                generateWorksheet: "Generate Worksheet",
+                pptTitle: "PowerPoint Designer",
+                pptDesc: "Design professional, slide-ready educational decks with structured talking points.",
+                pptTopicLabel: "Presentation Topic",
+                pptTopicPlaceholder: "e.g., Quantum Physics, World History",
+                slideCountLabel: "Slide Count",
+                slideCount5: "5 Slides (Quick Brief)",
+                slideCount10: "10 Slides (Standard Lesson)",
+                slideCount15: "15 Slides (Deep Dive Masterclass)",
+                generatePowerPoint: "Generate PPT",
+                generatePptVideo: "Video Presentation",
+                exportPdf: "Export PDF",
+                exportPptx: "Export PPTX / Doc",
+                exportVideo: "Download MP4 Video",
+                exportPrint: "Print-Optimized View",
+                successMsg: "Successfully generated asset! Choose your export format below.",
+                modalClose: "Close Preview",
+                downloadBtn: "Download File",
+                navApiKey: "API Key",
+                apiKeyTitle: "App & Gemini API Key",
+                apiKeyDesc: "Configure your runtime API key securely for AI generation features.",
+                apiKeyLabel: "Gemini API Key",
+                apiKeyHelp: "Note: API keys are securely managed via the Secrets panel in AI Studio and accessed via BuildConfig. You can enter or override your key here.",
+                saveKeyBtn: "Save API Key",
+                sliderSectionTitle: "Featured AI Templates",
+                themeLabel: "Color Theme",
+                toggleSpaces: "Customize & Themes",
+                formatLabel: "Question Format",
+                formatMixed: "Mixed Quiz & Exercises",
+                formatMcq: "Multiple Choice Questions (MCQ)",
+                formatSolving: "Problem Solving & Short Answer",
+                toneLabel: "Presentation Tone & Style",
+                toneAcademic: "Academic & Formal",
+                toneEngaging: "Engaging & Storytelling",
+                toneWorkshop: "Interactive Workshop",
+                fontLabel: "Typography / Font Family",
+                fontModern: "Modern Sans (Plus Jakarta Sans)",
+                fontClassic: "Classic Serif (Playfair / Times)",
+                fontClean: "Clean Minimal (Inter)",
+                fontPlayful: "Playful Comic (Quicksand)",
+                illustrationLabel: "Illustrations & Visuals",
+                illVector: "Vector Diagrams & Icons",
+                illLineart: "Minimalist Line Art",
+                illInfographics: "Educational Infographics",
+                illNone: "Text Only (No Illustrations)",
+                qrLabel: "QR Link / Interactive URL",
+                batchModeBtn: "Enable Multi-Select Batch Queue",
+                batchPanelTitle: "Batch Queue Manager (Multi-Select Mode)",
+                batchPanelDesc: "Queue multiple topics to generate a batch of worksheets or presentations in one click.",
+                addToQueueBtn: "Add to Queue",
+                generateBatchBtn: "Generate Batch Queue (All Topics)",
+                lessonPlanTitle: "Lesson Plan Generator",
+                lessonPlanDesc: "Design comprehensive pedagogical lesson plans with objectives, timelines, and homework assignments.",
+                durationLabel: "Session Duration",
+                dur30: "30 Minutes (Mini-Lesson)",
+                dur45: "45 Minutes (Standard Period)",
+                dur60: "60 Minutes (Deep Dive Session)",
+                dur90: "90 Minutes (Block Period)",
+                pedagogyLabel: "Pedagogical Approach",
+                pedInquiry: "Inquiry-Based Learning",
+                pedDirect: "Direct Instruction",
+                pedProject: "Project-Based Learning",
+                pedFlipped: "Flipped Classroom",
+                generateLessonPlan: "Generate Lesson Plan",
+                pageSizeLabel: "Page Layout & Paper Size",
+                pageA4Port: "A4 Portrait (210 × 297 mm Standard Print)",
+                pageA4Land: "A4 Landscape (297 × 210 mm)",
+                pageLetter: "US Letter (8.5 × 11 in)",
+                page169: "16:9 Widescreen (Presentation Standard)",
+                testTypeLabel: "Assessment Type",
+                typeDiagnostic: "Diagnostic Test (Placement & Baseline Benchmark)",
+                typeMock: "Full Mock Exam / Practice Test",
+                typeStandard: "Standard Exercise Worksheet",
+                skillsFocusLabel: "Language Skills Focus",
+                focusTri: "Complete (Reading Comprehension + Language + Writing)",
+                focusReading: "Reading Comprehension & Text Analysis",
+                focusLanguage: "Language Mechanics, Grammar & Vocabulary",
+                focusWriting: "Guided Writing & Composition Prompts"
+            },
+            fr: {
+                appTitle: "EduGen Studio",
+                targetLang: "Langue de Contenu Cible",
+                navDashboard: "Tableau de Bord",
+                navWorksheets: "Fiches d'Exercices",
+                navPowerPoints: "Présentations PPT",
+                upgradeTitle: "EduGen Pro",
+                upgradeDesc: "Débloquez l'IA et exports illimités.",
+                upgradeBtn: "Mettre à niveau",
+                headerTitle: "Générateur d'Actifs IA",
+                headerSubtitle: "Créateur de contenu éducatif bilingue alimenté par des modules d'IA avancés.",
+                worksheetTitle: "Créateur de Fiches",
+                worksheetDesc: "Générez instantanément des exercices complets, quiz et corrigés.",
+                topicLabel: "Sujet / Thème",
+                topicPlaceholder: "ex: Photosynthèse, Fractions",
+                levelLabel: "Niveau / Classe",
+                levelElem: "Élémentaire (CP - CM2)",
+                levelMiddle: "Collège (6ème - 3ème)",
+                levelHigh: "Lycée (2nde - Terminale)",
+                levelCollege: "Enseignement supérieur",
+                generateWorksheet: "Générer la Fiche",
+                pptTitle: "Concepteur PowerPoint",
+                pptDesc: "Concevez des présentations éducatives professionnelles avec points clés.",
+                pptTopicLabel: "Sujet de Présentation",
+                pptTopicPlaceholder: "ex: Physique Quantique, Histoire",
+                slideCountLabel: "Nombre de Diapos",
+                slideCount5: "5 Diapos (Résumé Rapide)",
+                slideCount10: "10 Diapos (Leçon Standard)",
+                slideCount15: "15 Diapos (Cours Approfondi)",
+                generatePowerPoint: "Générer le PPT",
+                generatePptVideo: "Vidéo Présentation",
+                exportPdf: "Exporter en PDF",
+                exportPptx: "Exporter en PPTX / Doc",
+                exportVideo: "Télécharger Vidéo MP4",
+                exportPrint: "Vue d'Impression Épurée",
+                successMsg: "Actif généré avec succès ! Choisissez votre format d'exportation ci-dessous.",
+                modalClose: "Fermer l'Aperçu",
+                downloadBtn: "Télécharger le Fichier",
+                navApiKey: "Clé API",
+                apiKeyTitle: "Clé API App & Gemini",
+                apiKeyDesc: "Configurez votre clé API d'exécution en toute sécurité pour les fonctionnalités d'IA.",
+                apiKeyLabel: "Clé API Gemini",
+                apiKeyHelp: "Remarque : Les clés API sont gérées en toute sécurité via le panneau Secrets dans AI Studio et accessibles via BuildConfig. Vous pouvez saisir ou remplacer votre clé ici.",
+                saveKeyBtn: "Enregistrer la Clé API",
+                sliderSectionTitle: "Modèles IA en Vedette",
+                themeLabel: "Thème de Couleurs",
+                toggleSpaces: "Personnaliser & Thèmes",
+                formatLabel: "Format des Questions",
+                formatMixed: "Quiz & Exercices Mixtes",
+                formatMcq: "Questions à Choix Multiples (QCM)",
+                formatSolving: "Résolution de Problèmes & Rédaction",
+                toneLabel: "Ton & Style de Présentation",
+                toneAcademic: "Académique & Formel",
+                toneEngaging: "Captivant & Narratif",
+                toneWorkshop: "Atelier Interactif",
+                fontLabel: "Typographie / Police",
+                fontModern: "Sans Moderne (Plus Jakarta Sans)",
+                fontClassic: "Sérif Classique (Playfair / Times)",
+                fontClean: "Minimal Épuré (Inter)",
+                fontPlayful: "Bande Dessinée (Quicksand)",
+                illustrationLabel: "Illustrations & Visuels",
+                illVector: "Diagrammes Vectoriels & Icônes",
+                illLineart: "Art Linéaire Minimaliste",
+                illInfographics: "Infographies Éducatives",
+                illNone: "Texte Unique (Sans Illustration)",
+                qrLabel: "Lien QR / URL Interactive",
+                batchModeBtn: "Activer la File d'Attente Multi-Sélection",
+                batchPanelTitle: "Gestionnaire de File d'Attente (Mode Multi-Sélection)",
+                batchPanelDesc: "Mettez en file d'attente plusieurs sujets pour générer un lot de fiches ou de présentations en un clic.",
+                addToQueueBtn: "Ajouter à la File",
+                generateBatchBtn: "Générer la File d'Attente (Tous les Sujets)",
+                lessonPlanTitle: "Générateur de Leçons",
+                lessonPlanDesc: "Concevez des plans de cours pédagogiques complets avec objectifs, chronologies et devoirs.",
+                durationLabel: "Durée de la Session",
+                dur30: "30 Minutes (Mini-Leçon)",
+                dur45: "45 Minutes (Période Standard)",
+                dur60: "60 Minutes (Session Approfondie)",
+                dur90: "90 Minutes (Cours Double)",
+                pedagogyLabel: "Approche Pédagogique",
+                pedInquiry: "Apprentissage par l'Enquête",
+                pedDirect: "Instruction Directe",
+                pedProject: "Apprentissage par Projet",
+                pedFlipped: "Classe Inversée",
+                generateLessonPlan: "Générer le Plan de Cours",
+                pageSizeLabel: "Mise en Page & Format Papier",
+                pageA4Port: "A4 Portrait (210 × 297 mm Impression Standard)",
+                pageA4Land: "A4 Paysage (297 × 210 mm)",
+                pageLetter: "US Letter (8.5 × 11 in)",
+                page169: "16:9 Écran Large (Standard Présentation)",
+                testTypeLabel: "Type d'Évaluation",
+                typeDiagnostic: "Test Diagnostique (Évaluation de Niveau)",
+                typeMock: "Examen Blanc / Test Entraînement",
+                typeStandard: "Fiche d'Exercices Standard",
+                skillsFocusLabel: "Compétences Linguistiques",
+                focusTri: "Complet (Compréhension + Langue + Expression Écrite)",
+                focusReading: "Compréhension Écrite & Analyse de Texte",
+                focusLanguage: "Maniement de la Langue, Grammaire & Vocabulaire",
+                focusWriting: "Expression Écrite & Sujets de Rédaction"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('langEnBtn').classList.toggle('active', lang === 'en');
+            document.getElementById('langFrBtn').classList.toggle('active', lang === 'fr');
+
+            // Translate all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            // Translate placeholders
+            const wsTopic = document.getElementById('worksheetTopic');
+            const pptTopic = document.getElementById('pptTopic');
+            const lessonTopic = document.getElementById('lessonTopic');
+            if (wsTopic) wsTopic.placeholder = lang === 'fr' ? "ex: Photosynthèse, Fractions" : "e.g., Photosynthesis, Fractions";
+            if (pptTopic) pptTopic.placeholder = lang === 'fr' ? "ex: Physique Quantique, Histoire" : "e.g., Quantum Physics, World History";
+            if (lessonTopic) lessonTopic.placeholder = lang === 'fr' ? "ex: Photosynthèse, Fractions" : "e.g., Photosynthesis, Fractions";
+        }
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            document.querySelectorAll('.sidebar-menu .nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (element) {
+                element.classList.add('active');
+            }
+
+            // Close mobile sidebar if open
+            document.getElementById('sidebar').classList.remove('mobile-open');
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        }
+
+        function toggleCreatorCard(type) {
+            const types = ['worksheet', 'ppt', 'lesson'];
+            types.forEach(t => {
+                const cardKey = t === 'ppt' ? 'Ppt' : t.charAt(0).toUpperCase() + t.slice(1);
+                const card = document.getElementById('card' + cardKey);
+                const btn = document.getElementById('btnToggle' + cardKey);
+                if (t === type) {
+                    const isVisible = card.style.display === 'block';
+                    card.style.display = isVisible ? 'none' : 'block';
+                    if (!isVisible) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                    if (btn) btn.style.borderColor = isVisible ? 'transparent' : 'var(--sapphire-primary)';
+                } else {
+                    if (card) card.style.display = 'none';
+                    if (btn) btn.style.borderColor = 'transparent';
+                }
+            });
+        }
+
+        let isVideoPlaying = false;
+        let videoInterval = null;
+        let videoProgress = 0;
+        let currentVideoSlide = 0;
+
+        const dummySlides = [
+            { title: "Quantum Physics & Wave Mechanics", desc: "Wave-particle duality explains how matter and light exhibit behaviors of both waves and particles." },
+            { title: "Schrödinger's Wave Equation", desc: "Formulated in 1925, describing how the quantum state of a physical system changes over time." },
+            { title: "Quantum Entanglement", desc: "Particles become interconnected such that the state of one instantly influences the other." },
+            { title: "Heisenberg Uncertainty Principle", desc: "It is impossible to measure both position and momentum of a particle simultaneously with absolute precision." },
+            { title: "Practical Applications", desc: "Quantum computing, MRI imaging, lasers, and semiconductor technology." }
+        ];
+
+        function toggleVideoPlayback() {
+            const icon = document.getElementById('videoPlayIcon');
+            if (isVideoPlaying) {
+                clearInterval(videoInterval);
+                isVideoPlaying = false;
+                if (icon) icon.className = 'fa-solid fa-play';
+            } else {
+                isVideoPlaying = true;
+                if (icon) icon.className = 'fa-solid fa-pause';
+                videoInterval = setInterval(() => {
+                    videoProgress += 2;
+                    if (videoProgress > 100) {
+                        videoProgress = 0;
+                        currentVideoSlide = (currentVideoSlide + 1) % dummySlides.length;
+                        updateVideoSlideUI();
+                    }
+                    const pBar = document.getElementById('videoProgressBar');
+                    const tText = document.getElementById('videoTimeText');
+                    if (pBar) pBar.style.width = videoProgress + '%';
+                    if (tText) {
+                        const secs = Math.floor((videoProgress / 100) * 30);
+                        tText.textContent = `00:${secs < 10 ? '0' + secs : secs} / 00:30`;
+                    }
+                }, 300);
+            }
+        }
+
+        function updateVideoSlideUI() {
+            const slide = dummySlides[currentVideoSlide];
+            const tag = document.getElementById('videoSlideTag');
+            const heading = document.getElementById('videoSlideHeading');
+            const text = document.getElementById('videoSlideText');
+            if (tag) tag.textContent = `AI Video Presentation • Slide ${currentVideoSlide + 1}/${dummySlides.length}`;
+            if (heading) heading.textContent = slide.title;
+            if (text) text.textContent = slide.desc;
+        }
+
+        function generateAsset(type) {
+            const modal = document.getElementById('resultModal');
+            const titleEl = document.getElementById('modalTitle');
+            const videoContainer = document.getElementById('videoPreviewContainer');
+            const textbookContainer = document.getElementById('textbookPreviewContainer');
+            const exportVideoBtn = document.getElementById('exportVideoBtn');
+
+            if (type === 'worksheet') {
+                const topicInput = document.getElementById('worksheetTopic');
+                const tbTopicHeader = document.getElementById('tbTopicHeader');
+                if (topicInput && topicInput.value.trim() !== '' && tbTopicHeader) {
+                    tbTopicHeader.textContent = topicInput.value.trim();
+                }
+                titleEl.textContent = currentLang === 'fr' ? "Fiche d'Exercices Illustrée Prête !" : "Illustrated Textbook Worksheet Ready!";
+                if (textbookContainer) textbookContainer.style.display = 'block';
+                if (videoContainer) videoContainer.style.display = 'none';
+                if (exportVideoBtn) exportVideoBtn.style.display = 'none';
+            } else if (type === 'ppt' || type === 'ppt_video') {
+                titleEl.textContent = type === 'ppt_video' 
+                    ? (currentLang === 'fr' ? "Vidéo de Présentation Prête !" : "Video Presentation Ready!")
+                    : (currentLang === 'fr' ? "Présentation PowerPoint Prête !" : "PowerPoint Generated!");
+                if (textbookContainer) textbookContainer.style.display = 'none';
+                if (videoContainer) videoContainer.style.display = 'block';
+                if (exportVideoBtn) exportVideoBtn.style.display = 'flex';
+                currentVideoSlide = 0;
+                videoProgress = 0;
+                updateVideoSlideUI();
+            } else {
+                titleEl.textContent = currentLang === 'fr' ? "Plan de Cours Prêt !" : "Lesson Plan Generated!";
+                if (textbookContainer) textbookContainer.style.display = 'block';
+                if (videoContainer) videoContainer.style.display = 'none';
+                if (exportVideoBtn) exportVideoBtn.style.display = 'none';
+            }
+            modal.classList.add('show');
+        }
+
+        function exportFile(format) {
+            if (format === 'print') {
+                window.print();
+            } else if (format === 'pdf') {
+                alert(currentLang === 'fr' ? "Génération et téléchargement du PDF haute résolution..." : "Generating & downloading high-resolution PDF...");
+            } else if (format === 'pptx') {
+                alert(currentLang === 'fr' ? "Exportation du fichier PowerPoint (.pptx)..." : "Exporting editable PowerPoint file (.pptx)...");
+            } else if (format === 'mp4') {
+                alert(currentLang === 'fr' ? "Téléchargement de la vidéo de leçon MP4..." : "Downloading MP4 video lesson...");
+            } else {
+                alert(currentLang === 'fr' ? "Téléchargement du fichier démarré..." : "Starting file download...");
+            }
+        }
+
+        function closeModal() {
+            if (isVideoPlaying) {
+                toggleVideoPlayback();
+            }
+            document.getElementById('resultModal').classList.remove('show');
+        }
+
+        function triggerUpgrade() {
+            alert(currentLang === 'fr' ? "Redirection vers le portail de mise à niveau EduGen Pro..." : "Redirecting to EduGen Pro Upgrade Portal...");
+        }
+
+        function setApiKey(key) {
+            const input = document.getElementById('apiKeyInput');
+            if (input) {
+                if (key && key.trim() !== '') {
+                    input.value = key;
+                    localStorage.setItem('edugen_api_key', key);
+                } else {
+                    const saved = localStorage.getItem('edugen_api_key');
+                    if (saved) input.value = saved;
+                }
+            }
+        }
+
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('apiKeyInput');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value;
+            localStorage.setItem('edugen_api_key', key);
+            alert(currentLang === 'fr' ? "Clé API enregistrée avec succès !" : "API Key saved successfully!");
+        }
+
+        // Initialize API key from storage on load if available
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('edugen_api_key')) {
+                localStorage.setItem('edugen_api_key', 'AIzaSyDefaultEduGenKey2026Active');
+            }
+            setApiKey(localStorage.getItem('edugen_api_key'));
+            update3DSlider();
+            renderBatchTags();
+            const savedTheme = localStorage.getItem('edugen_theme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            }
+        });
+
+        let batchTopics = ["Photosynthesis", "Fraction Math", "Cell Biology"];
+
+        function toggleBatchMode() {
+            const panel = document.getElementById('batchPanel');
+            panel.classList.toggle('active');
+            renderBatchTags();
+        }
+
+        function addTopicToBatch() {
+            const input = document.getElementById('batchTopicInput');
+            const val = input.value.trim();
+            if (val && !batchTopics.includes(val)) {
+                batchTopics.push(val);
+                input.value = '';
+                renderBatchTags();
+            }
+        }
+
+        function removeBatchTopic(topic) {
+            batchTopics = batchTopics.filter(t => t !== topic);
+            renderBatchTags();
+        }
+
+        function renderBatchTags() {
+            const container = document.getElementById('batchTagsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            batchTopics.forEach(topic => {
+                const tag = document.createElement('div');
+                tag.className = 'batch-tag';
+                tag.innerHTML = `<span>${topic}</span> <i class="fa-solid fa-xmark" onclick="removeBatchTopic('${topic}')"></i>`;
+                container.appendChild(tag);
+            });
+        }
+
+        function generateBatch() {
+            if (batchTopics.length === 0) {
+                alert(currentLang === 'fr' ? "Veuillez ajouter au moins un sujet dans la file d'attente." : "Please add at least one topic to the batch queue.");
+                return;
+            }
+            const modal = document.getElementById('resultModal');
+            const titleEl = document.getElementById('modalTitle');
+            const descEl = document.getElementById('modalDesc');
+            titleEl.textContent = currentLang === 'fr' ? `Lot de ${batchTopics.length} Actifs Généré !` : `Batch of ${batchTopics.length} Assets Generated!`;
+            descEl.textContent = currentLang === 'fr' ? `Sujets traités : ${batchTopics.join(', ')}. Prêts pour le téléchargement groupé.` : `Processed topics: ${batchTopics.join(', ')}. Ready for batch download.`;
+            modal.classList.add('show');
+        }
+
+        function setTheme(themeName) {
+            document.body.className = themeName === 'sapphire' ? '' : 'theme-' + themeName;
+            const themes = [
+                { key: 'sapphire', id: 'themeSapphireBtn' },
+                { key: 'emerald', id: 'themeEmeraldBtn' },
+                { key: 'amethyst', id: 'themeAmethystBtn' },
+                { key: 'solar', id: 'themeSolarBtn' },
+                { key: 'light', id: 'themeLightBtn' },
+                { key: 'warm-light', id: 'themeWarmLightBtn' },
+                { key: 'mint-light', id: 'themeMintLightBtn' }
+            ];
+            themes.forEach(t => {
+                const btn = document.getElementById(t.id);
+                if (btn) {
+                    btn.style.border = t.key === themeName ? '2px solid var(--text-main)' : '2px solid transparent';
+                    btn.style.boxShadow = t.key === themeName ? '0 0 8px var(--sapphire-primary)' : 'none';
+                }
+            });
+            localStorage.setItem('edugen_theme', themeName);
+        }
+
+        // 3D Swipe Slider Controller
+        let currentSlide = 0;
+        const totalSlides = 4;
+        let startX = 0;
+        let isDragging = false;
+
+        function update3DSlider() {
+            const cards = document.querySelectorAll('.slide-card-3d');
+            cards.forEach((card, index) => {
+                const offset = index - currentSlide;
+                const absOffset = Math.abs(offset);
+                
+                let translateX = offset * 220;
+                let translateZ = -absOffset * 120;
+                let rotateY = offset * -25;
+                let opacity = 1 - (absOffset * 0.35);
+                let scale = 1 - (absOffset * 0.15);
+                let zIndex = 10 - absOffset;
+
+                if (absOffset > 2) {
+                    opacity = 0;
+                    zIndex = 0;
+                }
+
+                card.style.transform = `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+                card.style.opacity = opacity;
+                card.style.zIndex = zIndex;
+                card.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function slideNext() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            update3DSlider();
+        }
+
+        function slidePrev() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            update3DSlider();
+        }
+
+        // Touch & Mouse Drag Swipe support
+        const sliderViewport = document.getElementById('sliderViewport');
+        if (sliderViewport) {
+            sliderViewport.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                startX = e.touches[0].clientX;
+            });
+            sliderViewport.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+            sliderViewport.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                const currentX = e.touches[0].clientX;
+                const diff = currentX - startX;
+                if (Math.abs(diff) > 40) {
+                    if (diff > 0) {
+                        slidePrev();
+                    } else {
+                        slideNext();
+                    }
+                    isDragging = false;
+                }
+            });
+
+            sliderViewport.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX;
+            });
+            sliderViewport.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            sliderViewport.addEventListener('mouseleave', () => {
+                isDragging = false;
+            });
+            sliderViewport.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const currentX = e.clientX;
+                const diff = currentX - startX;
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) {
+                        slidePrev();
+                    } else {
+                        slideNext();
+                    }
+                    isDragging = false;
+                }
+            });
+        }
+
+        function toggleHiddenSpaces() {
+            const spaces = document.getElementById('hiddenSpaces');
+            if (spaces) {
+                spaces.style.display = spaces.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+    </script>
+</body>
+</html>

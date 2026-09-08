@@ -1,0 +1,6 @@
+{
+  "name": "EduGen Studio",
+  "description": "Dual-language educational worksheet and PowerPoint presentation generator dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
