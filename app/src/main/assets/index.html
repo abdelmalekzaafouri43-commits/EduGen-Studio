@@ -1155,6 +1155,16 @@
                                 <input type="text" id="worksheetTopic" class="form-input" placeholder="e.g., Photosynthesis, Fractions">
                             </div>
                             <div class="form-group">
+                                <label class="form-label" data-i18n="templateTypeLabel">Worksheet Layout Template</label>
+                                <select id="worksheetTemplateType" class="form-select">
+                                    <option value="standard" data-i18n="tmplStandard" selected>📖 Standard Textbook & Grammar Exercise</option>
+                                    <option value="comprehension" data-i18n="tmplComprehension">📰 Reading Comprehension & Text Analysis</option>
+                                    <option value="matching" data-i18n="tmplMatching">🔤 Vocabulary & Terminology Matching Grid</option>
+                                    <option value="mcq_quiz" data-i18n="tmplMcq">📝 Multiple Choice & Diagnostic Quiz</option>
+                                    <option value="writing" data-i18n="tmplWriting">✍️ Guided Essay Prompts & Creative Writing</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label class="form-label" data-i18n="levelLabel">Level / Class</label>
                                 <select id="worksheetLevel" class="form-select">
                                     <option value="elem" data-i18n="levelElem">Elementary (Grades 1-5)</option>
@@ -1809,7 +1819,13 @@
                 focusTri: "Complete (Reading Comprehension + Language + Writing)",
                 focusReading: "Reading Comprehension & Text Analysis",
                 focusLanguage: "Language Mechanics, Grammar & Vocabulary",
-                focusWriting: "Guided Writing & Composition Prompts"
+                focusWriting: "Guided Writing & Composition Prompts",
+                templateTypeLabel: "Worksheet Layout Template",
+                tmplStandard: "📖 Standard Textbook & Grammar Exercise",
+                tmplComprehension: "📰 Reading Comprehension & Text Analysis",
+                tmplMatching: "🔤 Vocabulary & Terminology Matching Grid",
+                tmplMcq: "📝 Multiple Choice & Diagnostic Quiz",
+                tmplWriting: "✍️ Guided Essay Prompts & Creative Writing"
             },
             fr: {
                 appTitle: "EduGen Studio",
@@ -1908,7 +1924,13 @@
                 focusTri: "Complet (Compréhension + Langue + Expression Écrite)",
                 focusReading: "Compréhension Écrite & Analyse de Texte",
                 focusLanguage: "Maniement de la Langue, Grammaire & Vocabulaire",
-                focusWriting: "Expression Écrite & Sujets de Rédaction"
+                focusWriting: "Expression Écrite & Sujets de Rédaction",
+                templateTypeLabel: "Modèle de Fiche",
+                tmplStandard: "📖 Manuel Standard & Exercices de Grammaire",
+                tmplComprehension: "📰 Compréhension Écrite & Analyse de Texte",
+                tmplMatching: "🔤 Grille de Vocabulaire & Association de Termes",
+                tmplMcq: "📝 QCM & Test Diagnostique",
+                tmplWriting: "✍️ Sujets de Rédaction & Expression Écrite"
             }
         };
 
@@ -2027,6 +2049,332 @@
             if (text) text.textContent = slide.desc;
         }
 
+        let dummySlides = [
+            { title: "Introduction & Overview", desc: "Understanding the core principles and context." },
+            { title: "Key Principles & Mechanics", desc: "Detailed breakdown of primary concepts and structure." },
+            { title: "Real-World Applications", desc: "How these ideas are applied in practical scenarios." },
+            { title: "Analysis & Case Study", desc: "Examining key examples and critical insights." },
+            { title: "Summary & Key Takeaways", desc: "Reviewing fundamental lessons and conclusion." }
+        ];
+
+        function buildDynamicSlides(topic, count, tone) {
+            const rawTopic = topic.trim() || 'Educational Presentation';
+            const numCount = parseInt(count) || 5;
+            const slides = [
+                { title: `Introduction to ${rawTopic}`, desc: `An overview of ${rawTopic}, covering foundational definitions, background, and key objectives.` },
+                { title: `Core Concepts of ${rawTopic}`, desc: `Examining the fundamental mechanisms, core theories, and essential building blocks.` },
+                { title: `Key Elements & Structural Breakdown`, desc: `Detailed analysis of how individual components of ${rawTopic} interact and function.` },
+                { title: `Real-World Applications & Examples`, desc: `Practical case studies showing how ${rawTopic} impacts modern study and industry.` },
+                { title: `Critical Analysis & Perspectives`, desc: `Evaluating strengths, challenges, and diverse viewpoints surrounding ${rawTopic}.` }
+            ];
+
+            if (numCount >= 10) {
+                slides.push(
+                    { title: `Historical Context & Evolution`, desc: `Tracing the development and timeline of key milestones in ${rawTopic}.` },
+                    { title: `Methodology & Best Practices`, desc: `Standard operating frameworks and procedural guidelines for ${rawTopic}.` },
+                    { title: `Data & Observational Insights`, desc: `Analyzing empirical evidence, statistical charts, and experimental findings.` },
+                    { title: `Common Misconceptions & Pitfalls`, desc: `Identifying key errors to avoid when studying or applying ${rawTopic}.` },
+                    { title: `Future Trends & Innovations`, desc: `Exploring upcoming research, technological advances, and future developments.` }
+                );
+            }
+            if (numCount >= 15) {
+                slides.push(
+                    { title: `Advanced Deep-Dive Analysis`, desc: `Exploring complex sub-topics and secondary variables within ${rawTopic}.` },
+                    { title: `Comparative Study & Synthesis`, desc: `Contrasting ${rawTopic} with alternative models and frameworks.` },
+                    { title: `Interactive Discussion Prompts`, desc: `Thought-provoking questions designed to stimulate group dialogue.` },
+                    { title: `Practical Workshop Exercise`, desc: `A step-by-step guided task to apply concepts learned in this lesson.` },
+                    { title: `Conclusion & Mastery Assessment`, desc: `Final summary points, key vocabulary review, and self-check quiz.` }
+                );
+            }
+            return slides;
+        }
+
+        function buildDynamicWorksheetHTML(topic, levelVal, tmplType, testTypeVal, skillsFocusVal, fontChoice, illusChoice, qrVal) {
+            const rawTopic = topic.trim() || (currentLang === 'fr' ? 'Sujet d\'Étude Général' : 'General Knowledge Study');
+            
+            // Typography styling
+            let fontFamily = "'Plus Jakarta Sans', sans-serif";
+            if (fontChoice === 'classic') fontFamily = "'Playfair Display', 'Times New Roman', serif";
+            if (fontChoice === 'clean') fontFamily = "'Inter', sans-serif";
+            if (fontChoice === 'playful') fontFamily = "'Quicksand', 'Comic Sans MS', sans-serif";
+
+            // Level Label
+            let levelLabel = "Middle School (Grades 6-8)";
+            if (levelVal === 'elem') levelLabel = "Elementary (Grades 1-5)";
+            if (levelVal === 'high') levelLabel = "High School (Grades 9-12)";
+            if (levelVal === 'college') levelLabel = "Higher Education / University";
+
+            // Test Type Title
+            let testTypeTitle = "Standard Practice Worksheet";
+            if (testTypeVal === 'diagnostic') testTypeTitle = "Diagnostic Placement Test";
+            if (testTypeVal === 'mock') testTypeTitle = "Full Mock Examination & Practice";
+
+            const qrCodeDisplay = qrVal ? `<div style="font-size: 8px; color: #475569; margin-top: 4px; text-align: center; word-break: break-all;">🔗 ${qrVal}</div>` : '';
+
+            let mainContentHTML = "";
+
+            if (tmplType === 'comprehension') {
+                mainContentHTML = `
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                        <div>
+                            <!-- Reading Passage Box -->
+                            <div style="background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px;">
+                                <div style="font-size: 11px; font-weight: 800; color: #1E3A8A; text-transform: uppercase; margin-bottom: 4px;">📖 Reading Passage: Understanding ${rawTopic}</div>
+                                <div style="font-size: 10px; color: #1E293B; line-height: 1.5; font-style: italic;">
+                                    ${rawTopic} represents one of the most fundamental concepts in modern education. By examining how ${rawTopic} functions, students gain a deeper insight into underlying structures and practical applications. Key mechanisms include systematic observation, targeted analysis, and consistent practice.
+                                    <br><br>
+                                    Furthermore, mastering ${rawTopic} provides a strong foundation for advanced problem solving. As researchers and scholars continue to refine these principles, understanding ${rawTopic} remains essential for academic progress.
+                                </div>
+                            </div>
+
+                            <!-- Comprehension Questions -->
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px;">
+                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">Section A: Text Comprehension Questions</div>
+                                <div style="font-size: 10px; color: #334155; line-height: 1.8;">
+                                    1. Based on the passage, what is the primary significance of <b>${rawTopic}</b>?<br>
+                                    <span style="border-bottom: 1px dashed #94A3B8; display: block; height: 16px;"></span>
+                                    2. Name two key mechanisms mentioned in the text that support understanding:<br>
+                                    <span style="border-bottom: 1px dashed #94A3B8; display: block; height: 16px;"></span>
+                                    3. Why is mastering <b>${rawTopic}</b> important for future studies?<br>
+                                    <span style="border-bottom: 1px dashed #94A3B8; display: block; height: 16px;"></span>
+                                </div>
+                            </div>
+
+                            <!-- True/False Section -->
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px;">
+                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 4px;">Section B: True or False Analysis</div>
+                                <div style="font-size: 10px; color: #334155; line-height: 1.7;">
+                                    1. <b>${rawTopic}</b> is only relevant in basic introductory courses. [ &nbsp; ] True &nbsp; [ &nbsp; ] False<br>
+                                    2. Systematic observation is a key part of studying <b>${rawTopic}</b>. [ &nbsp; ] True &nbsp; [ &nbsp; ] False
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Side Bar Callouts -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="background: #FEF3C7; border: 1.5px solid #F59E0B; border-radius: 10px; padding: 8px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #92400E; margin-bottom: 3px;">💡 Passage Vocabulary</div>
+                                <div style="font-size: 9px; color: #78350F; line-height: 1.4;">
+                                    • <b>Fundamental:</b> Basic & essential<br>
+                                    • <b>Mechanism:</b> System of parts<br>
+                                    • <b>Refine:</b> Improve precision
+                                </div>
+                            </div>
+                            <div style="background: #F0FDF4; border: 1.5px solid #22C55E; border-radius: 10px; padding: 8px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #166534; margin-bottom: 3px;">✏️ Reading Strategy</div>
+                                <div style="font-size: 9px; color: #14532D; line-height: 1.3;">
+                                    Highlight keywords in the passage before answering questions.
+                                </div>
+                            </div>
+                            ${qrCodeDisplay}
+                        </div>
+                    </div>`;
+
+            } else if (tmplType === 'matching') {
+                mainContentHTML = `
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                        <div>
+                            <!-- Matching Grid -->
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">Section A: Match Terms with Definitions (${rawTopic})</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; color: #334155;">
+                                    <div style="background: #EFF6FF; padding: 6px; border-radius: 6px; border: 1px solid #BFDBFE;">
+                                        <b>1. ${rawTopic} Core</b><br>
+                                        <b>2. Primary Element</b><br>
+                                        <b>3. Key Process</b><br>
+                                        <b>4. Output Result</b>
+                                    </div>
+                                    <div style="background: #FFFBEB; padding: 6px; border-radius: 6px; border: 1px solid #FDE68A;">
+                                        [ &nbsp; ] A. Final observable product<br>
+                                        [ &nbsp; ] B. Central governing rule<br>
+                                        [ &nbsp; ] C. Essential unit component<br>
+                                        [ &nbsp; ] D. Step-by-step action
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fill in the Blanks -->
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px;">
+                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 4px;">Section B: Vocabulary Fill-in-the-Blanks</div>
+                                <div style="background: #E0F2FE; border: 1px solid #7DD3FC; padding: 4px 8px; border-radius: 4px; font-size: 9.5px; text-align: center; font-weight: 700; color: #0369A1; margin-bottom: 6px;">
+                                    Word Bank: structure &nbsp;•&nbsp; analysis &nbsp;•&nbsp; application &nbsp;•&nbsp; ${rawTopic.toLowerCase()}
+                                </div>
+                                <div style="font-size: 10px; color: #334155; line-height: 1.8;">
+                                    1. Every system relies on a solid <span style="border-bottom: 1.5px dotted #0284C7; padding: 0 16px;"></span>.<br>
+                                    2. Studying <b>${rawTopic}</b> requires careful <span style="border-bottom: 1.5px dotted #0284C7; padding: 0 16px;"></span>.<br>
+                                    3. Practical <span style="border-bottom: 1.5px dotted #0284C7; padding: 0 16px;"></span> improves exam performance.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Side Bar -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="background: #F3E8FF; border: 1.5px solid #A855F7; border-radius: 10px; padding: 8px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #6B21A8; margin-bottom: 3px;">🔤 Word Power</div>
+                                <div style="font-size: 9px; color: #581C87; line-height: 1.3;">
+                                    Focus on spelling accuracy and exact terminology definitions.
+                                </div>
+                            </div>
+                            ${qrCodeDisplay}
+                        </div>
+                    </div>`;
+
+            } else if (tmplType === 'mcq_quiz') {
+                mainContentHTML = `
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                        <div>
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">Section A: Multiple Choice Questions (Select ONE answer)</div>
+                                <div style="font-size: 10px; color: #334155; line-height: 1.7;">
+                                    <b>1. Which of the following best defines ${rawTopic}?</b><br>
+                                    &nbsp;&nbsp;[ &nbsp; ] A. A fundamental model of structured analysis<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] B. An unrelated external variable<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] C. A temporary unverified assumption<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] D. None of the above<br><br>
+                                    <b>2. What is the primary purpose of studying ${rawTopic}?</b><br>
+                                    &nbsp;&nbsp;[ &nbsp; ] A. To calculate static constants<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] B. To solve complex practical problems<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] C. To avoid experimental verification<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] D. To replace standard methodologies<br><br>
+                                    <b>3. In practical scenarios, ${rawTopic} is used to:</b><br>
+                                    &nbsp;&nbsp;[ &nbsp; ] A. Optimize outcome efficiency<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] B. Reduce measurement accuracy<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] C. Eliminate structured steps
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="background: #FEF08A; border: 1.5px solid #EAB308; border-radius: 10px; padding: 8px; text-align: center;">
+                                <div style="font-weight: 800; font-size: 11px; color: #713F12;">📊 Total Score</div>
+                                <div style="font-size: 16px; font-weight: 800; color: #854D0E; margin-top: 4px;">_____ / 20</div>
+                            </div>
+                            ${qrCodeDisplay}
+                        </div>
+                    </div>`;
+
+            } else if (tmplType === 'writing') {
+                mainContentHTML = `
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                        <div>
+                            <!-- Writing Prompt -->
+                            <div style="background: #F5F3FF; border: 1.5px solid #8B5CF6; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+                                <div style="font-size: 11px; font-weight: 800; color: #5B21B6; margin-bottom: 4px;">✍️ Essay & Creative Writing Prompt</div>
+                                <div style="font-size: 10px; color: #4C1D95; line-height: 1.5;">
+                                    Write an insightful essay (150-250 words) discussing <b>${rawTopic}</b>. Include an introduction stating your thesis, body paragraphs supporting your argument with examples, and a concluding statement.
+                                </div>
+                            </div>
+
+                            <!-- Lined Writing Paper -->
+                            <div style="background: #FFFFFF; border: 1px solid #DDD6FE; border-radius: 8px; padding: 10px;">
+                                <div style="font-size: 10px; font-weight: 700; color: #6D28D9; margin-bottom: 6px;">Draft Your Composition Below:</div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px;"></div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="background: #FCE7F3; border: 1.5px solid #EC4899; border-radius: 10px; padding: 8px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #BE185D;">📝 Transition Words</div>
+                                <div style="font-size: 9px; color: #9D174D; line-height: 1.4;">
+                                    • Furthermore<br>
+                                    • However / In contrast<br>
+                                    • Consequently / Thus<br>
+                                    • In conclusion
+                                </div>
+                            </div>
+                            ${qrCodeDisplay}
+                        </div>
+                    </div>`;
+
+            } else {
+                // Default Standard Textbook & Grammar Exercise
+                mainContentHTML = `
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                        <div>
+                            <div style="margin-bottom: 12px;">
+                                <div style="background: #10B981; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 16px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                    <span style="background: #047857; color: #FFF; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">A</span>
+                                    <span>Core Concepts & Grammar Practice</span>
+                                </div>
+
+                                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px;">
+                                    <div style="font-weight: 700; font-size: 10.5px; color: #0F172A; margin-bottom: 4px;">1. Complete sentences with correct terms (${rawTopic}):</div>
+                                    <div style="font-size: 10px; color: #334155; line-height: 1.7;">
+                                        1. The primary rule of <b>${rawTopic}</b> is to <span style="border-bottom: 1.5px dotted #3B82F6; color: #2563EB; font-weight: 700; padding: 0 4px;">analyze structures</span> thoroughly.<br>
+                                        2. When practicing <b>${rawTopic}</b>, students must <span style="border-bottom: 1.5px dotted #3B82F6; padding: 0 12px;"></span> (identify) key variables.<br>
+                                        3. Consistent review leads to <span style="border-bottom: 1.5px dotted #3B82F6; padding: 0 12px;"></span> (master) of subject material.
+                                    </div>
+                                </div>
+
+                                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px;">
+                                    <div style="font-weight: 700; font-size: 10.5px; color: #0F172A; margin-bottom: 4px;">2. Multiple choice selection:</div>
+                                    <div style="font-size: 10px; color: #334155; line-height: 1.7;">
+                                        1. In <b>${rawTopic}</b>, primary factors are ( <b>essential</b> / optional / ignored ).<br>
+                                        2. Effective results ( require / <b>must require</b> / not require ) verified steps.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="background: #8B5CF6; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 16px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                    <span style="background: #6D28D9; color: #FFF; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">B</span>
+                                    <span>Writing & Application</span>
+                                </div>
+                                <div style="background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 8px; padding: 8px 10px;">
+                                    <div style="font-size: 10px; font-weight: 700; color: #5B21B6; margin-bottom: 4px;">Write a short summary (3-4 sentences) explaining <b>${rawTopic}</b>:</div>
+                                    <div style="border-bottom: 1px dashed #A78BFA; height: 16px; margin-bottom: 3px;"></div>
+                                    <div style="border-bottom: 1px dashed #A78BFA; height: 16px; margin-bottom: 3px;"></div>
+                                    <div style="border-bottom: 1px dashed #A78BFA; height: 16px;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="background: #FCE7F3; border: 1.5px solid #F472B6; border-radius: 10px; padding: 8px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #9D174D; margin-bottom: 3px;">💡 Remember!</div>
+                                <div style="font-size: 9px; color: #831843; line-height: 1.3;">
+                                    Key concepts build upon foundational principles!
+                                </div>
+                            </div>
+                            ${qrCodeDisplay}
+                        </div>
+                    </div>`;
+            }
+
+            return `
+                <div style="font-family: ${fontFamily}; color: #1E293B;">
+                    <!-- Textbook Page Top Banner -->
+                    <div style="background: linear-gradient(135deg, #1E3A8A, #2563EB); color: #FFFFFF; padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="background: #00F0FF; color: #0F172A; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 10px; text-transform: uppercase;">Unit 1</span>
+                                <h2 style="font-size: 16px; font-weight: 800; margin: 0; color: #FFFFFF;" id="tbTopicHeader">${rawTopic}</h2>
+                            </div>
+                            <div style="font-size: 10px; color: #93C5FD; margin-top: 2px; font-weight: 600;">
+                                ${testTypeTitle} &nbsp;•&nbsp; <span style="font-style: italic; color: #E0F2FE;">${levelLabel}</span>
+                            </div>
+                        </div>
+                        <div style="background: #FEF08A; color: #854D0E; font-weight: 700; font-size: 9.5px; padding: 4px 8px; border-radius: 6px; border: 1.5px dashed #CA8A04; text-align: center;">
+                            EduGen Studio Asset 😊
+                        </div>
+                    </div>
+
+                    ${mainContentHTML}
+
+                    <!-- Textbook Page Footer -->
+                    <div style="border-top: 1.5px solid #E2E8F0; margin-top: 10px; padding-top: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 700; color: #64748B;">
+                        <span>EduGen Worksheet &nbsp;•&nbsp; ${rawTopic}</span>
+                        <span style="background: #2563EB; color: #FFF; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">1</span>
+                        <span>Page 1 of 1 &nbsp;•&nbsp; Learn • Practise • Grow</span>
+                    </div>
+                </div>`;
+        }
+
         function generateAsset(type) {
             const modal = document.getElementById('resultModal');
             const titleEl = document.getElementById('modalTitle');
@@ -2036,15 +2384,43 @@
 
             if (type === 'worksheet') {
                 const topicInput = document.getElementById('worksheetTopic');
-                const tbTopicHeader = document.getElementById('tbTopicHeader');
-                if (topicInput && topicInput.value.trim() !== '' && tbTopicHeader) {
-                    tbTopicHeader.textContent = topicInput.value.trim();
+                const levelSelect = document.getElementById('worksheetLevel');
+                const tmplSelect = document.getElementById('worksheetTemplateType');
+                const testTypeSelect = document.getElementById('worksheetTestType');
+                const skillsFocusSelect = document.getElementById('worksheetSkillsFocus');
+                const fontSelect = document.getElementById('worksheetFont');
+                const illusSelect = document.getElementById('worksheetIllustrations');
+                const qrInput = document.getElementById('worksheetQr');
+
+                const topic = topicInput ? topicInput.value : '';
+                const level = levelSelect ? levelSelect.value : 'middle';
+                const tmplType = tmplSelect ? tmplSelect.value : 'standard';
+                const testType = testTypeSelect ? testTypeSelect.value : 'diagnostic';
+                const skillsFocus = skillsFocusSelect ? skillsFocusSelect.value : 'trisection';
+                const fontStyle = fontSelect ? fontSelect.value : 'modern';
+                const illus = illusSelect ? illusSelect.value : 'vector';
+                const qr = qrInput ? qrInput.value : '';
+
+                if (textbookContainer) {
+                    textbookContainer.innerHTML = buildDynamicWorksheetHTML(topic, level, tmplType, testType, skillsFocus, fontStyle, illus, qr);
+                    textbookContainer.style.display = 'block';
                 }
-                titleEl.textContent = currentLang === 'fr' ? "Fiche d'Exercices Illustrée Prête !" : "Illustrated Textbook Worksheet Ready!";
-                if (textbookContainer) textbookContainer.style.display = 'block';
+
+                titleEl.textContent = currentLang === 'fr' ? "Fiche d'Exercices Personnalisée Prête !" : "Custom Prompt Worksheet Ready!";
                 if (videoContainer) videoContainer.style.display = 'none';
                 if (exportVideoBtn) exportVideoBtn.style.display = 'none';
+
             } else if (type === 'ppt' || type === 'ppt_video') {
+                const topicInput = document.getElementById('pptTopic');
+                const slidesSelect = document.getElementById('pptSlides');
+                const toneSelect = document.getElementById('pptTone');
+
+                const topic = (topicInput && topicInput.value.trim() !== '') ? topicInput.value.trim() : 'Quantum Physics & Wave Mechanics';
+                const slideCount = slidesSelect ? slidesSelect.value : '5';
+                const tone = toneSelect ? toneSelect.value : 'academic';
+
+                dummySlides = buildDynamicSlides(topic, slideCount, tone);
+
                 titleEl.textContent = type === 'ppt_video' 
                     ? (currentLang === 'fr' ? "Vidéo de Présentation Prête !" : "Video Presentation Ready!")
                     : (currentLang === 'fr' ? "Présentation PowerPoint Prête !" : "PowerPoint Generated!");
@@ -2054,9 +2430,17 @@
                 currentVideoSlide = 0;
                 videoProgress = 0;
                 updateVideoSlideUI();
+
             } else {
+                const topicInput = document.getElementById('lessonTopic');
+                const topic = (topicInput && topicInput.value.trim() !== '') ? topicInput.value.trim() : 'General Lesson';
+                
+                if (textbookContainer) {
+                    textbookContainer.innerHTML = buildDynamicWorksheetHTML(topic, 'middle', 'writing', 'worksheet', 'trisection', 'modern', 'vector', '');
+                    textbookContainer.style.display = 'block';
+                }
+
                 titleEl.textContent = currentLang === 'fr' ? "Plan de Cours Prêt !" : "Lesson Plan Generated!";
-                if (textbookContainer) textbookContainer.style.display = 'block';
                 if (videoContainer) videoContainer.style.display = 'none';
                 if (exportVideoBtn) exportVideoBtn.style.display = 'none';
             }
@@ -2070,13 +2454,19 @@
             const rawTopic = (topicHeader && topicHeader.textContent.trim()) ? topicHeader.textContent.trim() : 'EduGen_Asset';
             const topic = rawTopic.replace(/\s+/g, '_');
 
-            if (format === 'print' || format === 'pdf') {
+            if (format === 'print') {
                 window.print();
-            } else if (format === 'pptx' || format === 'doc' || format === 'default') {
-                let contentHTML = "";
-                let fileName = `${topic}_Worksheet.doc`;
-                
+                return;
+            }
+
+            let contentHTML = "";
+            let fileName = `${topic}_Worksheet.doc`;
+            let mimeType = "application/msword";
+
+            if (format === 'pptx' || format === 'doc' || format === 'default') {
                 if (textbookContainer && textbookContainer.style.display !== 'none') {
+                    fileName = `${topic}_Worksheet.doc`;
+                    mimeType = "application/msword";
                     contentHTML = `
                         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                         <head><meta charset='utf-8'><title>${rawTopic} Worksheet</title>
@@ -2091,6 +2481,7 @@
                         </html>`;
                 } else if (videoContainer && videoContainer.style.display !== 'none') {
                     fileName = `${topic}_Presentation.doc`;
+                    mimeType = "application/msword";
                     const slidesList = dummySlides.map((s, i) => `
                         <div style="border: 2px solid #2563EB; padding: 16px; margin-bottom: 16px; border-radius: 8px;">
                             <h3 style="color: #2563EB; margin-top: 0;">Slide ${i + 1}: ${s.title}</h3>
@@ -2109,32 +2500,81 @@
                     contentHTML = `<html><head><meta charset='utf-8'></head><body><h2>${rawTopic}</h2><p>EduGen Studio Asset</p></body></html>`;
                 }
 
-                const blob = new Blob(['\ufeff' + contentHTML], { type: 'application/msword;charset=utf-8' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(link.href);
-
             } else if (format === 'mp4') {
-                const videoData = JSON.stringify({
+                fileName = `${topic}_Presentation_Script.json`;
+                mimeType = "application/json";
+                contentHTML = JSON.stringify({
                     topic: rawTopic,
                     slides: dummySlides,
                     duration: "30s",
                     generatedBy: "EduGen Studio"
                 }, null, 2);
-
-                const blob = new Blob([videoData], { type: 'application/json' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `${topic}_Presentation_Script.json`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(link.href);
+            } else if (format === 'pdf') {
+                window.print();
+                return;
             }
+
+            try {
+                // Safe UTF-8 to Base64 conversion
+                const base64Data = btoa(unescape(encodeURIComponent('\ufeff' + contentHTML)));
+                const dataUri = `data:${mimeType};charset=utf-8;base64,${base64Data}`;
+
+                // 1. If running inside Android WebView JS Bridge
+                if (window.AndroidInterface && typeof window.AndroidInterface.saveFile === 'function') {
+                    window.AndroidInterface.saveFile(dataUri, fileName, mimeType);
+                } else {
+                    // 2. Standard Web Download via Anchor Data URI
+                    const link = document.createElement('a');
+                    link.href = dataUri;
+                    link.download = fileName;
+                    link.target = "_blank";
+                    document.body.appendChild(link);
+                    link.click();
+                    setTimeout(() => document.body.removeChild(link), 500);
+                }
+
+                // Show UI Feedback Toast
+                showExportToast(currentLang === 'fr' 
+                    ? `📄 Exportation réussie : ${fileName}` 
+                    : `📄 File Exported Successfully: ${fileName}`);
+
+            } catch (err) {
+                console.error("Export failed:", err);
+                // Fallback to Print dialog
+                window.print();
+            }
+        }
+
+        function showExportToast(message) {
+            let toast = document.getElementById('exportToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'exportToast';
+                toast.style.cssText = `
+                    position: fixed;
+                    bottom: 24px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #0F172A;
+                    color: #FFFFFF;
+                    padding: 12px 20px;
+                    border-radius: 30px;
+                    font-size: 13px;
+                    font-weight: 700;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+                    z-index: 100000;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: opacity 0.3s ease;
+                `;
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                if (toast) toast.style.opacity = '0';
+            }, 3500);
         }
 
         function closeModal() {
