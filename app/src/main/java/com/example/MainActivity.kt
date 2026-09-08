@@ -47,7 +47,8 @@ fun EduGenWebView(modifier: Modifier = Modifier) {
           e.printStackTrace()
         }
 
-        setLayerType(View.LAYER_TYPE_HARDWARE, null)
+        // Allow Android to automatically select layer type (or software fallback in emulators)
+        setLayerType(View.LAYER_TYPE_NONE, null)
 
         settings.apply {
           javaScriptEnabled = true
