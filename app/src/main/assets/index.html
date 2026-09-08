@@ -25,47 +25,47 @@
             --sidebar-bg: #040810;
         }
 
-        /* Dark Themes */
+        /* 6 Stunning Modern Color Themes */
+        body.theme-sapphire {
+            --bg-base: #070C18;
+            --bg-card: #0E172A;
+            --bg-card-hover: #182642;
+            --sapphire-primary: #00F0FF;
+            --sapphire-secondary: #0066FF;
+            --sapphire-glow: rgba(0, 240, 255, 0.4);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-neon: #00F0FF;
+            --sidebar-bg: #040810;
+        }
+
+        body.theme-amethyst {
+            --bg-base: #0F0A1C;
+            --bg-card: #1A122E;
+            --bg-card-hover: #291C47;
+            --sapphire-primary: #C084FC;
+            --sapphire-secondary: #9333EA;
+            --sapphire-glow: rgba(192, 132, 252, 0.4);
+            --text-main: #FAF5FF;
+            --text-muted: #E9D5FF;
+            --border-neon: #C084FC;
+            --sidebar-bg: #090512;
+        }
+
         body.theme-emerald {
-            --bg-base: #04120D;
-            --bg-card: #0A241A;
-            --bg-card-hover: #103828;
+            --bg-base: #061814;
+            --bg-card: #0D2D26;
+            --bg-card-hover: #15453B;
             --sapphire-primary: #10B981;
             --sapphire-secondary: #059669;
             --sapphire-glow: rgba(16, 185, 129, 0.4);
             --text-main: #F0FDF4;
-            --text-muted: #6EE7B7;
+            --text-muted: #A7F3D0;
             --border-neon: #10B981;
-            --sidebar-bg: #020C08;
+            --sidebar-bg: #030F0C;
         }
 
-        body.theme-amethyst {
-            --bg-base: #0D0714;
-            --bg-card: #190E28;
-            --bg-card-hover: #26163D;
-            --sapphire-primary: #A855F7;
-            --sapphire-secondary: #7C3AED;
-            --sapphire-glow: rgba(168, 85, 247, 0.4);
-            --text-main: #FAF5FF;
-            --text-muted: #D8B4FE;
-            --border-neon: #A855F7;
-            --sidebar-bg: #08040E;
-        }
-
-        body.theme-solar {
-            --bg-base: #140A0A;
-            --bg-card: #281212;
-            --bg-card-hover: #3D1C1C;
-            --sapphire-primary: #FF5E62;
-            --sapphire-secondary: #FF9966;
-            --sapphire-glow: rgba(255, 94, 98, 0.4);
-            --text-main: #FFF5F5;
-            --text-muted: #FCA5A5;
-            --border-neon: #FF5E62;
-            --sidebar-bg: #0E0606;
-        }
-
-        /* Bright / Light Themes */
+        /* Bright & Crisp Light Themes */
         body.theme-light {
             --bg-base: #F1F5F9;
             --bg-card: #FFFFFF;
@@ -80,7 +80,7 @@
         }
 
         body.theme-warm-light {
-            --bg-base: #FFFBEB;
+            --bg-base: #FFFDF5;
             --bg-card: #FFFFFF;
             --bg-card-hover: #FEF3C7;
             --sapphire-primary: #D97706;
@@ -930,62 +930,44 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 8mm 10mm;
+                margin: 4mm;
             }
-            body, html {
+            html, body {
                 background: #ffffff !important;
                 color: #000000 !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                height: auto !important;
-                overflow: visible !important;
-            }
-            aside.sidebar, .mobile-header, .slider-3d-container, .modal-btns, .slider-3d-header, .btn-secondary, .btn-action, #hiddenSpaces, .workspace-header, .cards-grid, .batch-panel, button, i.fa-xmark, .modal-title, .modal-desc, #modalHeaderIcon {
-                display: none !important;
-            }
-            main.workspace {
-                margin-left: 0 !important;
-                padding: 0 !important;
                 width: 100% !important;
+                height: 100% !important;
+                overflow: hidden !important;
             }
-            .modal-overlay {
-                position: static !important;
-                background: none !important;
-                backdrop-filter: none !important;
-                opacity: 1 !important;
-                pointer-events: auto !important;
-                padding: 0 !important;
-                margin: 0 !important;
+            body * {
+                visibility: hidden !important;
             }
-            .modal-card {
-                border: none !important;
-                box-shadow: none !important;
-                background: #ffffff !important;
-                color: #000000 !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
+            #textbookPreviewContainer, #textbookPreviewContainer * {
+                visibility: visible !important;
             }
             #textbookPreviewContainer {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 10px !important;
                 border: 1.5px solid #1E3A8A !important;
                 outline: none !important;
                 box-shadow: none !important;
-                max-height: none !important;
-                overflow: visible !important;
+                max-height: 280mm !important;
+                overflow: hidden !important;
+                border-radius: 8px !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
                 page-break-after: avoid !important;
                 break-after: avoid !important;
-                margin: 0 !important;
-                padding: 12px !important;
-                border-radius: 8px !important;
             }
             #videoPreviewContainer {
-                border: none !important;
-                box-shadow: none !important;
-                aspect-ratio: 16/9 !important;
-                page-break-inside: avoid !important;
+                display: none !important;
             }
         }
 
