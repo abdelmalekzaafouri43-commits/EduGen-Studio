@@ -3185,6 +3185,409 @@
                 </div>`;
         }
 
+        function buildDynamicLessonPlanHTML(topic, durationVal, pedagogyVal, fontChoice, illusChoice, qrVal) {
+            const rawTopic = (topic && topic.trim() !== '') ? topic.trim() : (currentLang === 'fr' ? 'La Révolution Industrielle et ses Impacts' : 'Photosynthesis & Ecosystem Energy Flow');
+            const isFrench = isFrenchTopic(rawTopic);
+            const domain = detectTopicDomain(rawTopic);
+
+            let fontFamily = "'Plus Jakarta Sans', sans-serif";
+            if (fontChoice === 'classic') fontFamily = "'Playfair Display', 'Times New Roman', serif";
+            if (fontChoice === 'clean') fontFamily = "'Inter', sans-serif";
+            if (fontChoice === 'playful') fontFamily = "'Quicksand', 'Comic Sans MS', sans-serif";
+
+            const totalMins = parseInt(durationVal) || 60;
+            let p1, p2, p3, p4, p5;
+            if (totalMins === 30) {
+                p1 = 5; p2 = 8; p3 = 8; p4 = 6; p5 = 3;
+            } else if (totalMins === 45) {
+                p1 = 7; p2 = 13; p3 = 12; p4 = 9; p5 = 4;
+            } else if (totalMins === 90) {
+                p1 = 12; p2 = 25; p3 = 23; p4 = 20; p5 = 10;
+            } else {
+                p1 = 8; p2 = 17; p3 = 15; p4 = 13; p5 = 7;
+            }
+
+            let pedLabel = isFrench ? "Enseignement Explicite & Direct (Je Fais, Nous Faisons, Tu Fais)" : "Explicit Direct Instruction (I Do, We Do, You Do)";
+            if (pedagogyVal === 'inquiry') pedLabel = isFrench ? "Démarche d'Investigation & Découverte Guidée" : "Inquiry-Based Learning & Guided Discovery";
+            if (pedagogyVal === 'project') pedLabel = isFrench ? "Pédagogie de Projet (PBL & Résolution de Problèmes)" : "Project-Based Learning (PBL & Case Studies)";
+            if (pedagogyVal === 'flipped') pedLabel = isFrench ? "Classe Inversée & Ateliers Coopératifs" : "Flipped Classroom & Active Workshop";
+
+            const qrCodeDisplay = qrVal ? `<div style="text-align: center; display: flex; flex-direction: column; align-items: center;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qrVal)}" alt="QR Code" style="width: 65px; height: 65px; border-radius: 6px; border: 1.5px solid #CBD5E1; padding: 2px; background: white;"><div style="font-size: 8px; color: #475569; margin-top: 4px; word-break: break-all; max-width: 90px;">🔗 ${qrVal}</div></div>` : '';
+
+            let cogObj = "", skillObj = "", vocabList = [], materials = "", hookQ = "", hookTask = "", directSteps = "", guidedSteps = "", indepTask = "", exitQ1 = "", exitQ2 = "";
+
+            if (isFrench) {
+                if (domain === 'science') {
+                    cogObj = `Comprendre et expliciter les principes physico-chimiques ou biologiques régissant <b>${rawTopic}</b>, ainsi que les lois de conservation et d'équilibre associées.`;
+                    skillObj = `Schématiser un modèle fonctionnel, formuler des hypothèses testables et interpréter des données expérimentales relatives à <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Hypothèse", def: "Énoncé explicatif prédictif soumis au test expérimental." },
+                        { term: "Équilibre Dynamique", def: "État où des processus opposés s'équilibrent en continu." },
+                        { term: "Régulation", def: "Mécanisme rétroactif assurant la stabilité d'un paramètre clé." }
+                    ];
+                    materials = "Manuel de Sciences, Fiche de laboratoire EduGen, Vidéoprojecteur / Modèles 3D, Mini-ardoises.";
+                    hookQ = `D'après vous, que se passerait-il si l'équilibre naturel de <b>${rawTopic}</b> était brutalement rompu ?`;
+                    hookTask = `Les élèves notent en 2 minutes leur prédiction sur mini-ardoise avant un échange rapide en binôme (Think-Pair-Share).`;
+                    directSteps = `Modélisation au tableau des flux et interactions de <b>${rawTopic}</b>. L'enseignant verbalise sa démarche (« penser à voix haute ») pour démontrer la relation de cause à effet.`;
+                    guidedSteps = `En binômes, les élèves analysent un jeu de données ou graphique sur <b>${rawTopic}</b> et résolvent 3 questions de guidage avec étayage de l'enseignant.`;
+                    indepTask = `Chaque élève complète individuellement la grille d'analyse et rédige une explication scientifique argumentée.`;
+                    exitQ1 = `Définissez en une phrase claire le rôle ou mécanisme central de ${rawTopic}.`;
+                    exitQ2 = `Citez un facteur déterminant qui régule ou perturbe ce phénomène.`;
+                } else if (domain === 'math') {
+                    cogObj = `Définir avec exactitude les formules fondamentales, théorèmes et conditions de validité liés à <b>${rawTopic}</b>.`;
+                    skillObj = `Appliquer une démarche algorithmique rigoureuse pour résoudre des problèmes complexes et vérifier les calculs liés à <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Propriété / Axiome", def: "Proposition admise ou démontrée servant de base déductive." },
+                        { term: "Variable / Inconnue", def: "Grandeur algébrique susceptible de prendre différentes valeurs." },
+                        { term: "Algorithme", def: "Suite logique d'étapes systématiques menant à la solution." }
+                    ];
+                    materials = "Fiche méthode EduGen, Calculatrice / Instruments de géométrie, Tableau interactif, Grille d'auto-évaluation.";
+                    hookQ = `Comment estimer le résultat d'un calcul sur <b>${rawTopic}</b> sans poser l'opération complète ?`;
+                    hookTask = `Défi éclair d'estimation : les élèves notent leur ordre de grandeur sur ardoise en 60 secondes.`;
+                    directSteps = `Démonstration de la règle de <b>${rawTopic}</b> en 4 étapes numérotées au tableau. Décomposition d'un exemple type et avertissement sur les erreurs de signe courantes.`;
+                    guidedSteps = `Travail en binômes : résolution guidée de 2 problèmes d'application progressifs avec fiches d'indices à disposition.`;
+                    indepTask = `Résolution autonome de 3 exercices gradués : vérification des calculs et justification rigoureuse de la méthode.`;
+                    exitQ1 = `Énoncez la formule ou la règle clé permettant de traiter ${rawTopic}.`;
+                    exitQ2 = `Résolvez l'application numérique rapide : appliquez la démarche au cas fourni.`;
+                } else if (domain === 'history') {
+                    cogObj = `Situer <b>${rawTopic}</b> dans sa chronologie historique et identifier les causes économiques, sociales et politiques majeures.`;
+                    skillObj = `Analyser et confronter des documents sources (textes, gravures, cartes) pour bâtir une argumentation historique sur <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Causalité Historique", def: "Ensemble des facteurs structurels et déclencheurs d'un événement." },
+                        { term: "Source Primaire", def: "Document d'époque produit par un acteur ou témoin direct." },
+                        { term: "Rupture", def: "Moment charnière marquant un changement profond des structures." }
+                    ];
+                    materials = "Dossier documentaire EduGen, Frise chronologique murale, Cartes historiques, Fiche d'analyse critique.";
+                    hookQ = `Regardez cette image d'époque : quel détail surprenant illustre les tensions entourant <b>${rawTopic}</b> ?`;
+                    hookTask = `Observation silencieuse de 90 secondes d'un document visuel marquant, suivie d'un partage d'impressions par deux.`;
+                    directSteps = `Exposé magistral structuré et mise en perspective de <b>${rawTopic}</b>. L'enseignant modélise l'analyse critique d'une source d'époque au tableau.`;
+                    guidedSteps = `En îlots de 3 : confrontation de deux sources contradictoires sur <b>${rawTopic}</b> pour en extraire les arguments essentiels.`;
+                    indepTask = `Rédaction individuelle d'un paragraphe de synthèse structuré (Introduction, deux arguments documentés, conclusion).`;
+                    exitQ1 = `Citez deux causes majeures ou dates charnières liées à ${rawTopic}.`;
+                    exitQ2 = `Quel groupe social ou figure clé a joué un rôle déterminant dans cet événement ?`;
+                } else {
+                    cogObj = `Identifier les règles morphosyntaxiques, les accords grammaticaux et les registres de langue de <b>${rawTopic}</b>.`;
+                    skillObj = `Employer <b>${rawTopic}</b> avec exactitude dans des productions écrites et adapter son expression à la situation de communication.`;
+                    vocabList = [
+                        { term: "Morphosyntaxe", def: "Règles combinant la forme des mots et leur organisation en phrases." },
+                        { term: "Registre de Langue", def: "Niveau de style adapté au destinataire (courant, soutenu, familier)." },
+                        { term: "Champ Lexical", def: "Ensemble de vocables convergeant vers un même champ thématique." }
+                    ];
+                    materials = "Corpus de textes littéraires EduGen, Guide grammatical, Fiche de réinvestissement, Mini-ardoises.";
+                    hookQ = `Trouvez l'erreur subtile ou la nuance de sens entre ces deux phrases illustrant <b>${rawTopic}</b> !`;
+                    hookTask = `Sondage à main levée : choix de la phrase correcte et justification orale en 1 phrase par binôme.`;
+                    directSteps = `Présentation synthétique de la règle de <b>${rawTopic}</b> sous forme de tableau comparatif. Modélisation de la transformation d'une phrase type.`;
+                    guidedSteps = `Pratique guidée en binômes : manipulation et complétion d'énoncés avec verbalisation obligatoire de la justification.`;
+                    indepTask = `Exercices individuels d'application : réécriture de 3 phrases et rédaction d'un court paragraphe intégrant <b>${rawTopic}</b>.`;
+                    exitQ1 = `Quelle règle essentielle faut-il appliquer pour utiliser correctement ${rawTopic} ?`;
+                    exitQ2 = `Complétez ou reformulez la phrase test proposée en respectant la syntaxe.`;
+                }
+            } else {
+                if (domain === 'science') {
+                    cogObj = `Explain the biological/physical mechanisms and conservation principles governing <b>${rawTopic}</b>.`;
+                    skillObj = `Construct functional diagrams, analyze quantitative trends, and formulate testable predictions regarding <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Hypothesis", def: "A testable and falsifiable explanation for observable natural phenomena." },
+                        { term: "Dynamic Equilibrium", def: "A state in which opposing processes occur at equal rates." },
+                        { term: "Homeostasis / Regulation", def: "Self-regulating biological process that maintains internal stability." }
+                    ];
+                    materials = "Curriculum Science Manual, EduGen Lab Scaffolding Sheet, Interactive Visual Models, Mini Dry-Erase Boards.";
+                    hookQ = `What happens to an entire ecosystem when <b>${rawTopic}</b> is suddenly accelerated or removed?`;
+                    hookTask = `Think-Pair-Share: 2 minutes of silent reflection followed by partner brainstorm on mini dry-erase boards.`;
+                    directSteps = `Explicit modeling on board of key pathways in <b>${rawTopic}</b> using a step-by-step flowchart and think-aloud explanation.`;
+                    guidedSteps = `Paired data analysis: dyads analyze a sample experimental dataset on <b>${rawTopic}</b> and resolve 3 guided prompts.`;
+                    indepTask = `Independent problem set: students interpret an unseen graph and answer 2 synthesis evaluation questions.`;
+                    exitQ1 = `State in one sentence the primary biological or physical function of ${rawTopic}.`;
+                    exitQ2 = `Identify one critical variable that regulates or alters this process.`;
+                } else if (domain === 'math') {
+                    cogObj = `Define the core formulas, theorems, and structural relationships that dictate <b>${rawTopic}</b>.`;
+                    skillObj = `Execute multi-step procedural computations and verify arithmetic/algebraic validity in problems featuring <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Theorem / Identity", def: "A mathematical statement that has been proven based on axioms." },
+                        { term: "Variable", def: "A symbolic quantity that can take on different values within an equation." },
+                        { term: "Algorithm", def: "An unambiguous step-by-step protocol for arriving at a mathematical solution." }
+                    ];
+                    materials = "EduGen Step-by-Step Worksheet, Graph Paper / Scientific Calculator, Digital Board, Rubric Checklist.";
+                    hookQ = `How can you estimate the outcome of a complex problem involving <b>${rawTopic}</b> in under 10 seconds?`;
+                    hookTask = `Quick visual puzzle: students test an estimation heuristic on their scratch paper before reviewing answers.`;
+                    directSteps = `Teacher models the 4-stage algorithmic approach for <b>${rawTopic}</b>, explicitly highlighting common sign and notation errors.`;
+                    guidedSteps = `Scaffolded pair practice: students solve 2 tiered problems together, alternating roles between solver and coach.`;
+                    indepTask = `Independent mastery task: complete 3 tiered computation problems ranging from standard drills to real-world word problems.`;
+                    exitQ1 = `Write out the core formula or rule required to solve problems regarding ${rawTopic}.`;
+                    exitQ2 = `Apply the formula to find the value in a simple benchmark problem.`;
+                } else if (domain === 'history') {
+                    cogObj = `Situate <b>${rawTopic}</b> in its broader chronological and socioeconomic context, identifying key historical actors.`;
+                    skillObj = `Analyze conflicting primary documents and craft an evidence-based historical claim regarding <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Causality", def: "The complex web of political, social, and economic factors leading to an event." },
+                        { term: "Primary Source", def: "An artifact or text created during the historical era under investigation." },
+                        { term: "Historiography", def: "The study of historical methodology and how interpretations shift over time." }
+                    ];
+                    materials = "Primary Source Reader, Historical Timeline Display, Graphic Organizer for document analysis.";
+                    hookQ = `Look at this historic photograph / headline: what detail challenges our common assumptions about <b>${rawTopic}</b>?`;
+                    hookTask = `Silent viewing (90 seconds), followed by 2 minutes of partner note comparison on immediate observations.`;
+                    directSteps = `Teacher lectures using a high-impact chronological narrative and demonstrates source deconstruction using the SOAPSTone method.`;
+                    guidedSteps = `Triad collaborative analysis: student teams compare two contrasting perspectives on <b>${rawTopic}</b> to establish common ground.`;
+                    indepTask = `Individual written response: compose a structured paragraph with 1 claim, 2 pieces of documentary evidence, and commentary.`;
+                    exitQ1 = `Name two key causes that catalyzed ${rawTopic}.`;
+                    exitQ2 = `Identify one lasting legacy or transformation produced by this historical development.`;
+                } else {
+                    cogObj = `Deconstruct syntactic patterns, idiomatic usage, and communicative intent within <b>${rawTopic}</b>.`;
+                    skillObj = `Produce accurate written sentences and engage in structured spoken discourse incorporating <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Syntax", def: "The arrangement of words and phrases to create well-formed sentences in a language." },
+                        { term: "Discourse Register", def: "The scale of formality and communicative tone adopted for a given audience." },
+                        { term: "Collocation", def: "A habitual juxtaposition of a particular word with another word with frequency." }
+                    ];
+                    materials = "Reading Passage Corpus, Student Grammar & Vocabulary Cards, Interactive Smartboard, Exit Slips.";
+                    hookQ = `Can you spot the subtle error in tone or syntax across these two sample sentences regarding <b>${rawTopic}</b>?`;
+                    hookTask = `Thumbs-up / thumbs-down diagnostic poll, followed by quick partner justification of the correct sentence.`;
+                    directSteps = `Direct concept explanation of <b>${rawTopic}</b> with a contrasting matrix showing proper usage vs. common errors.`;
+                    guidedSteps = `Guided sentence manipulation in pairs: students rewrite 3 sentences and debate choices before whole-group check.`;
+                    indepTask = `Independent creative writing: students compose a 5-sentence application paragraph correctly incorporating <b>${rawTopic}</b>.`;
+                    exitQ1 = `What is the key grammatical or communicative rule for correctly applying ${rawTopic}?`;
+                    exitQ2 = `Fill in or complete the sample prompt using the correct syntax.`;
+                }
+            }
+
+            return `
+                <div style="font-family: ${fontFamily}; color: #1E293B; line-height: 1.5;">
+                    <!-- Top Lesson Plan Banner -->
+                    <div style="background: linear-gradient(135deg, #047857, #10B981); color: #FFFFFF; padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="background: #D1FAE5; color: #065F46; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 10px; text-transform: uppercase;">EduGen Studio</span>
+                                <h2 style="font-size: 18px; font-weight: 800; margin: 0; color: #FFFFFF;" id="tbTopicHeader">${rawTopic}</h2>
+                            </div>
+                            <div style="font-size: 11px; color: #ECFDF5; margin-top: 4px; font-weight: 600; display: flex; gap: 12px; flex-wrap: wrap;">
+                                <span>⏱️ <b>${totalMins} Minutes</b></span>
+                                <span>🎯 <b>${pedLabel}</b></span>
+                            </div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); padding: 6px 12px; border-radius: 8px; font-size: 10px; text-align: right;">
+                            <div><b>${isFrench ? 'Classe :' : 'Class / Grade :'}</b> [ ________________ ]</div>
+                            <div style="margin-top: 2px;"><b>${isFrench ? 'Enseignant :' : 'Teacher :'}</b> [ ________________ ]</div>
+                            <div style="margin-top: 2px;"><b>${isFrench ? 'Date :' : 'Date :'}</b> [ _____ / _____ / 2026 ]</div>
+                        </div>
+                    </div>
+
+                    <!-- Section 1: Pedagogical Objectives & Bloom's Taxonomy -->
+                    <div class="worksheet-section" style="margin-bottom: 14px;">
+                        <div style="background: #F0FDF4; border: 1.5px solid #10B981; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;">
+                            <div style="font-size: 12px; font-weight: 800; color: #065F46; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                <span>🎯</span> ${isFrench ? 'Objectifs Pédagogiques & Taxonomie de Bloom' : 'Pedagogical Learning Objectives (Bloom\'s Taxonomy)'}
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div style="background: #FFFFFF; border: 1px solid #D1FAE5; border-radius: 8px; padding: 10px;">
+                                    <div style="font-size: 11px; font-weight: 800; color: #047857; margin-bottom: 4px;">🧠 ${isFrench ? 'Objectif Cognitif (Compréhension & Savoirs)' : 'Cognitive Objective (Knowledge & Analysis)'}</div>
+                                    <div style="font-size: 10px; color: #1F2937;">${cogObj}</div>
+                                </div>
+                                <div style="background: #FFFFFF; border: 1px solid #D1FAE5; border-radius: 8px; padding: 10px;">
+                                    <div style="font-size: 11px; font-weight: 800; color: #047857; margin-bottom: 4px;">🛠️ ${isFrench ? 'Objectif Pratique (Compétences & Réinvestissement)' : 'Skill & Performance Objective (Action & Transfer)'}</div>
+                                    <div style="font-size: 10px; color: #1F2937;">${skillObj}</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                                <span style="font-size: 10px; font-weight: 800; color: #065F46;">📚 ${isFrench ? 'Vocabulaire Clé :' : 'Essential Vocabulary :'}</span>
+                                ${vocabList.map(v => `<span style="background: #FFFFFF; border: 1px solid #A7F3D0; padding: 2px 8px; border-radius: 12px; font-size: 9.5px; color: #065F46;"><b>${v.term}</b> : ${v.def}</span>`).join('')}
+                            </div>
+                            <div style="margin-top: 8px; font-size: 10px; color: #047857; font-weight: 600;">
+                                📦 <b>${isFrench ? 'Matériel & Supports Requis :' : 'Required Materials & Resources :'}</b> ${materials}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Structured Timeline / Instructional Phases Table -->
+                    <div class="worksheet-section" style="margin-bottom: 14px;">
+                        <div style="font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span>⏱️</span> ${isFrench ? 'Déroulement Chronologique & Phases d\'Apprentissage' : 'Structured Timeline & Instructional Phases'}
+                            </div>
+                            <span style="font-size: 10px; color: #047857; font-weight: 700; background: #D1FAE5; padding: 2px 8px; border-radius: 4px;">Total : ${totalMins} min</span>
+                        </div>
+                        <div style="overflow-x: auto; border: 1.5px solid #E2E8F0; border-radius: 10px; background: #FFFFFF;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+                                <thead>
+                                    <tr style="background: #F1F5F9; border-bottom: 2px solid #CBD5E1; color: #334155; font-weight: 800;">
+                                        <th style="padding: 8px 10px; width: 18%;">${isFrench ? 'Phase & Durée' : 'Phase & Timing'}</th>
+                                        <th style="padding: 8px 10px; width: 32%;">${isFrench ? 'Rôle de l\'Enseignant (Étayage)' : 'Teacher Role & Strategy'}</th>
+                                        <th style="padding: 8px 10px; width: 30%;">${isFrench ? 'Activité des Élèves (Tâches)' : 'Student Activity & Engagement'}</th>
+                                        <th style="padding: 8px 10px; width: 20%;">${isFrench ? 'Évaluation Formative (Preuve)' : 'Formative Check & Evidence'}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Phase 1: Hook -->
+                                    <tr style="border-bottom: 1px solid #E2E8F0; background: #F8FAFC;">
+                                        <td style="padding: 8px 10px; vertical-align: top;">
+                                            <div style="font-weight: 800; color: #0284C7; font-size: 10.5px;">Phase 1</div>
+                                            <div style="font-weight: 700; color: #0369A1;">${isFrench ? 'Accroche & Éveil' : 'Hook & Prior Knowledge'}</div>
+                                            <span style="background: #E0F2FE; color: #0369A1; font-weight: 800; padding: 1px 6px; border-radius: 10px; font-size: 9px; display: inline-block; margin-top: 4px;">⏱️ ${p1} min</span>
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #334155;">
+                                            <b>${isFrench ? 'Question Directrice :' : 'Anchor Question :'}</b> ${hookQ}
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #334155;">
+                                            ${hookTask}
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #475569; font-style: italic;">
+                                            ${isFrench ? 'Sondage flash ardoises levées ; diagnostic immédiat des préconceptions.' : 'Rapid whiteboard response check; diagnose initial misconceptions.'}
+                                        </td>
+                                    </tr>
+
+                                    <!-- Phase 2: Direct Instruction -->
+                                    <tr style="border-bottom: 1px solid #E2E8F0; background: #FFFFFF;">
+                                        <td style="padding: 8px 10px; vertical-align: top;">
+                                            <div style="font-weight: 800; color: #7C3AED; font-size: 10.5px;">Phase 2</div>
+                                            <div style="font-weight: 700; color: #6D28D9;">${isFrench ? 'Enseignement Explicite (Je Fais)' : 'Direct Instruction (I Do)'}</div>
+                                            <span style="background: #EDE9FE; color: #6D28D9; font-weight: 800; padding: 1px 6px; border-radius: 10px; font-size: 9px; display: inline-block; margin-top: 4px;">⏱️ ${p2} min</span>
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #334155;">
+                                            ${directSteps}
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #334155;">
+                                            ${isFrench ? 'Écoute active, prise de notes guidées (schéma ou carte mentale), identification des 3 critères de réussite.' : 'Active listening with structured Cornell notes; students annotate core criteria and modeled examples.'}
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #475569; font-style: italic;">
+                                            ${isFrench ? 'Contrôle choral et technique « Poing-à-5 » pour mesurer la compréhension avant le travail en binômes.' : 'Choral response and "Fist-to-Five" check before transitioning to pairs.'}
+                                        </td>
+                                    </tr>
+
+                                    <!-- Phase 3: Guided Practice -->
+                                    <tr style="border-bottom: 1px solid #E2E8F0; background: #F8FAFC;">
+                                        <td style="padding: 8px 10px; vertical-align: top;">
+                                            <div style="font-weight: 800; color: #D97706; font-size: 10.5px;">Phase 3</div>
+                                            <div style="font-weight: 700; color: #B45309;">${isFrench ? 'Pratique Guidée (Nous Faisons)' : 'Guided Practice (We Do)'}</div>
+                                            <span style="background: #FEF3C7; color: #92400E; font-weight: 800; padding: 1px 6px; border-radius: 10px; font-size: 9px; display: inline-block; margin-top: 4px;">⏱️ ${p3} min</span>
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #334155;">
+                                            ${isFrench ? 'Circulation active dans les rangs. Apport d\'indices ciblés et questionnement socratique auprès des binômes en difficulté.' : 'Actively circulates; facilitates dyad dialogues; provides scaffolded cue cards for struggling groups.'}
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #334155;">
+                                            ${guidedSteps}
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #475569; font-style: italic;">
+                                            ${isFrench ? 'Micro-conférences de 60s par groupe. Un binôme expose sa démarche au tableau.' : 'Targeted 60-second micro-interventions. One pair models solution strategy.'}
+                                        </td>
+                                    </tr>
+
+                                    <!-- Phase 4: Independent Practice -->
+                                    <tr style="border-bottom: 1px solid #E2E8F0; background: #FFFFFF;">
+                                        <td style="padding: 8px 10px; vertical-align: top;">
+                                            <div style="font-weight: 800; color: #059669; font-size: 10.5px;">Phase 4</div>
+                                            <div style="font-weight: 700; color: #047857;">${isFrench ? 'Pratique Autonome (Tu Fais)' : 'Independent Practice (You Do)'}</div>
+                                            <span style="background: #D1FAE5; color: #065F46; font-weight: 800; padding: 1px 6px; border-radius: 10px; font-size: 9px; display: inline-block; margin-top: 4px;">⏱️ ${p4} min</span>
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #334155;">
+                                            ${isFrench ? 'Surveillance silencieuse. Aide individuelle discrète et proposition du problème extension aux élèves avancés.' : 'Silent monitoring; 1-on-1 coaching for students needing support; distribution of extension challenge.'}
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #334155;">
+                                            ${indepTask}
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #475569; font-style: italic;">
+                                            ${isFrench ? 'Auto-évaluation sur corrigé témoin (premières questions) et pointage du taux de maîtrise.' : 'Self-check against criteria checklist; verification of milestone problem.'}
+                                        </td>
+                                    </tr>
+
+                                    <!-- Phase 5: Exit Ticket & Wrap-Up -->
+                                    <tr style="background: #F8FAFC;">
+                                        <td style="padding: 8px 10px; vertical-align: top;">
+                                            <div style="font-weight: 800; color: #DC2626; font-size: 10.5px;">Phase 5</div>
+                                            <div style="font-weight: 700; color: #B91C1C;">${isFrench ? 'Clôture & Billet de Sortie' : 'Exit Ticket & Synthesis'}</div>
+                                            <span style="background: #FEE2E2; color: #991B1B; font-weight: 800; padding: 1px 6px; border-radius: 10px; font-size: 9px; display: inline-block; margin-top: 4px;">⏱️ ${p5} min</span>
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #334155;">
+                                            ${isFrench ? 'Anime la synthèse finale de 2 minutes. Fait récapituler la notion centrale et ramasse les billets de sortie.' : 'Leads 2-minute synthesis; highlights core takeaway; collects exit tickets for formative grading.'}
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #334155;">
+                                            ${isFrench ? 'Remplissage individuel du Billet de Sortie (2 questions + 1 interrogation restante) avant la sonnerie.' : 'Individual completion of 2-minute Exit Ticket (concept check + reflection prompt) before dismissal.'}
+                                        </td>
+                                        <td style="padding: 8px 10px; vertical-align: top; color: #475569; font-style: italic;">
+                                            ${isFrench ? 'Collecte à 100 % : répartition des élèves en 3 groupes de remédiation pour la séance suivante.' : '100% Exit Ticket submission to group students for tomorrow\'s reinforcement.'}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Differentiation & Accommodations -->
+                    <div class="worksheet-section" style="margin-bottom: 14px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 10px; padding: 10px 12px;">
+                                <div style="font-size: 11px; font-weight: 800; color: #1E3A8A; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                                    <span>🛡️</span> ${isFrench ? 'Différenciation : Remédiation & Soutien' : 'Differentiation: Scaffolding & Support'}
+                                </div>
+                                <div style="font-size: 9.5px; color: #1E293B; line-height: 1.4;">
+                                    • <b>${isFrench ? 'Aménagements :' : 'Accommodations :'}</b> ${isFrench ? 'Fournir des amorces de phrases, glossaire visuel bilingue et organisateurs graphiques pré-remplis.' : 'Provide sentence starters, visual glossary, and pre-structured graphic organizers.'}<br>
+                                    • <b>${isFrench ? 'Groupement :' : 'Grouping :'}</b> ${isFrench ? 'Binôme hétérogène bienveillant et réduction du nombre d\'exercices au profit de la précision conceptuelle.' : 'Empathetic strategic pairing; reduced volume of drill items with deep focus on foundational concept.'}
+                                </div>
+                            </div>
+                            <div style="background: #FAF5FF; border: 1.5px solid #A855F7; border-radius: 10px; padding: 10px 12px;">
+                                <div style="font-size: 11px; font-weight: 800; color: #581C87; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                                    <span>🚀</span> ${isFrench ? 'Différenciation : Approfondissement & Enrichissement' : 'Differentiation: Extension & Enrichment'}
+                                </div>
+                                <div style="font-size: 9.5px; color: #1E293B; line-height: 1.4;">
+                                    • <b>${isFrench ? 'Défi Transfert :' : 'Challenge Task :'}</b> ${isFrench ? 'Analyser un contre-exemple ou un cas complexe d\'application réelle de ' + rawTopic + '.' : 'Analyze a complex edge case, paradox, or real-world application of ' + rawTopic + '.'}<br>
+                                    • <b>${isFrench ? 'Rôle Expert :' : 'Peer Leader :'}</b> ${isFrench ? 'Créer un problème inédit avec son corrigé ou guider un groupe en tant que tuteur pair.' : 'Create an original multi-step challenge with answer key or act as a peer coach.'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Detachable Printable Exit Ticket -->
+                    <div class="worksheet-section" style="margin-bottom: 12px;">
+                        <div style="border: 2px dashed #047857; background: #F0FDF4; border-radius: 10px; padding: 12px 14px; position: relative;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1.5px dashed #A7F3D0; padding-bottom: 6px;">
+                                <div style="font-size: 11px; font-weight: 800; color: #065F46; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+                                    <span>✂️</span> ${isFrench ? 'BILLET DE SORTIE DÉTACHABLE (FORMATIVE EXIT TICKET)' : 'DETACHABLE FORMATIVE EXIT TICKET'} : <span style="color: #047857;">${rawTopic}</span>
+                                </div>
+                                <div style="font-size: 9.5px; color: #065F46; font-weight: 700;">
+                                    ${isFrench ? 'Nom :' : 'Name :'} ______________________ &nbsp;|&nbsp; ${isFrench ? 'Date :' : 'Date :'} _________
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: ${qrVal ? '2.5fr 1fr' : '1fr'}; gap: 12px; align-items: center;">
+                                <div>
+                                    <div style="margin-bottom: 8px;">
+                                        <div style="font-size: 10px; font-weight: 800; color: #0F172A;">1. ${exitQ1}</div>
+                                        <div style="border-bottom: 1px dotted #94A3B8; height: 18px; margin-top: 2px;"></div>
+                                        <div style="border-bottom: 1px dotted #94A3B8; height: 18px; margin-top: 2px;"></div>
+                                    </div>
+                                    <div style="margin-bottom: 8px;">
+                                        <div style="font-size: 10px; font-weight: 800; color: #0F172A;">2. ${exitQ2}</div>
+                                        <div style="border-bottom: 1px dotted #94A3B8; height: 18px; margin-top: 2px;"></div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 10px; font-weight: 800; color: #0F172A;">3. 💭 ${isFrench ? 'Point de Clarté / Interrogation : Quelle est la question qui reste en suspens ?' : 'Metacognitive Reflection: What is one question you still have about this concept?'}</div>
+                                        <div style="border-bottom: 1px dotted #94A3B8; height: 18px; margin-top: 2px;"></div>
+                                    </div>
+                                </div>
+                                ${qrVal ? `<div style="background: #FFFFFF; border: 1px solid #D1FAE5; border-radius: 8px; padding: 8px; text-align: center;">
+                                    <div style="font-size: 9px; font-weight: 800; color: #047857; margin-bottom: 4px;">📲 ${isFrench ? 'Ressources Numériques' : 'Digital QR Portal'}</div>
+                                    ${qrCodeDisplay}
+                                </div>` : ''}
+                            </div>
+
+                            <div style="margin-top: 10px; padding-top: 6px; border-top: 1px solid #D1FAE5; display: flex; justify-content: space-between; align-items: center; font-size: 9px; color: #065F46; font-weight: 700;">
+                                <span>EduGen Studio • ${isFrench ? 'Évaluation Formative' : 'Formative Assessment'}</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <span>[ ] ${isFrench ? 'Expert' : 'Mastered'}</span>
+                                    <span>[ ] ${isFrench ? 'En Progrès' : 'Progressing'}</span>
+                                    <span>[ ] ${isFrench ? 'À Revoir' : 'Needs Review'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lesson Plan Footer -->
+                    <div style="border-top: 1.5px solid #E2E8F0; margin-top: 10px; padding-top: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 700; color: #64748B;" class="generated-footer">
+                        <span>EduGen Studio &nbsp;•&nbsp; ${rawTopic}</span>
+                        <span style="background: #059669; color: #FFF; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">1</span>
+                        <span>${isFrench ? 'Plan Pédagogique Conforme' : 'Standard-Aligned Lesson Plan'}</span>
+                    </div>
+                </div>`;
+        }
+
         function getEffectiveApiKey() {
             const input = document.getElementById('apiKeyInput') || document.getElementById('geminiApiKey');
             if (input && input.value && input.value.trim() !== '') {
@@ -3428,56 +3831,77 @@ Return strictly a raw JSON array of objects, each with 'title' (string) and 'des
             } else {
                 const topicInput = document.getElementById('lessonTopic');
                 const topic = (topicInput && topicInput.value.trim() !== '') ? topicInput.value.trim() : (currentLang === 'fr' ? 'Plan de Cours : Conjugaison et Grammaire' : 'Language Skills & Essay Composition');
-                
+                const duration = document.getElementById('lessonDuration') ? document.getElementById('lessonDuration').value : '60';
+                const pedagogy = document.getElementById('lessonPedagogy') ? document.getElementById('lessonPedagogy').value : 'direct';
+                const font = document.getElementById('lessonFont') ? document.getElementById('lessonFont').value : 'modern';
+                const illustrations = document.getElementById('lessonIllustrations') ? document.getElementById('lessonIllustrations').value : 'vector';
+                const qr = document.getElementById('lessonQr') ? document.getElementById('lessonQr').value.trim() : '';
+                const isFrench = isFrenchTopic(topic);
+
                 modal.classList.add('show');
                 if (videoContainer) videoContainer.style.display = 'none';
                 if (exportVideoBtn) exportVideoBtn.style.display = 'none';
 
                 if (textbookContainer) {
                     textbookContainer.style.display = 'block';
-                    textbookContainer.innerHTML = `<div style="text-align: center; padding: 40px; color: #1E3A8A;"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i><p style="margin-top: 15px; font-weight: bold; font-family: 'Plus Jakarta Sans', sans-serif;">Generating Lesson Plan with AI...</p></div>`;
+                    textbookContainer.innerHTML = `<div style="text-align: center; padding: 40px; color: #047857;"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i><p style="margin-top: 15px; font-weight: bold; font-family: 'Plus Jakarta Sans', sans-serif;">${currentLang === 'fr' ? 'Génération du Plan de Cours avec Déroulement Pédagogique...' : 'Generating Pedagogical Lesson Plan with Timeline & Phases...'}</p></div>`;
                 }
 
                 const hasApiKey = hasValidApiKey();
                 let generatedHtml = null;
 
                 if (hasApiKey) {
-                    const prompt = `You are an expert curriculum designer. Generate a highly detailed Lesson Plan HTML structure for the topic: "${topic}".
+                    const prompt = `You are an expert curriculum designer and master teacher. Generate a comprehensive, professional Lesson Plan HTML structure for the topic: "${topic}".
+Duration: ${duration} minutes.
+Pedagogical Framework: ${pedagogy} model.
+Language: ${isFrench ? 'French' : 'English'}.
+
+CRITICAL PEDAGOGICAL STRUCTURE (MANDATORY):
+1. TOP HEADER & OBJECTIVES:
+   - Header with topic title: <h2 id="tbTopicHeader">${topic}</h2>, duration badge (${duration} min), pedagogical badge (${pedagogy}), and teacher/class/date blanks.
+   - Objectives (Bloom's Taxonomy): Cognitive knowledge objective, skill/application objective, 3 essential vocabulary terms, and required instructional materials. Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
+2. STRUCTURED TIMELINE & INSTRUCTIONAL PHASES TABLE (CRITICAL):
+   - Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
+   - Create a clean, elegant HTML <table> with borders, padding, and subtle alternating row backgrounds.
+   - Columns: [Phase & Timing | Teacher Role & Strategy | Student Activity & Tasks | Formative Check & Evidence].
+   - Must include these 5 distinct instructional phases with minute breakdowns adding up to ${duration} minutes:
+     * Phase 1: Hook & Prior Knowledge Activation (Warm-Up)
+     * Phase 2: Direct Instruction & Explicit Modeling (I Do)
+     * Phase 3: Guided Collaborative Practice (We Do)
+     * Phase 4: Independent Practice & Deep Application (You Do)
+     * Phase 5: Exit Ticket, Wrap-Up & Metacognitive Synthesis
+3. DIFFERENTIATION & ACCOMMODATIONS:
+   - Two styled columns/boxes: Scaffolding for struggling learners and Extension for advanced students. Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
+4. DETACHABLE EXIT TICKET:
+   - A distinct dashed-border box (<div class="worksheet-section">) containing Student Name/Date line, 2 formative concept check questions tailored specifically to "${topic}", and 1 metacognitive reflection question.
+
 IMPORTANT RULES:
-- Output ONLY valid raw HTML. No markdown backticks.
-- Use a professional, clean inline-styled design (border-radius, padding, background colors).
-- Include standard lesson plan sections: Objectives, Materials, Introduction, Direct Instruction, Guided Practice, Independent Practice, and Assessment.
-- Use explicit container classes for proper printing: Wrap each distinct major section in <div class="worksheet-section">...</div>.
-- If you need to force a page break between sections for multi-page printing, insert <div class="page-break"></div>.
-- No html, head, or body tags.`;
-                    
+- Output ONLY valid raw HTML. No markdown backticks or explanations.
+- Use clean inline styling (colors: #047857, #10B981, #F0FDF4, #E2E8F0, #1E293B).
+- Wrap each distinct major section in <div class="worksheet-section"> for proper printing.
+- If you need to force a page break for multi-page printing, insert <div class="page-break"></div>.
+- No <html>, <head>, or <body> tags.`;
+
                     const aiContent = await callGeminiApi(prompt);
                     if (aiContent) {
                         let cleanHtml = aiContent.replace(/```html/g, '').replace(/```/g, '').trim();
-                        
+
                         generatedHtml = `
                         <div style="font-family: 'Plus Jakarta Sans', sans-serif; color: #1E293B;">
-                            <div style="background: linear-gradient(135deg, #047857, #10B981); color: #FFFFFF; padding: 14px; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-                                <div>
-                                    <h2 style="font-size: 18px; font-weight: 800; margin: 0; color: #FFFFFF;">${topic}</h2>
-                                    <div style="font-size: 11px; color: #D1FAE5; margin-top: 4px; font-weight: 600;">Custom AI Lesson Plan</div>
-                                </div>
-                            </div>
-                            <div style="background: #F8FAFC; padding: 12px; border-radius: 10px; border: 1px solid #E2E8F0;">
-                                ${cleanHtml}
-                            </div>
-                            <div style="border-top: 1.5px solid #E2E8F0; margin-top: 10px; padding-top: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 700; color: #64748B;">
+                            ${cleanHtml}
+                            <div style="border-top: 1.5px solid #E2E8F0; margin-top: 10px; padding-top: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 700; color: #64748B;" class="generated-footer">
                                 <span>EduGen AI Generated Lesson Plan</span>
+                                <span>${currentLang === 'fr' ? 'Plan Pédagogique Conforme' : 'Standard-Aligned Lesson Plan'}</span>
                             </div>
                         </div>`;
                     }
                 }
 
                 if (textbookContainer) {
-                    textbookContainer.innerHTML = generatedHtml || buildDynamicWorksheetHTML(topic, 'middle', 'writing', 'worksheet', 'trisection', 'modern', 'vector', '');
+                    textbookContainer.innerHTML = generatedHtml || buildDynamicLessonPlanHTML(topic, duration, pedagogy, font, illustrations, qr);
                 }
 
-                titleEl.textContent = currentLang === 'fr' ? "Plan de Cours Prêt !" : "Lesson Plan Generated!";
+                titleEl.textContent = currentLang === 'fr' ? "Plan de Cours Pédagogique Prêt !" : "Pedagogical Lesson Plan Generated!";
             }
             modal.classList.add('show');
         }
