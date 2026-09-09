@@ -1628,7 +1628,7 @@
                         </div>
 
                         <!-- Chat Stream Container -->
-                        <div id="aiChatStream" style="max-height: 320px; min-height: 180px; overflow-y: auto; margin-bottom: 16px; padding-right: 8px; border-radius: 12px; background: rgba(0,0,0,0.15); padding: 14px; border: 1px solid var(--border-color, rgba(255,255,255,0.08));">
+                        <div id="aiChatStream" style="max-height: 480px; min-height: 280px; overflow-y: auto; margin-bottom: 16px; padding-right: 8px; border-radius: 12px; background: rgba(0,0,0,0.15); padding: 16px; border: 1px solid var(--border-color, rgba(255,255,255,0.08));">
                             <div style="display: flex; justify-content: flex-start; margin-bottom: 12px;">
                                 <div style="background: rgba(255,255,255,0.06); border: 1px solid var(--border-color, #CBD5E1); padding: 14px 18px; border-radius: 16px 16px 16px 2px; max-width: 90%; font-size: 13.5px; line-height: 1.6; color: var(--text-main);">
                                     <div style="display: flex; align-items: center; gap: 8px; color: var(--sapphire-primary, #2563EB); font-weight: 800; margin-bottom: 6px; font-size: 14px;">
@@ -1670,139 +1670,38 @@
                         </div>
                     </div>
 
-                    <!-- Interactive Creation Cards Grid with Parallax Hover -->
-                    <div style="margin-bottom: 24px;">
-                        <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main, #1E293B); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
-                            <i class="fa-solid fa-layer-group" style="color: var(--sapphire-primary, #2563EB);"></i> Quick Creation Studio Cards
-                        </h3>
-                        <div class="cards-grid">
-                            <!-- Card 1: Worksheet Creator -->
-                            <div class="creation-card" id="cardWorksheet">
-                                <div class="quantum-corner-tl"></div><div class="quantum-corner-tr"></div>
-                                <div class="quantum-corner-bl"></div><div class="quantum-corner-br"></div>
-                                <div class="card-header-flex">
-                                    <div class="card-icon icon-sapphire">
-                                        <i class="fa-solid fa-file-invoice"></i>
-                                    </div>
-                                    <div class="card-titles">
-                                        <h3 data-i18n="worksheetTitle" style="font-size: 16px; font-weight: 800; margin: 0; color: var(--text-main);">Worksheet Creator</h3>
-                                        <p data-i18n="worksheetDesc" style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Tailored exercises & reading comprehension.</p>
-                                    </div>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label class="form-label" data-i18n="topicLabel" style="font-size: 12px; font-weight: 700; margin-bottom: 4px; display: block;">Topic / Focus</label>
-                                    <input type="text" id="worksheetTopic" class="form-input" placeholder="e.g., Present Perfect vs Past Simple" value="Present Perfect">
-                                </div>
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label class="form-label" data-i18n="templateTypeLabel" style="font-size: 12px; font-weight: 700; margin-bottom: 4px; display: block;">Layout Template</label>
-                                    <select id="worksheetTemplateType" class="form-select">
-                                        <option value="textbook" data-i18n="tmplTextbook" selected>🎨 Primary School Textbook Edition</option>
-                                        <option value="standard" data-i18n="tmplStandard">📖 Standard Textbook & Grammar</option>
-                                        <option value="comprehension" data-i18n="tmplComprehension">📰 Reading Comprehension</option>
-                                        <option value="matching" data-i18n="tmplMatching">🔤 Vocabulary Grid</option>
-                                        <option value="mcq_quiz" data-i18n="tmplMcq">📝 Diagnostic MCQ Quiz</option>
-                                        <option value="writing" data-i18n="tmplWriting">✍️ Guided Writing</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 16px;">
-                                    <label class="form-label" data-i18n="levelLabel" style="font-size: 12px; font-weight: 700; margin-bottom: 4px; display: block;">Class Level</label>
-                                    <select id="worksheetLevel" class="form-select">
-                                        <option value="middle" data-i18n="levelMiddle" selected>Intermediate / Middle (6-8)</option>
-                                        <option value="elem" data-i18n="levelElem">Beginner / Elementary (1-5)</option>
-                                        <option value="high" data-i18n="levelHigh">Advanced / High School (9-12)</option>
-                                    </select>
-                                </div>
-                                <button class="btn-action" onclick="generateAsset('worksheet')">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                    <span data-i18n="generateWorksheet">Generate Worksheet</span>
-                                </button>
-                            </div>
-
-                            <!-- Card 2: PowerPoint Designer -->
-                            <div class="creation-card" id="cardPpt">
-                                <div class="quantum-corner-tl"></div><div class="quantum-corner-tr"></div>
-                                <div class="quantum-corner-bl"></div><div class="quantum-corner-br"></div>
-                                <div class="card-header-flex">
-                                    <div class="card-icon icon-red">
-                                        <i class="fa-solid fa-presentation-screen"></i>
-                                    </div>
-                                    <div class="card-titles">
-                                        <h3 data-i18n="pptTitle" style="font-size: 16px; font-weight: 800; margin: 0; color: var(--text-main);">PowerPoint Designer</h3>
-                                        <p data-i18n="pptDesc" style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Slide deck & video presentations.</p>
-                                    </div>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label class="form-label" data-i18n="pptTopicLabel" style="font-size: 12px; font-weight: 700; margin-bottom: 4px; display: block;">Presentation Topic</label>
-                                    <input type="text" id="pptTopic" class="form-input" placeholder="e.g., French Phonetics & Pronunciation" value="English Grammar Essentials">
-                                </div>
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label class="form-label" data-i18n="slideCountLabel" style="font-size: 12px; font-weight: 700; margin-bottom: 4px; display: block;">Slide Count</label>
-                                    <select id="pptSlides" class="form-select">
-                                        <option value="5" data-i18n="slideCount5">5 Slides (Quick Lesson)</option>
-                                        <option value="10" data-i18n="slideCount10" selected>10 Slides (Standard Deck)</option>
-                                        <option value="15" data-i18n="slideCount15">15 Slides (Masterclass)</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 16px;">
-                                    <label class="form-label" data-i18n="pptColorTheme" style="font-size: 12px; font-weight: 700; margin-bottom: 4px; display: block;">Color Theme</label>
-                                    <select id="pptColorTheme" class="form-select">
-                                        <option value="blue" selected>Sapphire Blue</option>
-                                        <option value="green">Emerald Green</option>
-                                        <option value="purple">Amethyst Purple</option>
-                                        <option value="dark">Midnight Dark</option>
-                                    </select>
-                                </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                    <button class="btn-action" onclick="generateAsset('ppt')">
-                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                        <span data-i18n="generatePowerPoint">PPT Deck</span>
-                                    </button>
-                                    <button class="btn-action" style="background: linear-gradient(135deg, #FF5E62, #FF9966); box-shadow: 0 6px 20px rgba(255, 94, 98, 0.35);" onclick="generateAsset('ppt_video')">
-                                        <i class="fa-solid fa-circle-play"></i>
-                                        <span data-i18n="generatePptVideo">Video PPT</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Card 3: Lesson Plan Generator -->
-                            <div class="creation-card" id="cardLesson">
-                                <div class="quantum-corner-tl"></div><div class="quantum-corner-tr"></div>
-                                <div class="quantum-corner-bl"></div><div class="quantum-corner-br"></div>
-                                <div class="card-header-flex">
-                                    <div class="card-icon" style="background: linear-gradient(135deg, #10B981, #059669); color: white;">
-                                        <i class="fa-solid fa-book-open-reader"></i>
-                                    </div>
-                                    <div class="card-titles">
-                                        <h3 data-i18n="lessonPlanTitle" style="font-size: 16px; font-weight: 800; margin: 0; color: var(--text-main);">Lesson Plan Generator</h3>
-                                        <p data-i18n="lessonPlanDesc" style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Pedagogical timeline & objectives.</p>
-                                    </div>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label class="form-label" data-i18n="topicLabel" style="font-size: 12px; font-weight: 700; margin-bottom: 4px; display: block;">Topic / Subject</label>
-                                    <input type="text" id="lessonTopic" class="form-input" placeholder="e.g., Business Email Etiquette" value="Business Email Etiquette">
-                                </div>
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label class="form-label" data-i18n="durationLabel" style="font-size: 12px; font-weight: 700; margin-bottom: 4px; display: block;">Duration</label>
-                                    <select id="lessonDuration" class="form-select">
-                                        <option value="60" data-i18n="dur60" selected>60 Minutes (Standard)</option>
-                                        <option value="30" data-i18n="dur30">30 Minutes (Mini)</option>
-                                        <option value="45" data-i18n="dur45">45 Minutes (Short Period)</option>
-                                        <option value="90" data-i18n="dur90">90 Minutes (Block Period)</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 16px;">
-                                    <label class="form-label" data-i18n="pedagogyLabel" style="font-size: 12px; font-weight: 700; margin-bottom: 4px; display: block;">Pedagogy Style</label>
-                                    <select id="lessonPedagogy" class="form-select">
-                                        <option value="direct" data-i18n="pedDirect" selected>Direct Instruction</option>
-                                        <option value="inquiry" data-i18n="pedInquiry">Inquiry-Based Learning</option>
-                                        <option value="project" data-i18n="pedProject">Project-Based Learning</option>
-                                    </select>
-                                </div>
-                                <button class="btn-action" style="background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);" onclick="generateAsset('lesson')">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                    <span data-i18n="generateLessonPlan">Generate Lesson Plan</span>
-                                </button>
-                            </div>
+                    <!-- Hidden Legacy Inputs for JS Fallback Compatibility -->
+                    <div id="legacyFormInputsContainer" style="display: none !important;">
+                        <div id="cardWorksheet">
+                            <input type="text" id="worksheetTopic" value="Present Perfect">
+                            <select id="worksheetTemplateType"><option value="textbook" selected></option></select>
+                            <select id="worksheetLevel"><option value="middle" selected></option></select>
+                            <select id="worksheetTestType"><option value="diagnostic" selected></option></select>
+                            <select id="worksheetSkillsFocus"><option value="trisection" selected></option></select>
+                            <select id="worksheetFormat"><option value="mixed" selected></option></select>
+                            <select id="worksheetFont"><option value="playful" selected></option></select>
+                            <select id="worksheetIllustrations"><option value="vector" selected></option></select>
+                            <select id="worksheetPageSize"><option value="a4_portrait" selected></option></select>
+                            <input type="text" id="worksheetQr" value="">
+                        </div>
+                        <div id="cardPpt">
+                            <input type="text" id="pptTopic" value="English Grammar Essentials">
+                            <select id="pptSlides"><option value="10" selected></option></select>
+                            <select id="pptTone"><option value="engaging" selected></option></select>
+                            <select id="pptFont"><option value="modern" selected></option></select>
+                            <select id="pptColorTheme"><option value="blue" selected></option></select>
+                            <select id="pptIllustrations"><option value="vector" selected></option></select>
+                            <select id="pptPageSize"><option value="wide_16_9" selected></option></select>
+                            <input type="text" id="pptQr" value="">
+                        </div>
+                        <div id="cardLesson">
+                            <input type="text" id="lessonTopic" value="Business Email Etiquette">
+                            <select id="lessonDuration"><option value="60" selected></option></select>
+                            <select id="lessonPedagogy"><option value="direct" selected></option></select>
+                            <select id="lessonFont"><option value="modern" selected></option></select>
+                            <select id="lessonIllustrations"><option value="vector" selected></option></select>
+                            <select id="lessonPageSize"><option value="a4_portrait" selected></option></select>
+                            <input type="text" id="lessonQr" value="">
                         </div>
                     </div>
 
