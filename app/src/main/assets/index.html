@@ -1603,7 +1603,7 @@
                                 </div>
                                 <div class="card-titles">
                                     <h3 data-i18n="worksheetTitle">Worksheet Creator</h3>
-                                    <p data-i18n="worksheetDesc">Generate comprehensive exercises, quizzes, and answer keys instantly.</p>
+                                    <p data-i18n="worksheetDesc">Fast 1-step worksheet generation tailored for English & French language learners.</p>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1611,79 +1611,88 @@
                                 <input type="text" id="worksheetTopic" class="form-input" placeholder="e.g., Present Perfect vs Past Simple, Le Passé Composé">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" data-i18n="templateTypeLabel">Worksheet Layout Template</label>
-                                <select id="worksheetTemplateType" class="form-select">
-                                    <option value="standard" data-i18n="tmplStandard" selected>📖 Standard Textbook & Grammar Exercise</option>
-                                    <option value="comprehension" data-i18n="tmplComprehension">📰 Reading Comprehension & Text Analysis</option>
-                                    <option value="matching" data-i18n="tmplMatching">🔤 Vocabulary & Terminology Matching Grid</option>
-                                    <option value="mcq_quiz" data-i18n="tmplMcq">📝 Multiple Choice & Diagnostic Quiz</option>
-                                    <option value="writing" data-i18n="tmplWriting">✍️ Guided Essay Prompts & Creative Writing</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
                                 <label class="form-label" data-i18n="levelLabel">Level / Class</label>
                                 <select id="worksheetLevel" class="form-select">
-                                    <option value="elem" data-i18n="levelElem">Elementary (Grades 1-5)</option>
-                                    <option value="middle" data-i18n="levelMiddle">Middle School (Grades 6-8)</option>
-                                    <option value="high" data-i18n="levelHigh">High School (Grades 9-12)</option>
+                                    <option value="middle" data-i18n="levelMiddle" selected>Intermediate / Middle School (Grades 6-8)</option>
+                                    <option value="elem" data-i18n="levelElem">Beginner / Elementary (Grades 1-5)</option>
+                                    <option value="high" data-i18n="levelHigh">Advanced / High School (Grades 9-12)</option>
                                     <option value="college" data-i18n="levelCollege">Higher Education / University</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="testTypeLabel">Assessment Type</label>
-                                <select id="worksheetTestType" class="form-select">
-                                    <option value="diagnostic" data-i18n="typeDiagnostic" selected>Diagnostic Test (Placement & Baseline Benchmark)</option>
-                                    <option value="mock" data-i18n="typeMock">Full Mock Exam / Practice Test</option>
-                                    <option value="worksheet" data-i18n="typeStandard">Standard Exercise Worksheet</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="skillsFocusLabel">Language Skills Focus</label>
-                                <select id="worksheetSkillsFocus" class="form-select">
-                                    <option value="trisection" data-i18n="focusTri" selected>Complete (Reading Comprehension + Language + Writing)</option>
-                                    <option value="reading" data-i18n="focusReading">Reading Comprehension & Text Analysis</option>
-                                    <option value="language" data-i18n="focusLanguage">Language Mechanics, Grammar & Vocabulary</option>
-                                    <option value="writing" data-i18n="focusWriting">Guided Writing & Composition Prompts</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="formatLabel">Question Format</label>
-                                <select id="worksheetFormat" class="form-select">
-                                    <option value="mixed" data-i18n="formatMixed">Mixed Quiz & Exercises</option>
-                                    <option value="mcq" data-i18n="formatMcq">Multiple Choice Questions (MCQ)</option>
-                                    <option value="solving" data-i18n="formatSolving">Problem Solving & Short Answer</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="fontLabel">Typography / Font Family</label>
-                                <select id="worksheetFont" class="form-select">
-                                    <option value="modern" data-i18n="fontModern">Modern Sans (Plus Jakarta Sans)</option>
-                                    <option value="classic" data-i18n="fontClassic">Classic Serif (Playfair / Times)</option>
-                                    <option value="clean" data-i18n="fontClean">Clean Minimal (Inter)</option>
-                                    <option value="playful" data-i18n="fontPlayful">Playful Comic (Quicksand)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="illustrationLabel">Illustrations & Visuals</label>
-                                <select id="worksheetIllustrations" class="form-select">
-                                    <option value="vector" data-i18n="illVector">Vector Diagrams & Icons</option>
-                                    <option value="lineart" data-i18n="illLineart">Minimalist Line Art</option>
-                                    <option value="infographics" data-i18n="illInfographics">Educational Infographics</option>
-                                    <option value="none" data-i18n="illNone">Text Only (No Illustrations)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="pageSizeLabel">Page Layout & Paper Size</label>
-                                <select id="worksheetPageSize" class="form-select">
-                                    <option value="a4_portrait" data-i18n="pageA4Port" selected>A4 Portrait (210 × 297 mm Standard Print)</option>
-                                    <option value="a4_landscape" data-i18n="pageA4Land">A4 Landscape (297 × 210 mm Wide Grid)</option>
-                                    <option value="us_letter" data-i18n="pageLetter">US Letter (8.5 × 11 in)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="qrLabel">QR Link / Interactive URL</label>
-                                <input type="text" id="worksheetQr" class="form-input" placeholder="https://example.com/interactive-quiz">
-                            </div>
+
+                            <details style="margin-bottom: 16px; border: 1px dashed var(--border-color, #CBD5E1); border-radius: 8px; padding: 10px 12px; background: rgba(0,0,0,0.02);">
+                                <summary style="cursor: pointer; font-size: 12px; font-weight: 700; color: var(--sapphire-primary, #2563EB); display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-sliders"></i> Advanced Customization Options (Optional)
+                                </summary>
+                                <div style="margin-top: 12px;">
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="templateTypeLabel">Worksheet Layout Template</label>
+                                        <select id="worksheetTemplateType" class="form-select">
+                                            <option value="standard" data-i18n="tmplStandard" selected>📖 Standard Textbook & Grammar Exercise</option>
+                                            <option value="comprehension" data-i18n="tmplComprehension">📰 Reading Comprehension & Text Analysis</option>
+                                            <option value="matching" data-i18n="tmplMatching">🔤 Vocabulary & Terminology Matching Grid</option>
+                                            <option value="mcq_quiz" data-i18n="tmplMcq">📝 Multiple Choice & Diagnostic Quiz</option>
+                                            <option value="writing" data-i18n="tmplWriting">✍️ Guided Essay Prompts & Creative Writing</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="testTypeLabel">Assessment Type</label>
+                                        <select id="worksheetTestType" class="form-select">
+                                            <option value="diagnostic" data-i18n="typeDiagnostic" selected>Diagnostic Test (Placement & Baseline Benchmark)</option>
+                                            <option value="mock" data-i18n="typeMock">Full Mock Exam / Practice Test</option>
+                                            <option value="worksheet" data-i18n="typeStandard">Standard Exercise Worksheet</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="skillsFocusLabel">Language Skills Focus</label>
+                                        <select id="worksheetSkillsFocus" class="form-select">
+                                            <option value="trisection" data-i18n="focusTri" selected>Complete (Reading Comprehension + Language + Writing)</option>
+                                            <option value="reading" data-i18n="focusReading">Reading Comprehension & Text Analysis</option>
+                                            <option value="language" data-i18n="focusLanguage">Language Mechanics, Grammar & Vocabulary</option>
+                                            <option value="writing" data-i18n="focusWriting">Guided Writing & Composition Prompts</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="formatLabel">Question Format</label>
+                                        <select id="worksheetFormat" class="form-select">
+                                            <option value="mixed" data-i18n="formatMixed">Mixed Quiz & Exercises</option>
+                                            <option value="mcq" data-i18n="formatMcq">Multiple Choice Questions (MCQ)</option>
+                                            <option value="solving" data-i18n="formatSolving">Problem Solving & Short Answer</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="fontLabel">Typography / Font Family</label>
+                                        <select id="worksheetFont" class="form-select">
+                                            <option value="modern" data-i18n="fontModern">Modern Sans (Plus Jakarta Sans)</option>
+                                            <option value="classic" data-i18n="fontClassic">Classic Serif (Playfair / Times)</option>
+                                            <option value="clean" data-i18n="fontClean">Clean Minimal (Inter)</option>
+                                            <option value="playful" data-i18n="fontPlayful">Playful Comic (Quicksand)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="illustrationLabel">Illustrations & Visuals</label>
+                                        <select id="worksheetIllustrations" class="form-select">
+                                            <option value="vector" data-i18n="illVector">Vector Diagrams & Icons</option>
+                                            <option value="lineart" data-i18n="illLineart">Minimalist Line Art</option>
+                                            <option value="infographics" data-i18n="illInfographics">Educational Infographics</option>
+                                            <option value="none" data-i18n="illNone">Text Only (No Illustrations)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="pageSizeLabel">Page Layout & Paper Size</label>
+                                        <select id="worksheetPageSize" class="form-select">
+                                            <option value="a4_portrait" data-i18n="pageA4Port" selected>A4 Portrait (210 × 297 mm Standard Print)</option>
+                                            <option value="a4_landscape" data-i18n="pageA4Land">A4 Landscape (297 × 210 mm Wide Grid)</option>
+                                            <option value="us_letter" data-i18n="pageLetter">US Letter (8.5 × 11 in)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="qrLabel">QR Link / Interactive URL</label>
+                                        <input type="text" id="worksheetQr" class="form-input" placeholder="https://example.com/interactive-quiz">
+                                    </div>
+                                </div>
+                            </details>
+
                             <button class="btn-action" onclick="generateAsset('worksheet')">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i>
                                 <span data-i18n="generateWorksheet">Generate Worksheet</span>
@@ -1700,7 +1709,7 @@
                                 </div>
                                 <div class="card-titles">
                                     <h3 data-i18n="pptTitle">PowerPoint Designer</h3>
-                                    <p data-i18n="pptDesc">Design professional, slide-ready educational decks with structured talking points.</p>
+                                    <p data-i18n="pptDesc">Fast 1-step presentation generator for slide deck and video presentations.</p>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1710,62 +1719,67 @@
                             <div class="form-group">
                                 <label class="form-label" data-i18n="slideCountLabel">Slide Count</label>
                                 <select id="pptSlides" class="form-select">
-                                    <option value="5" data-i18n="slideCount5">5 Slides (Quick Brief)</option>
-                                    <option value="10" data-i18n="slideCount10">10 Slides (Standard Lesson)</option>
+                                    <option value="5" data-i18n="slideCount5" selected>5 Slides (Quick Lesson)</option>
+                                    <option value="10" data-i18n="slideCount10">10 Slides (Standard Deck)</option>
                                     <option value="15" data-i18n="slideCount15">15 Slides (Deep Dive Masterclass)</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="toneLabel">Presentation Tone & Style</label>
-                                <select id="pptTone" class="form-select">
-                                    <option value="academic" data-i18n="toneAcademic">Academic & Formal</option>
-                                    <option value="engaging" data-i18n="toneEngaging">Engaging & Storytelling</option>
-                                    <option value="workshop" data-i18n="toneWorkshop">Interactive Workshop</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="fontLabel">Typography / Font Family</label>
-                                <select id="pptFont" class="form-select">
-                                    <option value="modern" data-i18n="fontModern">Modern Sans (Plus Jakarta Sans)</option>
-                                    <option value="classic" data-i18n="fontClassic">Classic Serif (Playfair / Times)</option>
-                                    <option value="clean" data-i18n="fontClean">Clean Minimal (Inter)</option>
-                                    <option value="playful" data-i18n="fontPlayful">Playful Comic (Quicksand)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="pptColorTheme">Presentation Color Theme</label>
-                                <select id="pptColorTheme" class="form-select">
-                                    <option value="blue">Sapphire Blue (Corporate/Academic)</option>
-                                    <option value="green">Emerald Green (Fresh/Modern)</option>
-                                    <option value="purple">Amethyst Purple (Creative)</option>
-                                    <option value="dark">Midnight Dark (Elegant)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="qrLabel">QR Link / Interactive URL (For Slides)</label>
-                                <input type="text" id="pptQr" class="form-input" placeholder="https://example.com/slide-resources">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="illustrationLabel">Illustrations & Visuals</label>
-                                <select id="pptIllustrations" class="form-select">
-                                    <option value="vector" data-i18n="illVector">Vector Diagrams & Icons</option>
-                                    <option value="lineart" data-i18n="illLineart">Minimalist Line Art</option>
-                                    <option value="infographics" data-i18n="illInfographics">Educational Infographics</option>
-                                    <option value="none" data-i18n="illNone">Text Only (No Illustrations)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="pageSizeLabel">Page Layout & Paper Size</label>
-                                <select id="pptPageSize" class="form-select">
-                                    <option value="wide_16_9" data-i18n="page169" selected>16:9 Widescreen (Presentation Standard)</option>
-                                    <option value="a4_landscape" data-i18n="pageA4Land">A4 Landscape Handout (297 × 210 mm)</option>
-                                    <option value="a4_portrait" data-i18n="pageA4Port">A4 Portrait Print (210 × 297 mm)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="qrLabel">QR Link / Interactive URL</label>
-                                <input type="text" id="pptQr" class="form-input" placeholder="https://example.com/interactive-slides">
-                            </div>
+
+                            <details style="margin-bottom: 16px; border: 1px dashed var(--border-color, #CBD5E1); border-radius: 8px; padding: 10px 12px; background: rgba(0,0,0,0.02);">
+                                <summary style="cursor: pointer; font-size: 12px; font-weight: 700; color: #FF5E62; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-sliders"></i> Advanced Customization Options (Optional)
+                                </summary>
+                                <div style="margin-top: 12px;">
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="toneLabel">Presentation Tone & Style</label>
+                                        <select id="pptTone" class="form-select">
+                                            <option value="academic" data-i18n="toneAcademic">Academic & Formal</option>
+                                            <option value="engaging" data-i18n="toneEngaging">Engaging & Storytelling</option>
+                                            <option value="workshop" data-i18n="toneWorkshop">Interactive Workshop</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="fontLabel">Typography / Font Family</label>
+                                        <select id="pptFont" class="form-select">
+                                            <option value="modern" data-i18n="fontModern">Modern Sans (Plus Jakarta Sans)</option>
+                                            <option value="classic" data-i18n="fontClassic">Classic Serif (Playfair / Times)</option>
+                                            <option value="clean" data-i18n="fontClean">Clean Minimal (Inter)</option>
+                                            <option value="playful" data-i18n="fontPlayful">Playful Comic (Quicksand)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="pptColorTheme">Presentation Color Theme</label>
+                                        <select id="pptColorTheme" class="form-select">
+                                            <option value="blue">Sapphire Blue (Corporate/Academic)</option>
+                                            <option value="green">Emerald Green (Fresh/Modern)</option>
+                                            <option value="purple">Amethyst Purple (Creative)</option>
+                                            <option value="dark">Midnight Dark (Elegant)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="illustrationLabel">Illustrations & Visuals</label>
+                                        <select id="pptIllustrations" class="form-select">
+                                            <option value="vector" data-i18n="illVector">Vector Diagrams & Icons</option>
+                                            <option value="lineart" data-i18n="illLineart">Minimalist Line Art</option>
+                                            <option value="infographics" data-i18n="illInfographics">Educational Infographics</option>
+                                            <option value="none" data-i18n="illNone">Text Only (No Illustrations)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="pageSizeLabel">Page Layout & Paper Size</label>
+                                        <select id="pptPageSize" class="form-select">
+                                            <option value="wide_16_9" data-i18n="page169" selected>16:9 Widescreen (Presentation Standard)</option>
+                                            <option value="a4_landscape" data-i18n="pageA4Land">A4 Landscape Handout (297 × 210 mm)</option>
+                                            <option value="a4_portrait" data-i18n="pageA4Port">A4 Portrait Print (210 × 297 mm)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="qrLabel">QR Link / Interactive URL</label>
+                                        <input type="text" id="pptQr" class="form-input" placeholder="https://example.com/interactive-slides">
+                                    </div>
+                                </div>
+                            </details>
+
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px;">
                                 <button class="btn-action" onclick="generateAsset('ppt')">
                                     <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -1788,7 +1802,7 @@
                                 </div>
                                 <div class="card-titles">
                                     <h3 data-i18n="lessonPlanTitle">Lesson Plan Generator</h3>
-                                    <p data-i18n="lessonPlanDesc">Design comprehensive pedagogical lesson plans with objectives, timelines, and homework assignments.</p>
+                                    <p data-i18n="lessonPlanDesc">Fast 1-step lesson plan creator with objectives and pedagogical timeline.</p>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1798,51 +1812,60 @@
                             <div class="form-group">
                                 <label class="form-label" data-i18n="durationLabel">Session Duration</label>
                                 <select id="lessonDuration" class="form-select">
+                                    <option value="60" data-i18n="dur60" selected>60 Minutes (Standard Lesson)</option>
                                     <option value="30" data-i18n="dur30">30 Minutes (Mini-Lesson)</option>
-                                    <option value="45" data-i18n="dur45">45 Minutes (Standard Period)</option>
-                                    <option value="60" data-i18n="dur60" selected>60 Minutes (Deep Dive Session)</option>
+                                    <option value="45" data-i18n="dur45">45 Minutes (Short Period)</option>
                                     <option value="90" data-i18n="dur90">90 Minutes (Block Period)</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="pedagogyLabel">Pedagogical Approach</label>
-                                <select id="lessonPedagogy" class="form-select">
-                                    <option value="inquiry" data-i18n="pedInquiry">Inquiry-Based Learning</option>
-                                    <option value="direct" data-i18n="pedDirect">Direct Instruction</option>
-                                    <option value="project" data-i18n="pedProject">Project-Based Learning</option>
-                                    <option value="flipped" data-i18n="pedFlipped">Flipped Classroom</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="fontLabel">Typography / Font Family</label>
-                                <select id="lessonFont" class="form-select">
-                                    <option value="modern" data-i18n="fontModern">Modern Sans (Plus Jakarta Sans)</option>
-                                    <option value="classic" data-i18n="fontClassic">Classic Serif (Playfair / Times)</option>
-                                    <option value="clean" data-i18n="fontClean">Clean Minimal (Inter)</option>
-                                    <option value="playful" data-i18n="fontPlayful">Playful Comic (Quicksand)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="illustrationLabel">Illustrations & Visuals</label>
-                                <select id="lessonIllustrations" class="form-select">
-                                    <option value="vector" data-i18n="illVector">Vector Diagrams & Icons</option>
-                                    <option value="lineart" data-i18n="illLineart">Minimalist Line Art</option>
-                                    <option value="infographics" data-i18n="illInfographics">Educational Infographics</option>
-                                    <option value="none" data-i18n="illNone">Text Only (No Illustrations)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="pageSizeLabel">Page Layout & Paper Size</label>
-                                <select id="lessonPageSize" class="form-select">
-                                    <option value="a4_portrait" data-i18n="pageA4Port" selected>A4 Portrait (210 × 297 mm Standard Print)</option>
-                                    <option value="a4_landscape" data-i18n="pageA4Land">A4 Landscape (297 × 210 mm Overview)</option>
-                                    <option value="us_letter" data-i18n="pageLetter">US Letter (8.5 × 11 in)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="qrLabel">QR Link / Interactive URL</label>
-                                <input type="text" id="lessonQr" class="form-input" placeholder="https://example.com/lesson-resources">
-                            </div>
+
+                            <details style="margin-bottom: 16px; border: 1px dashed var(--border-color, #CBD5E1); border-radius: 8px; padding: 10px 12px; background: rgba(0,0,0,0.02);">
+                                <summary style="cursor: pointer; font-size: 12px; font-weight: 700; color: #10B981; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-sliders"></i> Advanced Customization Options (Optional)
+                                </summary>
+                                <div style="margin-top: 12px;">
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="pedagogyLabel">Pedagogical Approach</label>
+                                        <select id="lessonPedagogy" class="form-select">
+                                            <option value="direct" data-i18n="pedDirect" selected>Direct Instruction</option>
+                                            <option value="inquiry" data-i18n="pedInquiry">Inquiry-Based Learning</option>
+                                            <option value="project" data-i18n="pedProject">Project-Based Learning</option>
+                                            <option value="flipped" data-i18n="pedFlipped">Flipped Classroom</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="fontLabel">Typography / Font Family</label>
+                                        <select id="lessonFont" class="form-select">
+                                            <option value="modern" data-i18n="fontModern">Modern Sans (Plus Jakarta Sans)</option>
+                                            <option value="classic" data-i18n="fontClassic">Classic Serif (Playfair / Times)</option>
+                                            <option value="clean" data-i18n="fontClean">Clean Minimal (Inter)</option>
+                                            <option value="playful" data-i18n="fontPlayful">Playful Comic (Quicksand)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="illustrationLabel">Illustrations & Visuals</label>
+                                        <select id="lessonIllustrations" class="form-select">
+                                            <option value="vector" data-i18n="illVector">Vector Diagrams & Icons</option>
+                                            <option value="lineart" data-i18n="illLineart">Minimalist Line Art</option>
+                                            <option value="infographics" data-i18n="illInfographics">Educational Infographics</option>
+                                            <option value="none" data-i18n="illNone">Text Only (No Illustrations)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="pageSizeLabel">Page Layout & Paper Size</label>
+                                        <select id="lessonPageSize" class="form-select">
+                                            <option value="a4_portrait" data-i18n="pageA4Port" selected>A4 Portrait (210 × 297 mm Standard Print)</option>
+                                            <option value="a4_landscape" data-i18n="pageA4Land">A4 Landscape (297 × 210 mm Overview)</option>
+                                            <option value="us_letter" data-i18n="pageLetter">US Letter (8.5 × 11 in)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="qrLabel">QR Link / Interactive URL</label>
+                                        <input type="text" id="lessonQr" class="form-input" placeholder="https://example.com/lesson-resources">
+                                    </div>
+                                </div>
+                            </details>
+
                             <button class="btn-action" onclick="generateAsset('lesson')">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i>
                                 <span data-i18n="generateLessonPlan">Generate Lesson Plan</span>
