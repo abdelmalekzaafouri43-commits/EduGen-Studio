@@ -2051,6 +2051,10 @@
                         <i class="fa-solid fa-print" style="color: #10B981;"></i>
                         <span data-i18n="exportPrint">Print-Optimized View</span>
                     </button>
+                    <button class="btn-secondary" onclick="copyModalContentToClipboard(this)" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; padding: 10px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.4); color: var(--text-main);">
+                        <i class="fa-solid fa-copy" style="color: #38BDF8;"></i>
+                        <span>Copy to Clipboard</span>
+                    </button>
                     <button class="btn-secondary" onclick="saveToFirestore()" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; padding: 10px; grid-column: span 2; background: linear-gradient(135deg, #10B981, #047857); color: white; border: none;">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
                         <span>Save to Firebase Library</span>
@@ -4337,6 +4341,77 @@ IMPORTANT RULES:
                     btn.disabled = false;
                 }
             }
+        }
+
+        function copyModalContentToClipboard(btn) {
+            try {
+                const textbookContainer = document.getElementById('textbookPreviewContainer');
+                const videoContainer = document.getElementById('videoPreviewContainer');
+                let textToCopy = '';
+
+                if (textbookContainer && textbookContainer.style.display !== 'none') {
+                    textToCopy = textbookContainer.innerText || textbookContainer.textContent || '';
+                } else if (videoContainer && videoContainer.style.display !== 'none') {
+                    const heading = document.getElementById('videoSlideHeading')?.textContent || '';
+                    const text = document.getElementById('videoSlideText')?.textContent || '';
+                    const tag = document.getElementById('videoSlideTag')?.textContent || '';
+                    textToCopy = `${tag}\n${heading}\n\n${text}`;
+                    if (typeof dummySlides !== 'undefined' && Array.isArray(dummySlides) && dummySlides.length > 0) {
+                        textToCopy += '\n\n--- Full Presentation Deck ---\n';
+                        dummySlides.forEach((s, idx) => {
+                            textToCopy += `Slide ${idx + 1}: ${s.title}\n${s.desc}\n\n`;
+                        });
+                    }
+                } else {
+                    const modalDesc = document.getElementById('modalDesc')?.textContent || '';
+                    textToCopy = modalDesc;
+                }
+
+                if (!textToCopy.trim()) {
+                    alert("No text content available to copy.");
+                    return;
+                }
+
+                const copySuccess = () => {
+                    if (!btn) return;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = `<i class="fa-solid fa-check" style="color: #10B981;"></i> <span>Copied to Clipboard!</span>`;
+                    btn.style.borderColor = '#10B981';
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+                    }, 2200);
+                };
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(textToCopy.trim())
+                        .then(copySuccess)
+                        .catch(() => fallbackCopyTextToClipboard(textToCopy.trim(), copySuccess));
+                } else {
+                    fallbackCopyTextToClipboard(textToCopy.trim(), copySuccess);
+                }
+            } catch (err) {
+                console.error("Copy to clipboard error:", err);
+                alert("Failed to copy content. Please select text manually.");
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text, callback) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful && callback) callback();
+            } catch (err) {
+                console.error('Fallback copy error:', err);
+            }
+            document.body.removeChild(textArea);
         }
 
         function exportFile(format) {
