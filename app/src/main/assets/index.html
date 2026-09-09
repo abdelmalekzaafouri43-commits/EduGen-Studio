@@ -1578,6 +1578,58 @@
                         </button>
                     </div>
 
+                    <!-- Interactive AI Chat Assistant Space -->
+                    <div class="creation-card" style="margin-bottom: 20px; background: rgba(15, 23, 42, 0.4); border: 1.5px solid var(--sapphire-primary, #2563EB); border-radius: 16px; padding: 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.25);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.1)); padding-bottom: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #2563EB, #38BDF8); border-radius: 10px; display: flex; align-items: center; justify-content: justify-content; align-items: center; justify-content: center; color: white; font-size: 18px; box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
+                                    <i class="fa-solid fa-comments"></i>
+                                </div>
+                                <div>
+                                    <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main, #1E293B); margin: 0;">AI Teacher & Curriculum Chat Space</h3>
+                                    <p style="font-size: 11px; color: var(--text-muted, #64748B); margin: 2px 0 0 0;">Chat with AI to generate customized worksheets, PowerPoint decks, or lesson plans directly in natural language.</p>
+                                </div>
+                            </div>
+                            <span style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px;">
+                                <i class="fa-solid fa-circle" style="font-size: 6px; vertical-align: middle; margin-right: 4px;"></i> Gemini Ready
+                            </span>
+                        </div>
+
+                        <!-- Chat Stream Container -->
+                        <div id="aiChatStream" style="max-height: 220px; min-height: 100px; overflow-y: auto; margin-bottom: 14px; padding-right: 6px;">
+                            <div style="display: flex; justify-content: flex-start; margin-bottom: 12px;">
+                                <div style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color, #CBD5E1); padding: 12px 16px; border-radius: 14px 14px 14px 2px; max-width: 85%; font-size: 13px; line-height: 1.5; color: var(--text-main);">
+                                    <div style="display: flex; align-items: center; gap: 6px; color: var(--sapphire-primary, #2563EB); font-weight: 700; margin-bottom: 4px;">
+                                        <i class="fa-solid fa-robot"></i> EduGen AI Assistant
+                                    </div>
+                                    Hello! 👋 I am your AI Curriculum Assistant. How can I assist you today? Ask me any question or tell me to generate a <strong>Worksheet</strong>, <strong>PowerPoint Presentation</strong>, or <strong>Lesson Plan</strong> directly in plain text!
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Action Suggestion Chips -->
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+                            <button class="btn-secondary" onclick="sendAiChatMessage('Generate a 5th grade English worksheet on Present Simple vs Present Continuous')" style="padding: 5px 10px; font-size: 11px; font-weight: 600; border-radius: 20px;">
+                                ✍️ 5th Grade Past Simple Worksheet
+                            </button>
+                            <button class="btn-secondary" onclick="sendAiChatMessage('Generate a French FLE worksheet on Le Passé Composé avec Être et Avoir')" style="padding: 5px 10px; font-size: 11px; font-weight: 600; border-radius: 20px;">
+                                🇫🇷 Passé Composé FLE Worksheet
+                            </button>
+                            <button class="btn-secondary" onclick="sendAiChatMessage('Generate a 10 slide PowerPoint presentation on English Phrasal Verbs')" style="padding: 5px 10px; font-size: 11px; font-weight: 600; border-radius: 20px;">
+                                📊 Phrasal Verbs Presentation Deck
+                            </button>
+                        </div>
+
+                        <!-- Chat Prompt Input Row -->
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text" id="aiChatInput" class="form-input" placeholder="Chat with AI or type a prompt (e.g. 'Build a 6th grade reading comprehension worksheet')..." onkeydown="if(event.key==='Enter') sendAiChatMessage()" style="flex: 1; border-radius: 12px; font-size: 13px; padding: 12px 14px;">
+                            <button class="btn-action" onclick="sendAiChatMessage()" style="flex: 0 0 auto; width: auto; padding: 0 20px; border-radius: 12px; height: 46px; margin-top: 0;">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Send</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- 3 Compact Creator Selector Buttons -->
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
                         <button class="btn-secondary" onclick="toggleCreatorCard('worksheet')" id="btnToggleWorksheet" style="justify-content: center; gap: 8px; padding: 14px; font-size: 13px;">
@@ -2574,6 +2626,95 @@
         }
 
         /**
+         * Interactive Chat Handler for user conversation with EduGen AI Assistant.
+         * Processes user queries, answers questions, and auto-triggers asset generation.
+         */
+        async function sendAiChatMessage(presetText) {
+            const input = document.getElementById('aiChatInput');
+            const query = (presetText || input?.value || '').trim();
+            if (!query) return;
+
+            if (input) input.value = '';
+
+            const chatStream = document.getElementById('aiChatStream');
+            if (!chatStream) return;
+
+            // Add User Message
+            const escapedQuery = query.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const userMsgHtml = `
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+                    <div style="background: linear-gradient(135deg, var(--sapphire-primary, #2563EB), #1E3A8A); color: white; padding: 10px 14px; border-radius: 14px 14px 2px 14px; max-width: 80%; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); line-height: 1.5;">
+                        <strong>You:</strong> ${escapedQuery}
+                    </div>
+                </div>`;
+            chatStream.insertAdjacentHTML('beforeend', userMsgHtml);
+
+            // Add Loading AI Placeholder
+            const loadingId = 'ai_loading_' + Date.now();
+            const aiLoadingHtml = `
+                <div id="${loadingId}" style="display: flex; justify-content: flex-start; margin-bottom: 12px;">
+                    <div style="background: rgba(255,255,255,0.06); border: 1px solid var(--border-color, #CBD5E1); color: var(--text-main, #1E293B); padding: 12px 16px; border-radius: 14px 14px 14px 2px; max-width: 85%; font-size: 13px; line-height: 1.5;">
+                        <div style="display: flex; align-items: center; gap: 8px; color: var(--sapphire-primary, #2563EB); font-weight: 700; margin-bottom: 4px;">
+                            <i class="fa-solid fa-sparkles fa-spin"></i> EduGen AI Assistant
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 12px;">Thinking and generating response...</div>
+                    </div>
+                </div>`;
+            chatStream.insertAdjacentHTML('beforeend', aiLoadingHtml);
+            chatStream.scrollTop = chatStream.scrollHeight;
+
+            try {
+                const lowerQuery = query.toLowerCase();
+                let promptType = 'chat';
+                if (lowerQuery.includes('worksheet') || lowerQuery.includes('exercice') || lowerQuery.includes('quiz') || lowerQuery.includes('fiche')) {
+                    promptType = 'worksheet';
+                } else if (lowerQuery.includes('ppt') || lowerQuery.includes('presentation') || lowerQuery.includes('diaporama') || lowerQuery.includes('powerpoint') || lowerQuery.includes('slide')) {
+                    promptType = 'ppt';
+                } else if (lowerQuery.includes('lesson') || lowerQuery.includes('plan de cours') || lowerQuery.includes('pedagog')) {
+                    promptType = 'lesson';
+                }
+
+                if (promptType === 'worksheet') {
+                    const topicInput = document.getElementById('worksheetTopic');
+                    if (topicInput) topicInput.value = query;
+                    await generateAsset('worksheet');
+                    const el = document.getElementById(loadingId);
+                    if (el) el.innerHTML = `<div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; color: #047857; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 600;">✨ Worksheet generated! Opening asset preview modal...</div>`;
+                } else if (promptType === 'ppt') {
+                    const pptInput = document.getElementById('pptTopic');
+                    if (pptInput) pptInput.value = query;
+                    await generateAsset('ppt');
+                    const el = document.getElementById(loadingId);
+                    if (el) el.innerHTML = `<div style="background: rgba(255, 94, 98, 0.1); border: 1px solid #FF5E62; color: #C53030; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 600;">✨ PowerPoint presentation generated! Opening slide deck preview...</div>`;
+                } else if (promptType === 'lesson') {
+                    const lessonInput = document.getElementById('lessonTopic');
+                    if (lessonInput) lessonInput.value = query;
+                    await generateAsset('lesson');
+                    const el = document.getElementById(loadingId);
+                    if (el) el.innerHTML = `<div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; color: #047857; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 600;">✨ Pedagogical lesson plan generated! Opening lesson preview...</div>`;
+                } else {
+                    const systemContext = "You are EduGen AI Assistant, a professional curriculum designer & master teacher in English (ESL) and French (FLE). Answer clearly, concisely, and helpfully.";
+                    const response = await callGeminiApi(`${systemContext}\n\nUser Question: ${query}`);
+                    const el = document.getElementById(loadingId);
+                    if (el) {
+                        const formattedText = (response || "I am ready to help you create worksheets, PowerPoint presentations, or pedagogical lesson plans! Just ask.").replace(/\n/g, '<br>');
+                        el.innerHTML = `
+                            <div style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color, #CBD5E1); padding: 12px 16px; border-radius: 14px; font-size: 13px; line-height: 1.6; color: var(--text-main);">
+                                <div style="display: flex; align-items: center; gap: 6px; color: var(--sapphire-primary, #2563EB); font-weight: 700; margin-bottom: 6px;">
+                                    <i class="fa-solid fa-robot"></i> EduGen AI Assistant
+                                </div>
+                                ${formattedText}
+                            </div>`;
+                    }
+                }
+            } catch (err) {
+                const el = document.getElementById(loadingId);
+                if (el) el.innerHTML = `<div style="color: #EF4444; font-size: 12px;">Error contacting AI service. Please verify your API key in Settings.</div>`;
+            }
+            chatStream.scrollTop = chatStream.scrollHeight;
+        }
+
+        /**
          * Dynamically generates a QR Code visual badge element for worksheets, PowerPoint presentations, and lesson plans.
          * @param {string} url - The URL or content to encode.
          * @param {object} options - Custom styling options (size, label, themeColor, borderColor, bgColor, textColor, variant).
@@ -2618,6 +2759,99 @@
                 </div>
                 <div style="font-size: 8.5px; color: ${textColor}; margin-top: 6px; word-break: break-all; max-width: ${size + 40}px; font-family: monospace; font-weight: 600;">
                     🔗 ${cleanUrl}
+                </div>
+            </div>`;
+        }
+
+        let currentWorksheetIllustrationUrl = '';
+
+        /**
+         * Generates dynamic educational illustrations using Imagen AI (or Gemini / Pollinations synthesis fallback).
+         * @param {string} topic - Educational topic / subject matter
+         * @param {string} style - Illustration style (vector, lineart, infographics, cartoon, 3d)
+         * @returns {Promise<string>} - Image URL or base64 data URI
+         */
+        async function generateEducationalIllustration(topic, style = 'vector') {
+            const cleanTopic = (topic || 'Educational Subject').trim();
+            let stylePrompt = "clean modern educational vector diagram with vibrant colors on white background";
+            if (style === 'lineart') {
+                stylePrompt = "minimalist black and white educational line art illustration, clean vector line art";
+            } else if (style === 'infographics' || style === 'infographic') {
+                stylePrompt = "vibrant educational infographic diagram with clear icons and labeled visual chart";
+            } else if (style === 'cartoon') {
+                stylePrompt = "friendly, engaging educational cartoon illustration for elementary students, bright colors";
+            } else if (style === '3d') {
+                stylePrompt = "smooth 3D render educational isometric model, soft studio lighting";
+            }
+
+            const fullPrompt = `A high-quality educational illustration about "${cleanTopic}" for a student learning worksheet. ${stylePrompt}. White background, highly detailed pedagogical visual, 4:3 aspect ratio.`;
+
+            const apiKey = typeof getApiKey === 'function' ? getApiKey() : '';
+            if (apiKey) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            instances: [{ prompt: fullPrompt }],
+                            parameters: { sampleCount: 1, aspectRatio: "4:3", outputMimeType: "image/jpeg" }
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.predictions && data.predictions[0] && data.predictions[0].bytesBase64Encoded) {
+                        return `data:image/jpeg;base64,${data.predictions[0].bytesBase64Encoded}`;
+                    }
+                } catch (err) {
+                    console.warn("Imagen API endpoint fallback:", err);
+                }
+            }
+
+            const encodedPrompt = encodeURIComponent(fullPrompt);
+            return `https://pollinations.ai/p/${encodedPrompt}?width=512&height=384&seed=${Math.floor(Math.random()*10000)}&nologo=true`;
+        }
+
+        async function triggerImagenRegeneration(customTopic) {
+            const topic = customTopic || document.getElementById('worksheetTopic')?.value || 'Educational Subject';
+            const style = document.getElementById('worksheetIllustrations')?.value || 'vector';
+            const imgEl = document.getElementById('worksheetIllustrationImg');
+            const containerEl = document.getElementById('worksheetIllustrationCard');
+            const statusEl = document.getElementById('worksheetIllustrationStatus');
+
+            if (containerEl) containerEl.style.opacity = '0.6';
+            if (statusEl) statusEl.textContent = 'Generating with Imagen AI...';
+
+            const newUrl = await generateEducationalIllustration(topic, style);
+            currentWorksheetIllustrationUrl = newUrl;
+
+            if (imgEl) {
+                imgEl.src = newUrl;
+                imgEl.alt = `AI Illustration: ${topic}`;
+            }
+            if (containerEl) containerEl.style.opacity = '1';
+            if (statusEl) statusEl.textContent = 'Imagen AI Educational Visual';
+        }
+
+        function getIllustrationCardHTML(topic, style = 'vector', initialImgUrl = '') {
+            if (style === 'none') return '';
+            const rawTopic = (topic || 'Educational Subject').trim();
+            const safeTopic = rawTopic.replace(/'/g, "\\'");
+            const promptText = `A high-quality educational illustration about "${rawTopic}" for a student learning worksheet. White background, vector style.`;
+            const defaultUrl = initialImgUrl || `https://pollinations.ai/p/${encodeURIComponent(promptText)}?width=512&height=384&seed=42&nologo=true`;
+
+            return `
+            <div id="worksheetIllustrationCard" style="background: #F8FAFC; border: 1.5px solid #2563EB; border-radius: 10px; padding: 10px; text-align: center; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(37,99,235,0.08); transition: opacity 0.3s ease;">
+                <div style="font-size: 10px; font-weight: 800; color: #1E3A8A; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                    <span id="worksheetIllustrationStatus" style="display: flex; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="color: #2563EB;"></i> Imagen AI Visual
+                    </span>
+                    <button onclick="triggerImagenRegeneration('${safeTopic}')" style="background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 8.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-arrows-rotate"></i> Regenerate
+                    </button>
+                </div>
+                <img id="worksheetIllustrationImg" src="${defaultUrl}" alt="Educational Illustration" style="width: 100%; max-height: 150px; object-fit: contain; border-radius: 8px; border: 1px solid #CBD5E1; background: #FFFFFF;">
+                <div style="font-size: 8.5px; color: #64748B; margin-top: 4px; font-style: italic;">
+                    Dynamically generated with Imagen AI model
                 </div>
             </div>`;
         }
@@ -3046,6 +3280,7 @@
                                     ${isFrench ? 'Soulignez les concepts clés et justifiez chaque réponse avec un extrait textuel.' : 'Highlight fundamental principles and support every response with concrete textual evidence.'}
                                 </div>
                             </div>
+                            ${getIllustrationCardHTML(rawTopic, illusChoice, currentWorksheetIllustrationUrl)}
                             ${qrCodeDisplay}
                         </div>
                     </div>
@@ -3826,6 +4061,8 @@
                 const illus = illusSelect ? illusSelect.value : 'vector';
                 const qr = qrInput ? qrInput.value.trim() : '';
 
+                currentWorksheetIllustrationUrl = '';
+
                 modal.classList.add('show');
                 if (videoContainer) videoContainer.style.display = 'none';
                 if (exportVideoBtn) exportVideoBtn.style.display = 'none';
@@ -3898,9 +4135,12 @@ FORMATTING RULES:
                             bgColor: '#EFF6FF'
                         }) : '';
                         
-                        const layoutContent = qr 
-                            ? `<div style="display: grid; grid-template-columns: 3fr 1fr; gap: 14px; align-items: start;"><div>${cleanHtml}</div><div>${qrCodeDisplay}</div></div>`
-                            : `<div>${cleanHtml}</div>`;
+                        if (illusChoice !== 'none' && !currentWorksheetIllustrationUrl) {
+                            currentWorksheetIllustrationUrl = await generateEducationalIllustration(topic, illusChoice);
+                        }
+                        const illustrationCard = getIllustrationCardHTML(topic, illusChoice, currentWorksheetIllustrationUrl);
+                        
+                        const layoutContent = `<div style="display: grid; grid-template-columns: 3fr 1fr; gap: 14px; align-items: start;"><div>${cleanHtml}</div><div style="display: flex; flex-direction: column; gap: 10px;">${illustrationCard}${qrCodeDisplay}</div></div>`;
 
                         generatedHtml = `
                         <div style="font-family: ${fontFamily}; color: #1E293B;">
@@ -3923,6 +4163,9 @@ FORMATTING RULES:
                 }
 
                 if (textbookContainer) {
+                    if (!generatedHtml && illus !== 'none') {
+                        currentWorksheetIllustrationUrl = await generateEducationalIllustration(topic, illus);
+                    }
                     textbookContainer.innerHTML = generatedHtml || buildDynamicWorksheetHTML(topic, level, tmplType, testType, skillsFocus, fontStyle, illus, qr);
                 }
 
