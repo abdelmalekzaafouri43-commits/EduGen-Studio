@@ -131,7 +131,17 @@
             min-height: 100vh;
         }
 
-        /* 1. Left Sidebar Dashboard (Control Panel) */
+        .main-content-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: var(--sidebar-width);
+            min-width: 0;
+            width: calc(100% - var(--sidebar-width));
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 1. Left Sidebar Dashboard (Control Panel) - ALWAYS ON THE LEFT */
         aside.sidebar {
             width: var(--sidebar-width);
             background-color: var(--sidebar-bg, #040810);
@@ -145,7 +155,9 @@
             bottom: 0;
             left: 0;
             z-index: 100;
-            transition: transform 0.3s ease;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease, box-shadow 0.3s ease;
         }
 
         /* Branding Zone */
@@ -349,7 +361,7 @@
 
         /* 2. Main Workspace Canvas */
         main.workspace {
-            margin-left: var(--sidebar-width);
+            margin-left: 0;
             flex-grow: 1;
             padding: 0 32px 32px 32px;
             min-height: 100vh;
@@ -1139,38 +1151,258 @@
             }
         }
 
-        @media (max-width: 1024px) {
-            .sidebar-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background: rgba(0, 0, 0, 0.5);
-                backdrop-filter: blur(4px);
-                -webkit-backdrop-filter: blur(4px);
-                z-index: 105;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.3s ease;
+        /* CRITICAL REQUIREMENT: The dashboard is ALWAYS on the left of the screen */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 105;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .rail-toggle-item {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --sidebar-width: 68px;
             }
-            .sidebar-overlay.active {
-                opacity: 1;
-                pointer-events: auto;
+
+            .main-content-wrapper {
+                margin-left: 68px;
+                width: calc(100% - 68px);
             }
+
+            /* The dashboard remains docked on the left at all times in sleek rail mode */
             aside.sidebar {
-                transform: translateX(-100%);
-                z-index: 110;
+                width: 68px;
+                padding: 16px 6px;
+                align-items: center;
+                transform: none !important; /* CRITICAL: Dashboard is ALWAYS on the left of the screen */
             }
+
+            .sidebar-brand {
+                justify-content: center;
+                margin-bottom: 14px;
+                gap: 0;
+            }
+
+            .sidebar-brand .brand-logo {
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
+
+            .sidebar-brand .brand-title {
+                display: none;
+            }
+
+            .nav-item-customize {
+                padding: 8px 4px !important;
+                flex-direction: column !important;
+                gap: 4px !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+            }
+
+            .nav-item-customize span {
+                font-size: 9px !important;
+                max-width: 56px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: block;
+            }
+
+            #hiddenSpaces {
+                display: none !important;
+            }
+
+            .sidebar-menu {
+                width: 100%;
+                gap: 6px;
+                align-items: center;
+            }
+
+            .nav-item {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 8px 2px;
+                gap: 3px;
+                border-radius: 10px;
+                width: 100%;
+                text-align: center;
+            }
+
+            .nav-item i {
+                font-size: 18px;
+                width: auto;
+            }
+
+            .nav-item span {
+                font-size: 9px;
+                font-weight: 600;
+                max-width: 58px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: block;
+                line-height: 1.1;
+            }
+
+            .premium-widget,
+            .sidebar-footer-text {
+                display: none;
+            }
+
+            .rail-toggle-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 3px;
+                padding: 8px 2px;
+                color: var(--sapphire-primary);
+                cursor: pointer;
+                border-radius: 10px;
+                margin-top: 8px;
+                width: 100%;
+                border: 1px dashed rgba(51, 136, 255, 0.4);
+                background: rgba(51, 136, 255, 0.06);
+                transition: all 0.2s ease;
+            }
+
+            .rail-toggle-item:hover {
+                background: rgba(51, 136, 255, 0.15);
+            }
+
+            .rail-toggle-label {
+                font-size: 9px;
+                font-weight: 700;
+                color: var(--sapphire-primary);
+            }
+
+            /* When expanded: Slides open from the left to 270px width, still docked on the left */
             aside.sidebar.mobile-open {
-                transform: translateX(0);
+                width: 270px;
+                padding: 24px 20px;
+                align-items: stretch;
+                z-index: 120;
+                box-shadow: 12px 0 35px rgba(0, 0, 0, 0.75);
             }
+
+            aside.sidebar.mobile-open .sidebar-brand {
+                justify-content: flex-start;
+                gap: 14px;
+            }
+
+            aside.sidebar.mobile-open .sidebar-brand .brand-title {
+                display: block;
+            }
+
+            aside.sidebar.mobile-open .nav-item-customize {
+                padding: 14px 16px !important;
+                flex-direction: row !important;
+                gap: 14px !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                text-align: left !important;
+            }
+
+            aside.sidebar.mobile-open .nav-item-customize span {
+                font-size: 14px !important;
+                max-width: none;
+            }
+
+            aside.sidebar.mobile-open #hiddenSpaces.open-space {
+                display: block !important;
+            }
+
+            aside.sidebar.mobile-open .nav-item {
+                flex-direction: row;
+                justify-content: flex-start;
+                padding: 14px 16px;
+                gap: 14px;
+                text-align: left;
+            }
+
+            aside.sidebar.mobile-open .nav-item i {
+                font-size: 18px;
+                width: 24px;
+            }
+
+            aside.sidebar.mobile-open .nav-item span {
+                font-size: 15px;
+                max-width: none;
+            }
+
+            aside.sidebar.mobile-open .premium-widget,
+            aside.sidebar.mobile-open .sidebar-footer-text {
+                display: block;
+            }
+
+            aside.sidebar.mobile-open .rail-toggle-item {
+                flex-direction: row;
+                gap: 8px;
+                padding: 10px 14px;
+            }
+
+            aside.sidebar.mobile-open .rail-toggle-label {
+                font-size: 13px;
+            }
+
             main.workspace {
-                margin-left: 0;
-                padding: 20px;
+                padding: 14px 12px 32px 12px;
             }
+
+            .workspace-header {
+                margin: 0 -12px 18px -12px;
+                padding: 14px 16px;
+            }
+
+            .workspace-title {
+                font-size: 18px;
+            }
+
+            .workspace-header-actions {
+                display: none;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+
+            .creation-card {
+                padding: 16px !important;
+            }
+
             .mobile-header {
                 display: flex;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-header {
+                display: none !important;
+            }
+            .rail-toggle-item {
+                display: none !important;
             }
         }
     </style>
@@ -1193,7 +1425,7 @@
                 </div>
 
                 <!-- Toggle Button to Display Hidden Spaces -->
-                <div class="nav-item" onclick="toggleHiddenSpaces()" style="background: rgba(0, 240, 255, 0.08); border: 1px dashed rgba(0, 240, 255, 0.3); margin-bottom: 12px; cursor: pointer;">
+                <div class="nav-item nav-item-customize" onclick="toggleHiddenSpaces()" style="background: rgba(0, 240, 255, 0.08); border: 1px dashed rgba(0, 240, 255, 0.3); margin-bottom: 12px; cursor: pointer;" title="Customize & Themes">
                     <i class="fa-solid fa-sliders"></i>
                     <span data-i18n="toggleSpaces">Customize & Themes</span>
                 </div>
@@ -1247,6 +1479,11 @@
                         <i class="fa-solid fa-key"></i>
                         <span data-i18n="navApiKey">API Key</span>
                     </div>
+                    <!-- Rail expand / collapse trigger item for compact mode -->
+                    <div class="rail-toggle-item" id="railToggleItem" onclick="toggleSidebar()" title="Expand Sidebar">
+                        <i class="fa-solid fa-angles-right" id="railToggleIcon"></i>
+                        <span class="rail-toggle-label" id="railToggleLabel" data-i18n="expandDashboard">More</span>
+                    </div>
                 </nav>
             </div>
 
@@ -1260,13 +1497,13 @@
                 <button class="upgrade-btn" style="background: linear-gradient(135deg, #047857, #10B981); color: #FFF; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="document.querySelectorAll('.nav-item')[3].click()">Connect Now</button>
             </div>
 
-            <div style="margin-top: 16px; text-align: center; font-size: 11px; color: var(--text-muted); opacity: 0.8; line-height: 1.4;">
+            <div class="sidebar-footer-text" style="margin-top: 16px; text-align: center; font-size: 11px; color: var(--text-muted); opacity: 0.8; line-height: 1.4;">
                 Created by <strong>Mr. Zaafouri Abdelmalek</strong><br>© All rights reserved
             </div>
         </aside>
 
-        <!-- Mobile Header Bar -->
-        <div style="flex-grow: 1; display: flex; flex-direction: column;">
+        <!-- Mobile Header Bar & Main Workspace Wrapper -->
+        <div class="main-content-wrapper" style="flex-grow: 1; display: flex; flex-direction: column;">
             <div class="mobile-header">
                 <button class="menu-toggle-btn" onclick="toggleSidebar()">
                     <i class="fa-solid fa-bars"></i>
@@ -2090,7 +2327,8 @@
                 tmplComprehension: "📰 Reading Comprehension & Text Analysis",
                 tmplMatching: "🔤 Vocabulary & Terminology Matching Grid",
                 tmplMcq: "📝 Multiple Choice & Diagnostic Quiz",
-                tmplWriting: "✍️ Guided Essay Prompts & Creative Writing"
+                tmplWriting: "✍️ Guided Essay Prompts & Creative Writing",
+                expandDashboard: "More"
             },
             fr: {
                 appTitle: "EduGen Studio",
@@ -2195,7 +2433,8 @@
                 tmplComprehension: "📰 Compréhension Écrite & Analyse de Texte",
                 tmplMatching: "🔤 Grille de Vocabulaire & Association de Termes",
                 tmplMcq: "📝 QCM & Test Diagnostique",
-                tmplWriting: "✍️ Sujets de Rédaction & Expression Écrite"
+                tmplWriting: "✍️ Sujets de Rédaction & Expression Écrite",
+                expandDashboard: "Plus"
             }
         };
 
@@ -2236,16 +2475,26 @@
                 element.classList.add('active');
             }
 
-            // Close mobile sidebar if open
-            document.getElementById('sidebar').classList.remove('mobile-open');
-            const overlay = document.getElementById('sidebarOverlay');
-            if (overlay) overlay.classList.remove('active');
+            // If sidebar expanded drawer was open on mobile, collapse back to compact left rail
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && sidebar.classList.contains('mobile-open')) {
+                toggleSidebar();
+            }
         }
 
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
+            const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            if (overlay) overlay.classList.toggle('active');
+            const icon = document.getElementById('railToggleIcon');
+            const label = document.getElementById('railToggleLabel');
+            const isOpen = sidebar.classList.toggle('mobile-open');
+            if (overlay) overlay.classList.toggle('active', isOpen);
+            if (icon) {
+                icon.className = isOpen ? "fa-solid fa-angles-left" : "fa-solid fa-angles-right";
+            }
+            if (label) {
+                label.textContent = isOpen ? (currentLang === 'fr' ? "Réduire" : "Collapse") : (currentLang === 'fr' ? "Plus" : "More");
+            }
         }
 
         function toggleCreatorCard(type) {
@@ -3731,8 +3980,19 @@ IMPORTANT RULES:
 
         function toggleHiddenSpaces() {
             const spaces = document.getElementById('hiddenSpaces');
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth <= 768 && !sidebar.classList.contains('mobile-open')) {
+                toggleSidebar();
+                if (spaces) {
+                    spaces.style.display = 'block';
+                    spaces.classList.add('open-space');
+                }
+                return;
+            }
             if (spaces) {
-                spaces.style.display = spaces.style.display === 'none' ? 'block' : 'none';
+                const isHidden = spaces.style.display === 'none' || spaces.style.display === '';
+                spaces.style.display = isHidden ? 'block' : 'none';
+                spaces.classList.toggle('open-space', isHidden);
             }
         }
     </script>
