@@ -1978,6 +1978,14 @@
 
     <!-- Lightweight JavaScript Translation Architecture & Interactivity -->
     <script>
+        // Global error boundary to protect WebView from uncaught script or unhandled rejection errors
+        window.addEventListener('error', function(e) {
+            console.warn('Handled global page error:', e.message);
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            console.warn('Handled unhandled rejection:', e.reason);
+        });
+
         const translations = {
             en: {
                 appTitle: "EduGen Studio",
@@ -2367,10 +2375,35 @@
             return slides;
         }
 
+        function isFrenchTopic(t) {
+            const s = (t || '').toLowerCase();
+            return currentLang === 'fr' || s.includes('français') || s.includes('francais') || s.includes('passé') || s.includes('imparfait') || s.includes('subjonctif') || s.includes('verbe') || s.includes('accord') || s.includes('conjugaison') || s.includes('grammaire') || s.includes('vocabulaire') || s.includes('littérature') || s.includes('leçon') || s.includes('cours') || s.includes('histoire');
+        }
+
+        function detectTopicDomain(t) {
+            const s = (t || '').toLowerCase();
+            if (/math|algebra|geometry|calculus|fraction|equation|arithmetic|triangle|pythagor|matrix|derivative|integral|probability|percent|nombre|géométrie|équation|multiplication|division/.test(s)) {
+                return 'math';
+            }
+            if (/science|biology|cell|photo|physics|chemistry|atom|molecule|gravity|solar|planet|ecosystem|dna|organ|genetic|climate|energy|water|chimie|physique|biologie|cellule|photosynthèse|atome/.test(s)) {
+                return 'science';
+            }
+            if (/history|war|revolution|empire|century|president|king|queen|egypt|rome|greek|civilization|medieval|renaissance|historique|siècle|guerre|révolution|napoléon|pharaon/.test(s)) {
+                return 'history';
+            }
+            if (/literature|poetry|poem|novel|author|shakespeare|character|playwright|molière|roman|poésie|théâtre|drame|hugo|balzac|essay|writing/.test(s)) {
+                return 'literature';
+            }
+            if (/grammar|tense|verb|adjective|noun|vocabulary|phrasal|pronoun|conjugaison|imparfait|passé|accord|syntax|idiom|temps|participe/.test(s)) {
+                return 'grammar';
+            }
+            return 'general';
+        }
+
         function buildDynamicWorksheetHTML(topic, levelVal, tmplType, testTypeVal, skillsFocusVal, fontChoice, illusChoice, qrVal) {
-            const rawTopic = topic.trim() || (currentLang === 'fr' ? 'Le Passé Composé et L\'Imparfait' : 'Present Perfect vs Past Simple');
-            const topicLower = rawTopic.toLowerCase();
-            const isFrenchTheme = currentLang === 'fr' || topicLower.includes('français') || topicLower.includes('passé') || topicLower.includes('imparfait') || topicLower.includes('bonjour') || topicLower.includes('accord') || topicLower.includes('vocabulaire') || topicLower.includes('dialogue') || topicLower.includes('adjectif') || topicLower.includes('verbe') || topicLower.includes('conjugaison');
+            const rawTopic = (topic && topic.trim() !== '') ? topic.trim() : (currentLang === 'fr' ? 'Le Passé Composé et L\'Imparfait' : 'Present Perfect vs Past Simple');
+            const isFrench = isFrenchTopic(rawTopic);
+            const domain = detectTopicDomain(rawTopic);
 
             // Typography styling
             let fontFamily = "'Plus Jakarta Sans', sans-serif";
@@ -2379,489 +2412,504 @@
             if (fontChoice === 'playful') fontFamily = "'Quicksand', 'Comic Sans MS', sans-serif";
 
             // Level Label
-            let levelLabel = isFrenchTheme ? "Collège (6ème - 3ème)" : "Middle School (Grades 6-8)";
-            if (levelVal === 'elem') levelLabel = isFrenchTheme ? "Élémentaire (CP - CM2)" : "Elementary (Grades 1-5)";
-            if (levelVal === 'high') levelLabel = isFrenchTheme ? "Lycée (2nde - Terminale)" : "High School (Grades 9-12)";
-            if (levelVal === 'college') levelLabel = isFrenchTheme ? "Enseignement Supérieur" : "Higher Education / University";
+            let levelLabel = isFrench ? "Collège (6ème - 3ème)" : "Middle School (Grades 6-8)";
+            if (levelVal === 'elem') levelLabel = isFrench ? "Élémentaire (CP - CM2)" : "Elementary (Grades 1-5)";
+            if (levelVal === 'high') levelLabel = isFrench ? "Lycée (2nde - Terminale)" : "High School (Grades 9-12)";
+            if (levelVal === 'college') levelLabel = isFrench ? "Enseignement Supérieur" : "Higher Education / University";
 
             // Test Type Title
-            let testTypeTitle = isFrenchTheme ? "Fiche de Travail Linguistique" : "Language Skills Practice Worksheet";
-            if (testTypeVal === 'diagnostic') testTypeTitle = isFrenchTheme ? "Test Diagnostique de Niveau" : "Diagnostic Language Benchmark";
-            if (testTypeVal === 'mock') testTypeTitle = isFrenchTheme ? "Examen Blanc de Langue" : "Full Language Mock Examination";
+            let testTypeTitle = isFrench ? "Fiche d'Exercices Thématique" : "Topic Skills Mastery Worksheet";
+            if (testTypeVal === 'diagnostic') testTypeTitle = isFrench ? "Évaluation Diagnostique" : "Diagnostic Placement Benchmark";
+            if (testTypeVal === 'mock') testTypeTitle = isFrench ? "Examen Blanc & Entraînement" : "Mock Examination & Practice Test";
 
             const qrCodeDisplay = qrVal ? `<div style="margin-top: 10px; text-align: center; display: flex; flex-direction: column; align-items: center;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qrVal)}" alt="QR Code" style="width: 70px; height: 70px; border-radius: 6px; border: 1.5px solid #CBD5E1; padding: 3px; background: white;"><div style="font-size: 8px; color: #475569; margin-top: 6px; word-break: break-all; max-width: 100px;">🔗 ${qrVal}</div></div>` : '';
+
+            // Domain-specific texts
+            let passageText = "";
+            let vocabTerms = [];
+            let q1 = "", q2 = "", q3 = "";
+            let tf1 = "", tf2 = "";
+            let mcqItems = [];
+            let matchingPairs = [];
+
+            if (isFrench) {
+                if (domain === 'science') {
+                    passageText = `L'étude scientifique de <b>${rawTopic}</b> permet de comprendre les mécanismes fondamentaux qui régissent les systèmes vivants et physiques. En analysant ce processus, les scientifiques observent comment la matière, les flux d'énergie et les interactions cellulaires ou chimiques maintiennent l'équilibre de notre environnement. L'expérimentation et l'observation rigoureuse constituent la base de toute découverte dans ce domaine.`;
+                    vocabTerms = [
+                        { term: "Hypothèse", def: "Proposition admise provisoirement" },
+                        { term: "Processus", def: "Enchaînement ordonné d'étapes" },
+                        { term: "Équilibre", def: "État de stabilité d'un système" }
+                    ];
+                    q1 = `Expliquez le principe fondamental de <b>${rawTopic}</b> tel que présenté dans le texte :`;
+                    q2 = `Quels éléments ou facteurs influent directement sur le déroulement de <b>${rawTopic}</b> ?`;
+                    q3 = `Pourquoi l'observation empirique et l'expérimentation sont-elles indispensables dans l'étude de <b>${rawTopic}</b> ?`;
+                    tf1 = `L'étude de <b>${rawTopic}</b> ne repose sur aucune méthode expérimentale.`;
+                    tf2 = `<b>${rawTopic}</b> joue un rôle direct dans la régulation et l'équilibre des systèmes étudiés.`;
+                    mcqItems = [
+                        { q: `Quel est l'objectif principal de l'étude de ${rawTopic} ?`, a: "Comprendre les lois et mécanismes naturels", b: "Ignorer les résultats expérimentaux", c: "Remplacer les lois de la physique" },
+                        { q: `Quelle méthode valide les théories sur ${rawTopic} ?`, a: "L'expérimentation méthodique et rigoureuse", b: "L'intuition non vérifiée", c: "Le hasard" }
+                    ];
+                } else if (domain === 'math') {
+                    passageText = `En mathématiques, la notion de <b>${rawTopic}</b> constitue un outil analytique indispensable pour modéliser des relations quantitatives et résoudre des problèmes complexes. La rigueur logique, l'application de formules précises et la vérification des résultats permettent aux élèves de développer une pensée déductive solide et transférable à d'autres disciplines.`;
+                    vocabTerms = [
+                        { term: "Théorème", def: "Proposition démontrée rigoureusement" },
+                        { term: "Variable", def: "Grandeur pouvant changer de valeur" },
+                        { term: "Résolution", def: "Procédure menant à la solution" }
+                    ];
+                    q1 = `Définissez avec précision les propriétés mathématiques essentielles de <b>${rawTopic}</b> :`;
+                    q2 = `Décrivez la démarche étape par étape permettant d'appliquer <b>${rawTopic}</b> à un problème concret :`;
+                    q3 = `Quelle méthode de vérification permet de s'assurer de l'exactitude d'un calcul lié à <b>${rawTopic}</b> ?`;
+                    tf1 = `En mathématiques, <b>${rawTopic}</b> ne nécessite aucune démonstration logique.`;
+                    tf2 = `La manipulation rigoureuse des variables est essentielle pour maîtriser <b>${rawTopic}</b>.`;
+                    mcqItems = [
+                        { q: `Quelle compétence est directement renforcée par l'apprentissage de ${rawTopic} ?`, a: "La déduction logique et l'analyse méthodique", b: "La mémorisation passive sans calcul", c: "L'estimation aléatoire" },
+                        { q: `Pour valider un résultat impliquant ${rawTopic}, il faut :`, a: "Vérifier la cohérence des étapes et substituer les valeurs", b: "Changer arbitrairement les signes", c: "Ne rien consigner par écrit" }
+                    ];
+                } else if (domain === 'history') {
+                    passageText = `L'histoire de <b>${rawTopic}</b> met en lumière les transformations sociales, politiques et économiques qui ont façonné notre époque. L'analyse critique des documents d'époque, la contextualisation des événements et la confrontation des témoignages permettent aux historiens de comprendre les causes profondes et la portée durable de cette période charnière.`;
+                    vocabTerms = [
+                        { term: "Chronologie", def: "Succession temporelle des faits" },
+                        { term: "Source primaire", def: "Document d'époque témoignant des faits" },
+                        { term: "Postérité", def: "Impact et héritage historique" }
+                    ];
+                    q1 = `Quels sont les facteurs historiques majeurs ayant déclenché ou favorisé <b>${rawTopic}</b> ?`;
+                    q2 = `Identifiez les principaux acteurs ou groupes sociaux impliqués dans <b>${rawTopic}</b> :`;
+                    q3 = `Quelles conséquences durables de <b>${rawTopic}</b> peut-on observer dans les sociétés modernes ?`;
+                    tf1 = `Les événements liés à <b>${rawTopic}</b> n'ont laissé aucune trace historique documentée.`;
+                    tf2 = `L'analyse des sources primaires est indispensable pour comprendre <b>${rawTopic}</b>.`;
+                    mcqItems = [
+                        { q: `Quelle est l'importance de contextualiser ${rawTopic} ?`, a: "Comprendre les motivations et les enjeux de l'époque", b: "Juger le passé avec anachronisme", c: "Mémoriser des dates sans signification" },
+                        { q: `Quel héritage retient-on principalement de ${rawTopic} ?`, a: "Des évolutions sociétales et institutionnelles durables", b: "Un effacement complet de la mémoire collective", c: "Une stagnation générale" }
+                    ];
+                } else if (domain === 'literature') {
+                    passageText = `Dans l'étude littéraire, l'analyse de <b>${rawTopic}</b> révèle la richesse du style, la complexité des personnages et la force des thèmes abordés. À travers l'art des figures de style, le choix des registres et la structure narrative, l'auteur interpelle le lecteur et l'invite à une réflexion philosophique et esthétique approfondie.`;
+                    vocabTerms = [
+                        { term: "Métaphore", def: "Figure d'analogie sans mot de comparaison" },
+                        { term: "Registre", def: "Tonalité émotionnelle d'un texte" },
+                        { term: "Implicite", def: "Sens sous-entendu à décoder" }
+                    ];
+                    q1 = `Dégagez le thème principal et la portée philosophique de <b>${rawTopic}</b> :`;
+                    q2 = `Quels procédés d'écriture ou figures de style renforcent l'impact de <b>${rawTopic}</b> ?`;
+                    q3 = `Comment l'auteur suscite-t-il la réflexion ou l'émotion du lecteur autour de <b>${rawTopic}</b> ?`;
+                    tf1 = `Dans <b>${rawTopic}</b>, le style de l'auteur ne joue aucun rôle dans la transmission du sens.`;
+                    tf2 = `L'interprétation d'un texte littéraire s'appuie sur des indices textuels précis.`;
+                    mcqItems = [
+                        { q: `Quel procédé stylistique apporte du relief à l'évocation de ${rawTopic} ?`, a: "L'emploi d'images évocatrices et de figures d'analogie", b: "La suppression de toute ponctuation", c: "L'usage exclusif de termes techniques" },
+                        { q: `Analyser l'implicite dans ${rawTopic} permet de :`, a: "Découvrir la véritable intention de l'auteur", b: "Modifier l'histoire originelle", c: "Éviter la lecture attentive" }
+                    ];
+                } else if (domain === 'grammar') {
+                    passageText = `La maîtrise linguistique de <b>${rawTopic}</b> est essentielle pour construire des énoncés rigoureux et adaptés à chaque contexte de communication. Les apprenants doivent analyser les accords, les concordances de temps et les nuances de sens pour éliminer les ambiguïtés et s'exprimer avec aisance aussi bien à l'écrit qu'à l'oral.`;
+                    vocabTerms = [
+                        { term: "Syntaxe", def: "Ordre et règles de liaison des mots" },
+                        { term: "Concordance", def: "Harmonie temporelle et grammaticale" },
+                        { term: "Nuance", def: "Degré subtil de sens d'une expression" }
+                    ];
+                    q1 = `Énoncez la règle fondamentale de grammaire ou de conjugaison qui s'applique à <b>${rawTopic}</b> :`;
+                    q2 = `Citez deux pièges ou erreurs fréquentes à éviter lors de l'emploi de <b>${rawTopic}</b> :`;
+                    q3 = `Rédigez deux phrases correctes illustrant l'usage précis de <b>${rawTopic}</b> :`;
+                    tf1 = `La règle régissant <b>${rawTopic}</b> ne comporte aucune exception ni accord spécifique.`;
+                    tf2 = `L'accord grammatical exact dépend du rôle syntaxique des mots dans la phrase.`;
+                    mcqItems = [
+                        { q: `Quel est le rôle déterminant dans l'application de ${rawTopic} ?`, a: "Respecter scrupuleusement la cohérence syntaxique", b: "Ignorer les terminaisons verbales", c: "Écrire phonétiquement sans règle" },
+                        { q: `Dans une phrase complexe appliquant ${rawTopic}, il faut veiller à :`, a: "La concordance des temps et le sens global", b: "Supprimer les connecteurs logiques", c: "Mélanger les modes arbitrairement" }
+                    ];
+                } else {
+                    passageText = `L'analyse méthodique de <b>${rawTopic}</b> permet d'en explorer les concepts clés, les causes et les applications concrètes. Qu'il s'agisse de comprendre une théorie, d'acquérir une compétence pratique ou de structurer un raisonnement, une démarche pas-à-pas fournit un cadre d'apprentissage solide et formateur.`;
+                    vocabTerms = [
+                        { term: "Concept clé", def: "Notion centrale structurant la réflexion" },
+                        { term: "Application", def: "Mise en pratique d'un savoir" },
+                        { term: "Synthèse", def: "Résumé cohérent des éléments essentiels" }
+                    ];
+                    q1 = `Présentez les principes directeurs de <b>${rawTopic}</b> et leur utilité :`;
+                    q2 = `Comment peut-on appliquer concrètement les connaissances issues de <b>${rawTopic}</b> ?`;
+                    q3 = `Quels défis majeurs rencontre-t-on lors de l'apprentissage de <b>${rawTopic}</b> ?`;
+                    tf1 = `<b>${rawTopic}</b> peut être abordé sans aucune méthode ni préparation.`;
+                    tf2 = `Une pratique régulière consolide la compréhension durable de <b>${rawTopic}</b>.`;
+                    mcqItems = [
+                        { q: `Pour assimiler efficacement ${rawTopic}, la meilleure méthode consiste à :`, a: "Structurer ses révisions et pratiquer activement", b: "Survoler les définitions sans s'exercer", c: "Remettre à plus tard la consolidation" },
+                        { q: `L'intérêt majeur d'étudier ${rawTopic} réside dans :`, a: "Le développement de compétences transversales et pratiques", b: "L'absence totale d'application concrète", c: "L'apprentissage purement théorique" }
+                    ];
+                }
+            } else {
+                // English domain content
+                if (domain === 'science') {
+                    passageText = `The scientific study of <b>${rawTopic}</b> provides crucial insights into how natural laws and physical systems operate. By examining energy transformations, structural interactions, and empirical measurements, scientists develop models to explain observable phenomena. Through hypothesis testing, laboratory investigations, and controlled experiments, researchers continue to expand our understanding of ${rawTopic}.`;
+                    vocabTerms = [
+                        { term: "Hypothesis", def: "A testable explanation for an observed phenomenon" },
+                        { term: "Empirical", def: "Based on verifiable observation or experience" },
+                        { term: "Equilibrium", def: "A state of balance within an active system" }
+                    ];
+                    q1 = `Explain the core scientific mechanism of <b>${rawTopic}</b> as detailed in the passage:`;
+                    q2 = `Which variables or external factors directly influence the outcomes of <b>${rawTopic}</b>?`;
+                    q3 = `Why is controlled laboratory experimentation vital when evaluating theories about <b>${rawTopic}</b>?`;
+                    tf1 = `Scientific investigations into <b>${rawTopic}</b> discard empirical data.`;
+                    tf2 = `<b>${rawTopic}</b> plays an integral role in maintaining systemic stability.`;
+                    mcqItems = [
+                        { q: `What is the primary scientific purpose of investigating ${rawTopic}?`, a: "To formulate testable principles based on observable data", b: "To disregard verified physical laws", c: "To rely solely on speculation" },
+                        { q: `Which procedure validates hypotheses concerning ${rawTopic}?`, a: "Rigorous, repeatable experimentation and measurement", b: "Unsubstantiated assumptions", c: "Random guesswork" }
+                    ];
+                } else if (domain === 'math') {
+                    passageText = `In mathematics, mastering <b>${rawTopic}</b> provides students with powerful analytical frameworks and problem-solving techniques. By understanding symbolic representations, geometric or algebraic relations, and step-by-step algorithms, learners build deductive reasoning skills that allow them to model real-world problems and verify solutions with mathematical certainty.`;
+                    vocabTerms = [
+                        { term: "Theorem", def: "A statement proven on the basis of established truths" },
+                        { term: "Variable", def: "A symbol representing a quantity that can change" },
+                        { term: "Algorithm", def: "A finite sequence of well-defined procedural steps" }
+                    ];
+                    q1 = `State the precise mathematical definition and key operational properties of <b>${rawTopic}</b>:`;
+                    q2 = `Outline the sequential method required to solve a multi-step problem involving <b>${rawTopic}</b>:`;
+                    q3 = `How can you check and confirm that your computed answer for <b>${rawTopic}</b> is mathematically sound?`;
+                    tf1 = `Solutions in <b>${rawTopic}</b> do not require logical proof or systematic calculation.`;
+                    tf2 = `Consistent application of algebraic properties is essential when evaluating <b>${rawTopic}</b>.`;
+                    mcqItems = [
+                        { q: `Which analytical ability is directly developed through ${rawTopic}?`, a: "Deductive logic and systematic computation", b: "Passive memorization without operational steps", c: "Unchecked estimation" },
+                        { q: `To confirm the validity of an equation involving ${rawTopic}, one must:`, a: "Substitute values back into the original expression", b: "Invert numbers arbitrarily", c: "Skip error checking" }
+                    ];
+                } else if (domain === 'history') {
+                    passageText = `Historical investigation into <b>${rawTopic}</b> examines the political, social, and economic forces that transformed societies. By analyzing primary source documents, archaeological artifacts, and contextual timelines, historians reconstruct pivotal moments and assess how the causes and consequences of ${rawTopic} continue to influence modern governance and cultural identity.`;
+                    vocabTerms = [
+                        { term: "Primary Source", def: "An artifact or document created during the period of study" },
+                        { term: "Chronology", def: "The arrangement of events in the order of occurrence" },
+                        { term: "Legacy", def: "Lasting historical consequences inherited by future generations" }
+                    ];
+                    q1 = `Identify the underlying socio-political causes that led to the development of <b>${rawTopic}</b>:`;
+                    q2 = `Describe the perspectives and roles of key figures or societal groups during <b>${rawTopic}</b>:`;
+                    q3 = `What lasting institutional or cultural effects did <b>${rawTopic}</b> produce on later generations?`;
+                    tf1 = `Events surrounding <b>${rawTopic}</b> occurred in total isolation with zero documented evidence.`;
+                    tf2 = `Primary source evaluation is essential to construct accurate historical accounts of <b>${rawTopic}</b>.`;
+                    mcqItems = [
+                        { q: `Why is historical contextualization essential when studying ${rawTopic}?`, a: "It illuminates the motives, conditions, and constraints of that era", b: "It promotes biased anachronistic judgments", c: "It minimizes the importance of archival records" },
+                        { q: `What primary legacy is attributed to ${rawTopic}?`, a: "Enduring political, social, or institutional evolution", b: "Total historical insignificance", c: "Complete loss of historical documentation" }
+                    ];
+                } else if (domain === 'literature') {
+                    passageText = `Literary analysis of <b>${rawTopic}</b> explores narrative structure, thematic depth, and character development. Authors utilize figurative devices, stylistic tone, and symbolic motifs to convey profound insights into the human condition, challenging readers to interpret nuanced subtext and articulate well-supported textual interpretations.`;
+                    vocabTerms = [
+                        { term: "Metaphor", def: "A figure of speech comparing two unlike things directly" },
+                        { term: "Motif", def: "A recurring element or idea that develops a theme" },
+                        { term: "Subtext", def: "The underlying or implicit meaning behind explicit dialogue" }
+                    ];
+                    q1 = `Identify the central theme and emotional resonance conveyed through <b>${rawTopic}</b>:`;
+                    q2 = `How do specific stylistic devices and tone choices enhance the author's portrayal of <b>${rawTopic}</b>?`;
+                    q3 = `Provide textual evidence demonstrating how character actions or conflicts reflect <b>${rawTopic}</b>:`;
+                    tf1 = `Literary techniques such as symbolism have zero bearing on the meaning of <b>${rawTopic}</b>.`;
+                    tf2 = `Effective textual analysis requires citing specific quotations and narrative evidence.`;
+                    mcqItems = [
+                        { q: `Which literary device provides greater thematic depth to ${rawTopic}?`, a: "Symbolic motifs and evocative imagery", b: "Uniform literal dialogue without figurative language", c: "Omission of character motivation" },
+                        { q: `Interpreting subtext in ${rawTopic} allows the reader to:`, a: "Uncover nuanced psychological and thematic dimensions", b: "Rewrite the narrative arbitrarily", c: "Ignore context" }
+                    ];
+                } else if (domain === 'grammar') {
+                    passageText = `Language mastery of <b>${rawTopic}</b> is fundamental to achieving accuracy, nuance, and fluency in academic and professional communication. Students must understand sentence architecture, grammatical agreement, and stylistic conventions to articulate ideas clearly and eliminate unintended ambiguity in spoken and written discourse.`;
+                    vocabTerms = [
+                        { term: "Syntax", def: "The grammatical arrangement of words in sentences" },
+                        { term: "Agreement", def: "Grammatical correspondence in person, number, or gender" },
+                        { term: "Nuance", def: "A subtle distinction in expression or meaning" }
+                    ];
+                    q1 = `Formulate the foundational grammatical rule that governs <b>${rawTopic}</b>:`;
+                    q2 = `Explain two common grammatical errors or structural pitfalls associated with <b>${rawTopic}</b>:`;
+                    q3 = `Write two original sentences that correctly apply the rules of <b>${rawTopic}</b> in distinct contexts:`;
+                    tf1 = `Correct usage of <b>${rawTopic}</b> ignores subject-verb agreement and tense markers.`;
+                    tf2 = `Careful sentence editing ensures clarity and adherence to standard linguistic rules.`;
+                    mcqItems = [
+                        { q: `What is the primary objective when studying ${rawTopic}?`, a: "To construct coherent, grammatically sound expressions", b: "To disregard syntactic rules", c: "To avoid structured writing" },
+                        { q: `In a complex sentence involving ${rawTopic}, one must ensure:`, a: "Accurate tense consistency and logical phrasing", b: "Arbitrary omission of prepositions", c: "Unchecked spelling errors" }
+                    ];
+                } else {
+                    passageText = `Comprehensive mastery of <b>${rawTopic}</b> demands structured critical inquiry, clear conceptual understanding, and consistent practical application. By dissecting its fundamental elements, analyzing real-world applications, and evaluating key cause-and-effect relationships, students build a resilient foundation of knowledge.`;
+                    vocabTerms = [
+                        { term: "Core Principle", def: "A fundamental truth serving as the foundation for reasoning" },
+                        { term: "Application", def: "The practical execution of theoretical knowledge" },
+                        { term: "Synthesis", def: "Combining diverse elements into a coherent whole" }
+                    ];
+                    q1 = `Explain the core concepts and real-world significance of <b>${rawTopic}</b>:`;
+                    q2 = `How do practitioners or scholars apply knowledge of <b>${rawTopic}</b> to solve complex challenges?`;
+                    q3 = `What are the most frequent challenges or misconceptions encountered when studying <b>${rawTopic}</b>?`;
+                    tf1 = `Thorough comprehension of <b>${rawTopic}</b> can be achieved without analytical practice.`;
+                    tf2 = `Synthesizing multiple perspectives leads to deeper mastery of <b>${rawTopic}</b>.`;
+                    mcqItems = [
+                        { q: `What approach ensures sustained mastery of ${rawTopic}?`, a: "Active problem solving and systematic review", b: "Superficial memorization", c: "Passive reading without engagement" },
+                        { q: `Understanding the practical implications of ${rawTopic} enables learners to:`, a: "Apply solutions effectively across diverse scenarios", b: "Avoid critical evaluation", c: "Remain purely theoretical" }
+                    ];
+                }
+            }
 
             let mainContentHTML = "";
 
             if (tmplType === 'comprehension') {
-                if (isFrenchTheme) {
-                    mainContentHTML = `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
-                        <div>
-                            <!-- Reading Passage Box -->
-                            <div style="background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px;">
-                                <div style="font-size: 11px; font-weight: 800; color: #1E3A8A; text-transform: uppercase; margin-bottom: 4px;">📖 Texte de Lecture : Focus sur "${rawTopic}"</div>
-                                <div style="font-size: 10px; color: #1E293B; line-height: 1.6; font-style: normal;">
-                                    Hier matin, Sophie préparait ses valises pour son voyage linguistique à Lyon. Pendant qu'elle vérifiait son itinéraire, son professeur de langue lui a envoyé un message important concernant <b>${rawTopic}</b>. 
-                                    <br><br>
-                                    « Pour maîtriser la langue avec aisance », expliquait la lettre, « il faut comprendre la structure des phrases, pratiquer la conjugaison et enrichir son vocabulaire quotidien. Chaque règle apprise ouvre de nouvelles perspectives culturelles et professionnelles. »
-                                </div>
-                            </div>
+                mainContentHTML = `
+                <div class="worksheet-section" style="margin-bottom: 14px;">
+                    <!-- Reading Stimulus Box -->
+                    <div style="background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;">
+                        <div style="font-size: 11px; font-weight: 800; color: #1E3A8A; text-transform: uppercase; margin-bottom: 6px;">
+                            ${isFrench ? '📖 Texte de Référence & Analyse : ' : '📖 Core Reading Passage & Concept Analysis: '} <span style="color: #2563EB;">${rawTopic}</span>
+                        </div>
+                        <div style="font-size: 10.5px; color: #1E293B; line-height: 1.65;">
+                            ${passageText}
+                        </div>
+                    </div>
 
-                            <!-- Comprehension Questions -->
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px;">
-                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">Section A : Questions de Compréhension Écrite</div>
-                                <div style="font-size: 10px; color: #334155; line-height: 1.8;">
-                                    1. Que faisait Sophie au début de l'histoire et quelle était sa destination ?<br>
-                                    <span style="border-bottom: 1px dashed #94A3B8; display: block; height: 16px;"></span>
-                                    2. Selon le professeur, quel est l'élément clé lié à <b>${rawTopic}</b> pour s'exprimer facilement ?<br>
-                                    <span style="border-bottom: 1px dashed #94A3B8; display: block; height: 16px;"></span>
-                                    3. Dégagez deux avantages culturels ou professionnels mentionnés dans le texte :<br>
-                                    <span style="border-bottom: 1px dashed #94A3B8; display: block; height: 16px;"></span>
-                                </div>
+                    <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 12px;">
+                        <!-- Section A: Analytical Questions -->
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px;">
+                            <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 8px;">
+                                ${isFrench ? 'Section A : Questions d\'Analyse et de Compréhension' : 'Section A: Analytical Comprehension Questions'}
                             </div>
-
-                            <!-- True/False Section -->
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px;">
-                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 4px;">Section B : Vrai ou Faux (Analyse Grammaticale)</div>
-                                <div style="font-size: 10px; color: #334155; line-height: 1.7;">
-                                    1. L'étude de <b>${rawTopic}</b> s'applique uniquement à l'écrit. [ &nbsp; ] Vrai &nbsp; [ &nbsp; ] Faux<br>
-                                    2. Sophie a reçu les conseils de son professeur pendant sa préparation. [ &nbsp; ] Vrai &nbsp; [ &nbsp; ] Faux
-                                </div>
+                            <div style="font-size: 10px; color: #334155; line-height: 1.8;">
+                                1. ${q1}<br>
+                                <span style="border-bottom: 1.5px dashed #94A3B8; display: block; height: 18px; margin-bottom: 4px;"></span>
+                                2. ${q2}<br>
+                                <span style="border-bottom: 1.5px dashed #94A3B8; display: block; height: 18px; margin-bottom: 4px;"></span>
+                                3. ${q3}<br>
+                                <span style="border-bottom: 1.5px dashed #94A3B8; display: block; height: 18px;"></span>
                             </div>
                         </div>
 
-                        <!-- Side Bar Callouts -->
+                        <!-- Sidebar Callouts -->
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="background: #FEF3C7; border: 1.5px solid #F59E0B; border-radius: 10px; padding: 8px;">
-                                <div style="font-weight: 800; font-size: 10px; color: #92400E; margin-bottom: 3px;">💡 Vocabulaire Clé</div>
-                                <div style="font-size: 9px; color: #78350F; line-height: 1.4;">
-                                    • <b>Aisance :</b> Fluidité d'expression<br>
-                                    • <b>Maîtriser :</b> Dominer une règle<br>
-                                    • <b>Perspective :</b> Opportunité future
+                            <div style="background: #FEF3C7; border: 1.5px solid #F59E0B; border-radius: 8px; padding: 8px 10px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #92400E; margin-bottom: 4px;">💡 ${isFrench ? 'Terminologie Clé' : 'Key Terminology'}</div>
+                                <div style="font-size: 9px; color: #78350F; line-height: 1.45;">
+                                    ${vocabTerms.map(v => `• <b>${v.term}:</b> ${v.def}`).join('<br>')}
                                 </div>
                             </div>
-                            <div style="background: #F0FDF4; border: 1.5px solid #22C55E; border-radius: 10px; padding: 8px;">
-                                <div style="font-weight: 800; font-size: 10px; color: #166534; margin-bottom: 3px;">✏️ Conseil de Lecture</div>
-                                <div style="font-size: 9px; color: #14532D; line-height: 1.3;">
-                                    Soulignez les verbes et connecteurs logiques dans le texte.
+                            <div style="background: #F0FDF4; border: 1.5px solid #22C55E; border-radius: 8px; padding: 8px 10px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #166534; margin-bottom: 3px;">✏️ ${isFrench ? 'Méthode d\'Étude' : 'Study Strategy'}</div>
+                                <div style="font-size: 9px; color: #14532D; line-height: 1.35;">
+                                    ${isFrench ? 'Soulignez les concepts clés et justifiez chaque réponse avec un extrait textuel.' : 'Highlight fundamental principles and support every response with concrete textual evidence.'}
                                 </div>
                             </div>
                             ${qrCodeDisplay}
                         </div>
-                    </div>`;
-                } else {
-                    mainContentHTML = `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
-                        <div>
-                            <!-- Reading Passage Box -->
-                            <div style="background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px;">
-                                <div style="font-size: 11px; font-weight: 800; color: #1E3A8A; text-transform: uppercase; margin-bottom: 4px;">📖 Reading Passage: Exploring "${rawTopic}"</div>
-                                <div style="font-size: 10px; color: #1E293B; line-height: 1.6; font-style: normal;">
-                                    Effective communication relies heavily on understanding <b>${rawTopic}</b>. Last week, language learners gathered for an interactive workshop focused on sentence structure, idiomatic expressions, and grammatical precision.
-                                    <br><br>
-                                    Mastering <b>${rawTopic}</b> allows speakers to express complex ideas clearly, participate in professional discussions, and write polished essays. By practicing daily with real-world prompts, students build long-term linguistic fluency.
-                                </div>
-                            </div>
+                    </div>
+                </div>
 
-                            <!-- Comprehension Questions -->
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px;">
-                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">Section A: Reading Comprehension Questions</div>
-                                <div style="font-size: 10px; color: #334155; line-height: 1.8;">
-                                    1. According to the text, why is mastering <b>${rawTopic}</b> important for language learners?<br>
-                                    <span style="border-bottom: 1px dashed #94A3B8; display: block; height: 16px;"></span>
-                                    2. What three skills were emphasized during the interactive workshop?<br>
-                                    <span style="border-bottom: 1px dashed #94A3B8; display: block; height: 16px;"></span>
-                                    3. How does daily practice contribute to linguistic development?<br>
-                                    <span style="border-bottom: 1px dashed #94A3B8; display: block; height: 16px;"></span>
-                                </div>
-                            </div>
+                <div class="page-break"></div>
 
-                            <!-- True/False Section -->
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px;">
-                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 4px;">Section B: True or False Statements</div>
-                                <div style="font-size: 10px; color: #334155; line-height: 1.7;">
-                                    1. <b>${rawTopic}</b> helps speakers express complex ideas in professional environments. [ &nbsp; ] True &nbsp; [ &nbsp; ] False<br>
-                                    2. The workshop discouraged students from practicing with real-world prompts. [ &nbsp; ] True &nbsp; [ &nbsp; ] False
-                                </div>
-                            </div>
+                <div class="worksheet-section" style="margin-top: 14px;">
+                    <!-- Section B: Fact Verification -->
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;">
+                        <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">
+                            ${isFrench ? 'Section B : Évaluation Vrai / Faux et Justification' : 'Section B: Critical Fact Verification (True / False)'}
                         </div>
-
-                        <!-- Side Bar Callouts -->
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="background: #FEF3C7; border: 1.5px solid #F59E0B; border-radius: 10px; padding: 8px;">
-                                <div style="font-weight: 800; font-size: 10px; color: #92400E; margin-bottom: 3px;">💡 Vocabulary Focus</div>
-                                <div style="font-size: 9px; color: #78350F; line-height: 1.4;">
-                                    • <b>Precision:</b> Accuracy in language<br>
-                                    • <b>Idiomatic:</b> Natural phrasing<br>
-                                    • <b>Fluency:</b> Smooth communication
-                                </div>
-                            </div>
-                            <div style="background: #F0FDF4; border: 1.5px solid #22C55E; border-radius: 10px; padding: 8px;">
-                                <div style="font-weight: 800; font-size: 10px; color: #166534; margin-bottom: 3px;">✏️ Strategy Tip</div>
-                                <div style="font-size: 9px; color: #14532D; line-height: 1.3;">
-                                    Underline key verbs and transitional adverbs in the passage.
-                                </div>
-                            </div>
-                            ${qrCodeDisplay}
+                        <div style="font-size: 10px; color: #334155; line-height: 1.8;">
+                            1. ${tf1} &nbsp;&nbsp; <b>[ &nbsp; ] ${isFrench ? 'Vrai' : 'True'} &nbsp;&nbsp; [ &nbsp; ] ${isFrench ? 'Faux' : 'False'}</b><br>
+                            <span style="font-size: 9px; color: #64748B;">${isFrench ? 'Justification :' : 'Evidence:'}</span>
+                            <span style="border-bottom: 1px dashed #CBD5E1; display: block; height: 16px; margin-bottom: 4px;"></span>
+                            2. ${tf2} &nbsp;&nbsp; <b>[ &nbsp; ] ${isFrench ? 'Vrai' : 'True'} &nbsp;&nbsp; [ &nbsp; ] ${isFrench ? 'Faux' : 'False'}</b><br>
+                            <span style="font-size: 9px; color: #64748B;">${isFrench ? 'Justification :' : 'Evidence:'}</span>
+                            <span style="border-bottom: 1px dashed #CBD5E1; display: block; height: 16px;"></span>
                         </div>
-                    </div>`;
-                }
+                    </div>
+                </div>`;
 
             } else if (tmplType === 'matching') {
-                if (isFrenchTheme) {
-                    mainContentHTML = `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                mainContentHTML = `
+                <div class="worksheet-section" style="margin-bottom: 14px;">
+                    <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 12px;">
                         <div>
                             <!-- Matching Grid -->
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">Section A : Associez les termes de vocabulaire avec leur définition (${rawTopic})</div>
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;">
+                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">
+                                    ${isFrench ? 'Section A : Associez chaque terme lié à ' + rawTopic + ' avec sa définition correcte' : 'Section A: Match Key Terminology & Concepts (' + rawTopic + ')'}
+                                </div>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; color: #334155;">
-                                    <div style="background: #EFF6FF; padding: 6px; border-radius: 6px; border: 1px solid #BFDBFE;">
-                                        <b>1. L'auxiliaire</b><br>
-                                        <b>2. L'accord du participe</b><br>
-                                        <b>3. Le marqueur temporel</b><br>
-                                        <b>4. L'expression idiomatique</b>
+                                    <div style="background: #EFF6FF; padding: 8px; border-radius: 6px; border: 1px solid #BFDBFE; line-height: 1.7;">
+                                        <b>1. ${vocabTerms[0]?.term || 'Concept 1'}</b><br>
+                                        <b>2. ${vocabTerms[1]?.term || 'Concept 2'}</b><br>
+                                        <b>3. ${vocabTerms[2]?.term || 'Concept 3'}</b><br>
+                                        <b>4. ${rawTopic}</b>
                                     </div>
-                                    <div style="background: #FFFBEB; padding: 6px; border-radius: 6px; border: 1px solid #FDE68A;">
-                                        [ &nbsp; ] A. Mot indiquant le moment de l'action<br>
-                                        [ &nbsp; ] B. Verbe *avoir* ou *être* servant à la conjugaison<br>
-                                        [ &nbsp; ] C. Tournure propre à la langue française<br>
-                                        [ &nbsp; ] D. Modification en genre et en nombre
+                                    <div style="background: #FFFBEB; padding: 8px; border-radius: 6px; border: 1px solid #FDE68A; line-height: 1.7;">
+                                        [ &nbsp; ] A. ${vocabTerms[1]?.def || 'Secondary operational definition'}<br>
+                                        [ &nbsp; ] B. ${vocabTerms[0]?.def || 'Primary foundational property'}<br>
+                                        [ &nbsp; ] C. ${isFrench ? 'Discipline ou sujet central d\'étude' : 'The primary subject of this analytical investigation'}<br>
+                                        [ &nbsp; ] D. ${vocabTerms[2]?.def || 'Critical systemic outcome'}
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Fill in the Blanks -->
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px;">
-                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 4px;">Section B : Complétez les phrases (Grammaire & Vocabulaire)</div>
-                                <div style="background: #E0F2FE; border: 1px solid #7DD3FC; padding: 4px 8px; border-radius: 4px; font-size: 9.5px; text-align: center; font-weight: 700; color: #0369A1; margin-bottom: 6px;">
-                                    Liste de mots : toujours &nbsp;•&nbsp; sommes arrivés &nbsp;•&nbsp; la grammaire &nbsp;•&nbsp; ${rawTopic.toLowerCase()}
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px;">
+                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 4px;">
+                                    ${isFrench ? 'Section B : Complétez avec la banque de mots thématique' : 'Section B: Contextual Fill-in-the-Blanks Exercise'}
                                 </div>
-                                <div style="font-size: 10px; color: #334155; line-height: 1.8;">
-                                    1. Hier soir, nous <span style="border-bottom: 1.5px dotted #0284C7; padding: 0 16px;"></span> à l'heure à la gare de Lyon.<br>
-                                    2. Pour bien maîtriser <b>${rawTopic}</b>, il faut pratiquer la règle chaque jour.<br>
-                                    3. En français, <span style="border-bottom: 1.5px dotted #0284C7; padding: 0 16px;"></span> nécessite de la rigueur et de la répétition.
+                                <div style="background: #E0F2FE; border: 1px solid #7DD3FC; padding: 5px 8px; border-radius: 4px; font-size: 9.5px; text-align: center; font-weight: 700; color: #0369A1; margin-bottom: 8px;">
+                                    ${isFrench ? 'Banque de mots :' : 'Word Bank:'} ${vocabTerms.map(v => v.term).join(' &nbsp;•&nbsp; ')} &nbsp;•&nbsp; ${rawTopic}
+                                </div>
+                                <div style="font-size: 10px; color: #334155; line-height: 1.9;">
+                                    1. ${isFrench ? 'L\'analyse rigoureuse de ' : 'The analytical study of '} <b>${rawTopic}</b> ${isFrench ? 'exige la maîtrise de ' : 'requires the systematic mastery of '} <span style="border-bottom: 1.5px dotted #0284C7; padding: 0 16px;"></span>.<br>
+                                    2. ${isFrench ? 'En pratique, ' : 'In applied scenarios, '} <span style="border-bottom: 1.5px dotted #0284C7; padding: 0 16px;"></span> ${isFrench ? 'permet d\'assurer la validité des résultats.' : 'serves to validate theoretical predictions.'}<br>
+                                    3. ${isFrench ? 'Les spécialistes s\'accordent sur l\'importance de ' : 'Scholars emphasize the role of '} <span style="border-bottom: 1.5px dotted #0284C7; padding: 0 16px;"></span> ${isFrench ? 'dans la réussite des évaluations.' : 'in achieving mastery of this domain.'}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Side Bar -->
+                        <!-- Sidebar -->
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="background: #F3E8FF; border: 1.5px solid #A855F7; border-radius: 10px; padding: 8px;">
-                                <div style="font-weight: 800; font-size: 10px; color: #6B21A8; margin-bottom: 3px;">🔤 Orthographe</div>
-                                <div style="font-size: 9px; color: #581C87; line-height: 1.3;">
-                                    Attention aux accents (é, è, ê) et à la concordance des temps.
+                            <div style="background: #F3E8FF; border: 1.5px solid #A855F7; border-radius: 8px; padding: 8px 10px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #6B21A8; margin-bottom: 3px;">🔤 ${isFrench ? 'Focalisation' : 'Focus'}</div>
+                                <div style="font-size: 9px; color: #581C87; line-height: 1.35;">
+                                    ${isFrench ? 'Vérifiez bien la cohérence du vocabulaire avec le contexte de la phrase.' : 'Ensure contextual harmony between chosen terms and sentence syntax.'}
                                 </div>
                             </div>
                             ${qrCodeDisplay}
                         </div>
-                    </div>`;
-                } else {
-                    mainContentHTML = `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
-                        <div>
-                            <!-- Matching Grid -->
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">Section A: Match Vocabulary & Expressions (${rawTopic})</div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; color: #334155;">
-                                    <div style="background: #EFF6FF; padding: 6px; border-radius: 6px; border: 1px solid #BFDBFE;">
-                                        <b>1. Auxiliary Verb</b><br>
-                                        <b>2. Time Marker</b><br>
-                                        <b>3. Phrasal Verb</b><br>
-                                        <b>4. Formal Greeting</b>
-                                    </div>
-                                    <div style="background: #FFFBEB; padding: 6px; border-radius: 6px; border: 1px solid #FDE68A;">
-                                        [ &nbsp; ] A. "Dear Hiring Manager,"<br>
-                                        [ &nbsp; ] B. Helping verb like *have* or *be*<br>
-                                        [ &nbsp; ] C. Words like *since*, *already*, *yesterday*<br>
-                                        [ &nbsp; ] D. Verb + preposition combination
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Fill in the Blanks -->
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px;">
-                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 4px;">Section B: Grammar & Vocabulary Fill-in-the-Blanks</div>
-                                <div style="background: #E0F2FE; border: 1px solid #7DD3FC; padding: 4px 8px; border-radius: 4px; font-size: 9.5px; text-align: center; font-weight: 700; color: #0369A1; margin-bottom: 6px;">
-                                    Word Bank: have studied &nbsp;•&nbsp; furthermore &nbsp;•&nbsp; fluency &nbsp;•&nbsp; ${rawTopic.toLowerCase()}
-                                </div>
-                                <div style="font-size: 10px; color: #334155; line-height: 1.8;">
-                                    1. I <span style="border-bottom: 1.5px dotted #0284C7; padding: 0 16px;"></span> English grammar for three years.<br>
-                                    2. Studying <b>${rawTopic}</b> significantly improves overall communication skills.<br>
-                                    3. Consistent listening practice accelerates natural <span style="border-bottom: 1.5px dotted #0284C7; padding: 0 16px;"></span>.
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Side Bar -->
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="background: #F3E8FF; border: 1.5px solid #A855F7; border-radius: 10px; padding: 8px;">
-                                <div style="font-weight: 800; font-size: 10px; color: #6B21A8; margin-bottom: 3px;">🔤 Grammar Note</div>
-                                <div style="font-size: 9px; color: #581C87; line-height: 1.3;">
-                                    Pay close attention to irregular past participles and prepositions.
-                                </div>
-                            </div>
-                            ${qrCodeDisplay}
-                        </div>
-                    </div>`;
-                }
+                    </div>
+                </div>`;
 
             } else if (tmplType === 'mcq_quiz') {
-                if (isFrenchTheme) {
-                    mainContentHTML = `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                mainContentHTML = `
+                <div class="worksheet-section" style="margin-bottom: 14px;">
+                    <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 12px;">
                         <div>
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">Section A : Questionnaire à Choix Multiples - ${rawTopic}</div>
-                                <div style="font-size: 10px; color: #334155; line-height: 1.7;">
-                                    <b>1. Quelle est la bonne règle d'utilisation pour ${rawTopic} ?</b><br>
-                                    &nbsp;&nbsp;[ &nbsp; ] A. Exprimer une action ponctuelle et achevée dans le passé<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] B. Décrire un état futur incertain<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] C. Remplacer systématiquement tous les adjectifs<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] D. Aucune de ces réponses<br><br>
-                                    <b>2. Choisissez la forme correcte dans la phrase suivante :</b><br>
-                                    &nbsp;&nbsp;[ &nbsp; ] A. Nous *avons mangé* ensemble hier midi.<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] B. Nous *mangeons* ensemble hier midi.<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] C. Nous *allons manger* ensemble hier midi.<br><br>
-                                    <b>3. Quel auxiliaire utilise-t-on généralement avec les verbes de mouvement en français ?</b><br>
-                                    &nbsp;&nbsp;[ &nbsp; ] A. Auxiliaire *Être*<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] B. Auxiliaire *Avoir*<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] C. Auxiliaire *Faire*
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;">
+                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 8px;">
+                                    ${isFrench ? 'Section A : Questionnaire à Choix Multiples (QCM) - ' + rawTopic : 'Section A: Multiple Choice Assessment - ' + rawTopic}
+                                </div>
+                                <div style="font-size: 10px; color: #334155; line-height: 1.75;">
+                                    <b>1. ${mcqItems[0]?.q || 'What is the core principle of ' + rawTopic + '?'}</b><br>
+                                    &nbsp;&nbsp;[ &nbsp; ] A. ${mcqItems[0]?.a || 'Foundational law governing the topic'}<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] B. ${mcqItems[0]?.b || 'Irrelevant non-scientific assumption'}<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] C. ${mcqItems[0]?.c || 'Arbitrary random assertion'}<br><br>
+
+                                    <b>2. ${mcqItems[1]?.q || 'How is ' + rawTopic + ' accurately applied or tested?'}</b><br>
+                                    &nbsp;&nbsp;[ &nbsp; ] A. ${mcqItems[1]?.a || 'Through systematic analysis and verified steps'}<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] B. ${mcqItems[1]?.b || 'By skipping foundational principles'}<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] C. ${mcqItems[1]?.c || 'Without logical verification'}<br><br>
+
+                                    <b>3. ${isFrench ? 'Quelle est la compétence essentielle à mobiliser dans ' + rawTopic + ' ?' : 'What is the essential requirement when solving problems in ' + rawTopic + '?'}</b><br>
+                                    &nbsp;&nbsp;[ &nbsp; ] A. ${isFrench ? 'La rigueur méthodique et la clarté des arguments' : 'Methodological rigor and logical clarity'}<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] B. ${isFrench ? 'L\'estimation subjective non justifiée' : 'Unchecked subjective intuition'}<br>
+                                    &nbsp;&nbsp;[ &nbsp; ] C. ${isFrench ? 'La simplification excessive sans preuve' : 'Ignoring empirical constraints'}
                                 </div>
                             </div>
                         </div>
 
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="background: #FEF08A; border: 1.5px solid #EAB308; border-radius: 10px; padding: 8px; text-align: center;">
-                                <div style="font-weight: 800; font-size: 11px; color: #713F12;">📊 Note Finale</div>
-                                <div style="font-size: 16px; font-weight: 800; color: #854D0E; margin-top: 4px;">_____ / 20</div>
+                            <div style="background: #FEF08A; border: 1.5px solid #EAB308; border-radius: 10px; padding: 10px; text-align: center;">
+                                <div style="font-weight: 800; font-size: 11px; color: #713F12;">📊 ${isFrench ? 'Barème & Note' : 'Score & Assessment'}</div>
+                                <div style="font-size: 18px; font-weight: 800; color: #854D0E; margin-top: 4px;">_____ / 20</div>
+                                <div style="font-size: 9px; color: #A16207; margin-top: 4px;">${isFrench ? 'Temps estimé : 25 min' : 'Target time: 25 min'}</div>
                             </div>
                             ${qrCodeDisplay}
                         </div>
-                    </div>`;
-                } else {
-                    mainContentHTML = `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
-                        <div>
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-                                <div style="font-weight: 800; font-size: 11px; color: #0F172A; margin-bottom: 6px;">Section A: Multiple Choice Language Quiz - ${rawTopic}</div>
-                                <div style="font-size: 10px; color: #334155; line-height: 1.7;">
-                                    <b>1. Which sentence correctly applies the rules of ${rawTopic}?</b><br>
-                                    &nbsp;&nbsp;[ &nbsp; ] A. She has lived in Paris since 2020.<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] B. She is live in Paris since 2020.<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] C. She live in Paris yesterday.<br><br>
-                                    <b>2. What is the main function of time markers in ${rawTopic}?</b><br>
-                                    &nbsp;&nbsp;[ &nbsp; ] A. To indicate the time frame of the action<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] B. To replace subject pronouns<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] C. To change verb spelling randomly<br><br>
-                                    <b>3. Choose the best synonym for "fluent":</b><br>
-                                    &nbsp;&nbsp;[ &nbsp; ] A. Articulate and smooth<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] B. Hesitant and slow<br>
-                                    &nbsp;&nbsp;[ &nbsp; ] C. Unclear
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="background: #FEF08A; border: 1.5px solid #EAB308; border-radius: 10px; padding: 8px; text-align: center;">
-                                <div style="font-weight: 800; font-size: 11px; color: #713F12;">📊 Final Score</div>
-                                <div style="font-size: 16px; font-weight: 800; color: #854D0E; margin-top: 4px;">_____ / 20</div>
-                            </div>
-                            ${qrCodeDisplay}
-                        </div>
-                    </div>`;
-                }
+                    </div>
+                </div>`;
 
             } else if (tmplType === 'writing') {
-                if (isFrenchTheme) {
-                    mainContentHTML = `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                mainContentHTML = `
+                <div class="worksheet-section" style="margin-bottom: 14px;">
+                    <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 12px;">
                         <div>
                             <!-- Writing Prompt -->
-                            <div style="background: #F5F3FF; border: 1.5px solid #8B5CF6; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-                                <div style="font-size: 11px; font-weight: 800; color: #5B21B6; margin-bottom: 4px;">✍️ Sujet d'Expression Écrite</div>
-                                <div style="font-size: 10px; color: #4C1D95; line-height: 1.5;">
-                                    Rédigez un paragraphe argumenté ou une lettre formelle (120-200 mots) intégrant la notion de <b>${rawTopic}</b>. Utilisez des connecteurs logiques (en effet, de plus, cependant) et veillez à l'accord des adjectifs et participes.
+                            <div style="background: #F5F3FF; border: 1.5px solid #8B5CF6; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;">
+                                <div style="font-size: 11px; font-weight: 800; color: #5B21B6; margin-bottom: 4px;">
+                                    ✍️ ${isFrench ? 'Sujet de Composition Analytique : ' + rawTopic : 'Guided Composition & Analytical Essay: ' + rawTopic}
+                                </div>
+                                <div style="font-size: 10px; color: #4C1D95; line-height: 1.55;">
+                                    ${isFrench 
+                                        ? 'Rédigez un développement structuré (150-250 mots) expliquant les mécanismes, l\'importance et les enjeux de <b>' + rawTopic + '</b>. Formulez une problématique claire, développez deux arguments fondés sur des exemples concrets, et terminez par une synthèse critique.'
+                                        : 'Compose a well-structured essay (150-250 words) evaluating the fundamental principles and real-world impact of <b>' + rawTopic + '</b>. Articulate a clear thesis, support your reasoning with two concrete pieces of evidence, and formulate an insightful conclusion.'}
                                 </div>
                             </div>
 
-                            <!-- Lined Writing Paper -->
-                            <div style="background: #FFFFFF; border: 1px solid #DDD6FE; border-radius: 8px; padding: 10px;">
-                                <div style="font-size: 10px; font-weight: 700; color: #6D28D9; margin-bottom: 6px;">Espace de Rédaction :</div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px;"></div>
+                            <!-- Lined Writing Sheet -->
+                            <div style="background: #FFFFFF; border: 1px solid #DDD6FE; border-radius: 8px; padding: 10px 12px;">
+                                <div style="font-size: 10px; font-weight: 700; color: #6D28D9; margin-bottom: 6px;">
+                                    ${isFrench ? 'Espace de Rédaction :' : 'Draft Your Analysis Below:'}
+                                </div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 22px; margin-bottom: 4px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 22px; margin-bottom: 4px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 22px; margin-bottom: 4px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 22px; margin-bottom: 4px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 22px; margin-bottom: 4px;"></div>
+                                <div style="border-bottom: 1px dashed #A78BFA; height: 22px;"></div>
                             </div>
                         </div>
 
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="background: #FCE7F3; border: 1.5px solid #EC4899; border-radius: 10px; padding: 8px;">
-                                <div style="font-weight: 800; font-size: 10px; color: #BE185D;">📝 Mots de Liaison</div>
-                                <div style="font-size: 9px; color: #9D174D; line-height: 1.4;">
-                                    • Tout d'abord<br>
-                                    • En outre / De plus<br>
-                                    • Néanmoins / Toutefois<br>
-                                    • En conclusion
+                            <div style="background: #FCE7F3; border: 1.5px solid #EC4899; border-radius: 10px; padding: 8px 10px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #BE185D; margin-bottom: 4px;">📝 ${isFrench ? 'Connecteurs Logiques' : 'Analytical Transitions'}</div>
+                                <div style="font-size: 9px; color: #9D174D; line-height: 1.45;">
+                                    ${isFrench 
+                                        ? '• En premier lieu<br>• De plus / Par ailleurs<br>• En conséquence<br>• En conclusion' 
+                                        : '• Firstly / Primarily<br>• Furthermore / Moreover<br>• Consequently / Thus<br>• In summary'}
                                 </div>
                             </div>
                             ${qrCodeDisplay}
                         </div>
-                    </div>`;
-                } else {
-                    mainContentHTML = `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
-                        <div>
-                            <!-- Writing Prompt -->
-                            <div style="background: #F5F3FF; border: 1.5px solid #8B5CF6; border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-                                <div style="font-size: 11px; font-weight: 800; color: #5B21B6; margin-bottom: 4px;">✍️ Guided Essay & Composition Prompt</div>
-                                <div style="font-size: 10px; color: #4C1D95; line-height: 1.5;">
-                                    Write a short essay or formal response (120-200 words) applying <b>${rawTopic}</b>. Include an introduction stating your key point, supporting body sentences with rich vocabulary, and a concluding sentence.
-                                </div>
-                            </div>
-
-                            <!-- Lined Writing Paper -->
-                            <div style="background: #FFFFFF; border: 1px solid #DDD6FE; border-radius: 8px; padding: 10px;">
-                                <div style="font-size: 10px; font-weight: 700; color: #6D28D9; margin-bottom: 6px;">Draft Your Response Below:</div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px; margin-bottom: 4px;"></div>
-                                <div style="border-bottom: 1px dashed #A78BFA; height: 20px;"></div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="background: #FCE7F3; border: 1.5px solid #EC4899; border-radius: 10px; padding: 8px;">
-                                <div style="font-weight: 800; font-size: 10px; color: #BE185D;">📝 Connectors</div>
-                                <div style="font-size: 9px; color: #9D174D; line-height: 1.4;">
-                                    • Firstly / To begin<br>
-                                    • Furthermore / In addition<br>
-                                    • On the other hand<br>
-                                    • Ultimately / In summary
-                                </div>
-                            </div>
-                            ${qrCodeDisplay}
-                        </div>
-                    </div>`;
-                }
+                    </div>
+                </div>`;
 
             } else {
-                // Default Standard Language & Grammar Exercise
-                if (isFrenchTheme) {
-                    mainContentHTML = `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                // Standard Comprehensive Multi-Skill Exercise
+                mainContentHTML = `
+                <div class="worksheet-section" style="margin-bottom: 14px;">
+                    <!-- Stimulus / Theory Box -->
+                    <div style="background: #EFF6FF; border: 1.5px solid #3B82F6; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px;">
+                        <div style="font-size: 11px; font-weight: 800; color: #1E3A8A; text-transform: uppercase; margin-bottom: 4px;">
+                            📌 ${isFrench ? 'Rappel Théorique & Synthèse : ' : 'Core Theoretical Principles: '} <b>${rawTopic}</b>
+                        </div>
+                        <div style="font-size: 10px; color: #1E293B; line-height: 1.6;">
+                            ${passageText}
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 12px;">
                         <div>
-                            <div style="margin-bottom: 12px;">
-                                <div style="background: #10B981; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 16px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                                    <span style="background: #047857; color: #FFF; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">A</span>
-                                    <span>Exercices de Grammaire & Conjugaison (${rawTopic})</span>
+                            <!-- Part A -->
+                            <div style="margin-bottom: 10px;">
+                                <div style="background: #10B981; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 3px 10px; border-radius: 14px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                    <span style="background: #047857; color: #FFF; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">A</span>
+                                    <span>${isFrench ? 'Maîtrise des Notions Fondamentales' : 'Foundational Conceptual Review'}</span>
                                 </div>
-
-                                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px;">
-                                    <div style="font-weight: 700; font-size: 10.5px; color: #0F172A; margin-bottom: 4px;">1. Mettez les verbes entre parenthèses à la forme adéquate :</div>
-                                    <div style="font-size: 10px; color: #334155; line-height: 1.7;">
-                                        1. Hier, Paul et Marie <span style="border-bottom: 1.5px dotted #3B82F6; color: #2563EB; font-weight: 700; padding: 0 4px;">sont partis</span> (partir) à l'université.<br>
-                                        2. Pendant que nous étudiions <b>${rawTopic}</b>, le professeur <span style="border-bottom: 1.5px dotted #3B82F6; padding: 0 12px;"></span> (expliquer) la règle.<br>
-                                        3. Si vous révisez votre vocabulaire régulièrement, vous <span style="border-bottom: 1.5px dotted #3B82F6; padding: 0 12px;"></span> (réussir) votre examen.
-                                    </div>
-                                </div>
-
                                 <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px;">
-                                    <div style="font-weight: 700; font-size: 10.5px; color: #0F172A; margin-bottom: 4px;">2. Choisissez la bonne option :</div>
-                                    <div style="font-size: 10px; color: #334155; line-height: 1.7;">
-                                        1. Dans le cadre de <b>${rawTopic}</b>, les règles sont ( <b>essentielles</b> / facultatives / ignorées ).<br>
-                                        2. Pour progresser rapidement, il ( vaut mieux / <b>faut absolument</b> / ne faut pas ) pratiquer.
+                                    <div style="font-size: 10px; color: #334155; line-height: 1.75;">
+                                        1. ${q1}<br>
+                                        <span style="border-bottom: 1.5px dotted #3B82F6; display: block; height: 16px; margin-bottom: 4px;"></span>
+                                        2. ${q2}<br>
+                                        <span style="border-bottom: 1.5px dotted #3B82F6; display: block; height: 16px;"></span>
                                     </div>
                                 </div>
                             </div>
 
+                            <!-- Part B -->
                             <div>
-                                <div style="background: #8B5CF6; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 16px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                                    <span style="background: #6D28D9; color: #FFF; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">B</span>
-                                    <span>Expression Écrite Guidée</span>
+                                <div style="background: #8B5CF6; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 3px 10px; border-radius: 14px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                    <span style="background: #6D28D9; color: #FFF; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">B</span>
+                                    <span>${isFrench ? 'Application Pratique et Analyse Critique' : 'Applied Analysis & Critical Evaluation'}</span>
                                 </div>
                                 <div style="background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 8px; padding: 8px 10px;">
-                                    <div style="font-size: 10px; font-weight: 700; color: #5B21B6; margin-bottom: 4px;">Écrivez 3 phrases décrivant une situation en appliquant <b>${rawTopic}</b> :</div>
-                                    <div style="border-bottom: 1px dashed #A78BFA; height: 16px; margin-bottom: 3px;"></div>
-                                    <div style="border-bottom: 1px dashed #A78BFA; height: 16px; margin-bottom: 3px;"></div>
-                                    <div style="border-bottom: 1px dashed #A78BFA; height: 16px;"></div>
+                                    <div style="font-size: 10px; color: #4C1D95; line-height: 1.75;">
+                                        ${q3}<br>
+                                        <span style="border-bottom: 1px dashed #A78BFA; display: block; height: 16px; margin-bottom: 3px;"></span>
+                                        <span style="border-bottom: 1px dashed #A78BFA; display: block; height: 16px;"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Sidebar -->
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="background: #FCE7F3; border: 1.5px solid #F472B6; border-radius: 10px; padding: 8px;">
-                                <div style="font-weight: 800; font-size: 10px; color: #9D174D; margin-bottom: 3px;">💡 Rappel Utile</div>
+                            <div style="background: #FEF3C7; border: 1.5px solid #F59E0B; border-radius: 8px; padding: 8px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #92400E; margin-bottom: 3px;">💡 ${isFrench ? 'Mots-Clés' : 'Key Terms'}</div>
+                                <div style="font-size: 9px; color: #78350F; line-height: 1.4;">
+                                    ${vocabTerms.map(v => `• <b>${v.term}</b>`).join('<br>')}
+                                </div>
+                            </div>
+                            <div style="background: #FCE7F3; border: 1.5px solid #F472B6; border-radius: 8px; padding: 8px;">
+                                <div style="font-weight: 800; font-size: 10px; color: #9D174D; margin-bottom: 3px;">🎯 ${isFrench ? 'Objectif' : 'Objective'}</div>
                                 <div style="font-size: 9px; color: #831843; line-height: 1.3;">
-                                    Relisez toujours vos phrases pour vérifier l'orthographe et les accords.
+                                    ${isFrench ? 'Mobiliser le vocabulaire précis et justifier chaque réponse.' : 'Articulate precise reasoning with accurate subject terminology.'}
                                 </div>
                             </div>
                             ${qrCodeDisplay}
                         </div>
-                    </div>`;
-                } else {
-                    mainContentHTML = `
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
-                        <div>
-                            <div style="margin-bottom: 12px;">
-                                <div style="background: #10B981; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 16px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                                    <span style="background: #047857; color: #FFF; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">A</span>
-                                    <span>Grammar & Vocabulary Mastery (${rawTopic})</span>
-                                </div>
-
-                                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px;">
-                                    <div style="font-weight: 700; font-size: 10.5px; color: #0F172A; margin-bottom: 4px;">1. Complete sentences with correct verb forms and vocabulary:</div>
-                                    <div style="font-size: 10px; color: #334155; line-height: 1.7;">
-                                        1. The foundational rule of <b>${rawTopic}</b> is to <span style="border-bottom: 1.5px dotted #3B82F6; color: #2563EB; font-weight: 700; padding: 0 4px;">identify sentence patterns</span> carefully.<br>
-                                        2. While practicing <b>${rawTopic}</b>, students must <span style="border-bottom: 1.5px dotted #3B82F6; padding: 0 12px;"></span> (apply) correct time markers.<br>
-                                        3. Regular review leads to complete <span style="border-bottom: 1.5px dotted #3B82F6; padding: 0 12px;"></span> (mastery) of foreign languages.
-                                    </div>
-                                </div>
-
-                                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px;">
-                                    <div style="font-weight: 700; font-size: 10.5px; color: #0F172A; margin-bottom: 4px;">2. Multiple choice selection:</div>
-                                    <div style="font-size: 10px; color: #334155; line-height: 1.7;">
-                                        1. In <b>${rawTopic}</b>, key structures are ( <b>essential</b> / optional / ignored ).<br>
-                                        2. Fluency ( requires / <b>must require</b> / does not require ) consistent practice.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <div style="background: #8B5CF6; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 16px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
-                                    <span style="background: #6D28D9; color: #FFF; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">B</span>
-                                    <span>Writing & Application</span>
-                                </div>
-                                <div style="background: #F5F3FF; border: 1px solid #DDD6FE; border-radius: 8px; padding: 8px 10px;">
-                                    <div style="font-size: 10px; font-weight: 700; color: #5B21B6; margin-bottom: 4px;">Write 3 sentences applying <b>${rawTopic}</b> in context:</div>
-                                    <div style="border-bottom: 1px dashed #A78BFA; height: 16px; margin-bottom: 3px;"></div>
-                                    <div style="border-bottom: 1px dashed #A78BFA; height: 16px; margin-bottom: 3px;"></div>
-                                    <div style="border-bottom: 1px dashed #A78BFA; height: 16px;"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="background: #FCE7F3; border: 1.5px solid #F472B6; border-radius: 10px; padding: 8px;">
-                                <div style="font-weight: 800; font-size: 10px; color: #9D174D; margin-bottom: 3px;">💡 Quick Reminder</div>
-                                <div style="font-size: 9px; color: #831843; line-height: 1.3;">
-                                    Always proofread your written sentences for correct agreement and punctuation!
-                                </div>
-                            </div>
-                            ${qrCodeDisplay}
-                        </div>
-                    </div>`;
-                }
+                    </div>
+                </div>`;
             }
 
             return `
                 <div style="font-family: ${fontFamily}; color: #1E293B;">
-                    <!-- Textbook Page Top Banner -->
+                    <!-- Worksheet Top Banner -->
                     <div style="background: linear-gradient(135deg, #1E3A8A, #2563EB); color: #FFFFFF; padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                         <div>
                             <div style="display: flex; align-items: center; gap: 6px;">
@@ -2873,43 +2921,69 @@
                             </div>
                         </div>
                         <div style="background: #FEF08A; color: #854D0E; font-weight: 700; font-size: 9.5px; padding: 4px 8px; border-radius: 6px; border: 1.5px dashed #CA8A04; text-align: center;">
-                            EduGen Studio Asset 😊
+                            EduGen Studio
                         </div>
                     </div>
 
                     ${mainContentHTML}
 
-                    <!-- Textbook Page Footer -->
-                    <div style="border-top: 1.5px solid #E2E8F0; margin-top: 10px; padding-top: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 700; color: #64748B;">
-                        <span>EduGen Language Worksheet &nbsp;•&nbsp; ${rawTopic}</span>
+                    <!-- Worksheet Page Footer -->
+                    <div style="border-top: 1.5px solid #E2E8F0; margin-top: 10px; padding-top: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 700; color: #64748B;" class="generated-footer">
+                        <span>EduGen Studio &nbsp;•&nbsp; ${rawTopic}</span>
                         <span style="background: #2563EB; color: #FFF; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px;">1</span>
-                        <span>Page 1 of 1 &nbsp;•&nbsp; English & French Mastery</span>
+                        <span>${isFrench ? 'Maîtrise Pédagogique' : 'Classroom Mastery'}</span>
                     </div>
                 </div>`;
         }
 
+        function getEffectiveApiKey() {
+            const input = document.getElementById('apiKeyInput') || document.getElementById('geminiApiKey');
+            if (input && input.value && input.value.trim() !== '') {
+                return input.value.trim();
+            }
+            const saved = localStorage.getItem('edugen_api_key');
+            if (saved && saved.trim() !== '') {
+                return saved.trim();
+            }
+            return '';
+        }
+
+        function hasValidApiKey() {
+            const key = getEffectiveApiKey();
+            return Boolean(key && key.length > 5 && !key.startsWith('AIzaSyDefault'));
+        }
+
         async function callGeminiApi(prompt) {
-            const apiKeyInput = document.getElementById('geminiApiKey');
-            const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
-            if (!apiKey) return null;
+            const apiKey = getEffectiveApiKey();
+            if (!apiKey || apiKey.startsWith('AIzaSyDefault')) return null;
             
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { temperature: 0.7 }
-                    })
-                });
-                
-                if (!response.ok) throw new Error("API Request Failed");
-                const data = await response.json();
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    return data.candidates[0].content.parts[0].text;
+            const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+            
+            for (const model of models) {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: { 
+                                temperature: 0.7,
+                                maxOutputTokens: 2500 
+                            }
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                            return data.candidates[0].content.parts[0].text;
+                        }
+                    } else {
+                        console.warn(`Gemini model ${model} request returned status ${response.status}`);
+                    }
+                } catch (err) {
+                    console.warn(`Gemini model ${model} request error:`, err);
                 }
-            } catch (err) {
-                console.error("Gemini API Error:", err);
             }
             return null;
         }
@@ -2927,18 +3001,19 @@
                 const tmplSelect = document.getElementById('worksheetTemplateType');
                 const testTypeSelect = document.getElementById('worksheetTestType');
                 const skillsFocusSelect = document.getElementById('worksheetSkillsFocus');
+                const formatSelect = document.getElementById('worksheetFormat');
                 const fontSelect = document.getElementById('worksheetFont');
                 const illusSelect = document.getElementById('worksheetIllustrations');
                 const qrInput = document.getElementById('worksheetQr');
 
-                const topic = topicInput ? topicInput.value : '';
+                const topic = (topicInput && topicInput.value.trim() !== '') ? topicInput.value.trim() : (currentLang === 'fr' ? 'Le Passé Composé et L\'Imparfait' : 'Present Perfect vs Past Simple');
                 const level = levelSelect ? levelSelect.value : 'middle';
                 const tmplType = tmplSelect ? tmplSelect.value : 'standard';
                 const testType = testTypeSelect ? testTypeSelect.value : 'diagnostic';
                 const skillsFocus = skillsFocusSelect ? skillsFocusSelect.value : 'trisection';
                 const fontStyle = fontSelect ? fontSelect.value : 'modern';
                 const illus = illusSelect ? illusSelect.value : 'vector';
-                const qr = qrInput ? qrInput.value : '';
+                const qr = qrInput ? qrInput.value.trim() : '';
 
                 modal.classList.add('show');
                 if (videoContainer) videoContainer.style.display = 'none';
@@ -2946,24 +3021,42 @@
                 
                 if (textbookContainer) {
                     textbookContainer.style.display = 'block';
-                    textbookContainer.innerHTML = `<div style="text-align: center; padding: 40px; color: #1E3A8A;"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i><p style="margin-top: 15px; font-weight: bold; font-family: 'Plus Jakarta Sans', sans-serif;">Generating Worksheet with AI...</p></div>`;
+                    textbookContainer.innerHTML = `<div style="text-align: center; padding: 40px; color: #1E3A8A;"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i><p style="margin-top: 15px; font-weight: bold; font-family: 'Plus Jakarta Sans', sans-serif;">${currentLang === 'fr' ? 'Génération de la fiche adaptée à votre sujet...' : 'Generating worksheet tailored to your prompt...'}</p></div>`;
                 }
 
-                // AI Generation Prompt for Worksheet
-                const apiKeyInput = document.getElementById('geminiApiKey');
-                const hasApiKey = apiKeyInput && apiKeyInput.value.trim() !== '';
+                // AI Generation Prompt for Worksheet with Strict Topic Fidelity
+                const hasApiKey = hasValidApiKey();
                 let generatedHtml = null;
 
                 if (hasApiKey) {
-                    const prompt = `You are an expert worksheet generator. Generate the inner HTML content for an educational worksheet about "${topic}" (Level: ${level}). 
-IMPORTANT RULES:
-- Output ONLY valid raw HTML. Do not use markdown backticks like \`\`\`html. 
-- Use inline styles carefully to match a clean, modern design system.
-- Structure it beautifully with a Reading Passage and 3 Comprehension Questions.
-- Use explicit container classes for proper printing: Wrap each distinct major section in <div class="worksheet-section">...</div>.
-- If you need to force a page break between sections for multi-page printing, insert <div class="page-break"></div>.
-- Use a blue/slate color palette (e.g. background: #EFF6FF; border: 1.5px solid #3B82F6; for the passage box).
-- No html, head, or body tags. Just the content divs.`;
+                    const isFrench = currentLang === 'fr' || isFrenchTopic(topic);
+                    const targetLangName = isFrench ? "French (Français)" : "English";
+
+                    const prompt = `You are an expert pedagogical curriculum and worksheet author. Generate the complete inner HTML content for an educational classroom worksheet that STRICTLY AND FAITHFULLY matches the following user prompt and parameters:
+
+USER TOPIC / SUBJECT: "${topic}"
+TARGET LANGUAGE: ${targetLangName} (Write the entire worksheet, instructions, reading material, questions, and vocabulary in ${targetLangName}, perfectly matching the topic).
+STUDENT EDUCATION LEVEL: ${level}
+WORKSHEET TEMPLATE TYPE: ${tmplType} (${tmplSelect ? tmplSelect.options[tmplSelect.selectedIndex].text : ''})
+ASSESSMENT TYPE: ${testType}
+SKILLS FOCUS: ${skillsFocus}
+QUESTION FORMAT: ${formatSelect ? formatSelect.value : 'mixed'}
+
+CRITICAL RULES:
+1. TOPIC ACCURACY & RELEVANCE (MANDATORY):
+   - Every single question, reading passage, vocabulary term, and exercise MUST directly focus on "${topic}".
+   - Under no circumstances should you generate generic filler, unrelated travel stories, or off-topic grammar exercises unless explicitly requested.
+2. CONTENT SECTIONS:
+   - Wrap each distinct major section in <div class="worksheet-section" style="margin-bottom: 14px;">...</div>.
+   - Section 1: An engaging, accurate, informative Reading Passage or Core Theoretical Stimulus explaining "${topic}".
+   - Section 2: Comprehensive Assessment Exercises matching "${tmplType}" (e.g., matching definitions, fill-in-the-blanks, multiple choice, or analytical problems) directly testing concepts from "${topic}".
+   - Section 3: Critical Thinking & Synthesis Questions specifically analyzing "${topic}" with clean dotted answer lines.
+   - Section 4: Key Terms & Vocabulary Box containing 3-5 real terms specifically related to "${topic}".
+3. FORMATTING & MULTI-PAGE PRINTING:
+   - Output ONLY valid raw HTML. Do NOT include markdown code fences (\`\`\`html).
+   - Do NOT include <html>, <head>, or <body> tags.
+   - Insert <div class="page-break"></div> between Section 2 and Section 3 for clean multi-page printing.
+   - Use high-contrast, polished styling with clean badges, rounded cards, and dotted answer lines.`;
                     
                     const aiContent = await callGeminiApi(prompt);
                     if (aiContent) {
@@ -2976,24 +3069,24 @@ IMPORTANT RULES:
                         
                         const qrCodeDisplay = qr ? `<div style="margin-top: 10px; text-align: center; display: flex; flex-direction: column; align-items: center;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qr)}" alt="QR Code" style="width: 70px; height: 70px; border-radius: 6px; border: 1.5px solid #CBD5E1; padding: 3px; background: white;"><div style="font-size: 8px; color: #475569; margin-top: 6px; word-break: break-all; max-width: 100px;">🔗 ${qr}</div></div>` : '';
                         
+                        const layoutContent = qr 
+                            ? `<div style="display: grid; grid-template-columns: 3fr 1fr; gap: 14px; align-items: start;"><div>${cleanHtml}</div><div>${qrCodeDisplay}</div></div>`
+                            : `<div>${cleanHtml}</div>`;
+
                         generatedHtml = `
                         <div style="font-family: ${fontFamily}; color: #1E293B;">
                             <div style="background: linear-gradient(135deg, #1E3A8A, #2563EB); color: #FFFFFF; padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                                 <div>
-                                    <h2 style="font-size: 16px; font-weight: 800; margin: 0; color: #FFFFFF;" id="tbTopicHeader">${topic || 'Worksheet'}</h2>
-                                    <div style="font-size: 10px; color: #93C5FD; margin-top: 2px; font-weight: 600;">Custom AI Worksheet</div>
+                                    <h2 style="font-size: 16px; font-weight: 800; margin: 0; color: #FFFFFF;" id="tbTopicHeader">${topic}</h2>
+                                    <div style="font-size: 10px; color: #93C5FD; margin-top: 2px; font-weight: 600;">Custom AI Worksheet &nbsp;•&nbsp; ${level.toUpperCase()}</div>
+                                </div>
+                                <div style="background: #FEF08A; color: #854D0E; font-weight: 700; font-size: 9.5px; padding: 4px 8px; border-radius: 6px; border: 1.5px dashed #CA8A04; text-align: center;">
+                                    EduGen Studio
                                 </div>
                             </div>
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
-                                <div>
-                                    ${cleanHtml}
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 8px;">
-                                    ${qrCodeDisplay}
-                                </div>
-                            </div>
+                            ${layoutContent}
                             <div style="border-top: 1.5px solid #E2E8F0; margin-top: 10px; padding-top: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 700; color: #64748B;" class="generated-footer">
-                                <span>EduGen AI Generated Asset</span>
+                                <span>EduGen AI Generated Asset &nbsp;•&nbsp; ${topic}</span>
                                 <span>Page 1 of 1</span>
                             </div>
                         </div>`;
@@ -3050,8 +3143,7 @@ IMPORTANT RULES:
                     if (slideDesc) slideDesc.textContent = "AI is structuring your slides. Please wait.";
                 }
 
-                const apiKeyInput = document.getElementById('geminiApiKey');
-                const hasApiKey = apiKeyInput && apiKeyInput.value.trim() !== '';
+                const hasApiKey = hasValidApiKey();
                 
                 if (hasApiKey) {
                     const prompt = `Generate an array of exactly ${slideCount} presentation slides for the topic: "${topic}". Tone: ${tone}. 
@@ -3097,8 +3189,7 @@ Return strictly a raw JSON array of objects, each with 'title' (string) and 'des
                     textbookContainer.innerHTML = `<div style="text-align: center; padding: 40px; color: #1E3A8A;"><i class="fa-solid fa-circle-notch fa-spin fa-3x"></i><p style="margin-top: 15px; font-weight: bold; font-family: 'Plus Jakarta Sans', sans-serif;">Generating Lesson Plan with AI...</p></div>`;
                 }
 
-                const apiKeyInput = document.getElementById('geminiApiKey');
-                const hasApiKey = apiKeyInput && apiKeyInput.value.trim() !== '';
+                const hasApiKey = hasValidApiKey();
                 let generatedHtml = null;
 
                 if (hasApiKey) {
@@ -3158,7 +3249,12 @@ IMPORTANT RULES:
                     return;
                 }
 
-                if (!firebase.apps.length) {
+                if (typeof firebase === 'undefined') {
+                    alert("Firebase SDK is unavailable. Please check your internet connection or try again later.");
+                    return;
+                }
+
+                if (!firebase.apps || !firebase.apps.length) {
                     firebase.initializeApp(fbConfig);
                 }
                 
