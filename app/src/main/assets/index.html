@@ -565,14 +565,34 @@
             -webkit-backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 24px;
-            border: 2px solid rgba(0, 240, 255, 0.5);
+            border: 2px solid rgba(0, 240, 255, 0.4);
             position: relative;
             overflow: hidden;
             animation: quantumPulse 6s infinite ease-in-out;
-            transition: transform 0.12s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.35s ease, background-color 0.35s ease, border-color 0.35s ease;
+            transition: transform 0.2s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.35s ease, background-color 0.35s ease, border-color 0.35s ease;
             transform-style: preserve-3d;
             perspective: 1000px;
             will-change: transform;
+            cursor: pointer;
+        }
+
+        /* Subtle Holographic Light Sheen Overlay */
+        .creation-card .card-sheen {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.12), transparent 60%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            z-index: 2;
+            transform: translateZ(1px);
+        }
+
+        .creation-card:hover .card-sheen {
+            opacity: 1;
         }
 
         /* Quantum Corner Brackets (Energy Nodes) */
@@ -631,7 +651,7 @@
         .creation-card:hover {
             background-color: rgba(20, 32, 56, 0.95);
             border-color: #00F0FF;
-            box-shadow: 0 22px 55px rgba(0, 240, 255, 0.45), inset 0 0 35px rgba(0, 240, 255, 0.25);
+            box-shadow: 0 24px 60px rgba(0, 240, 255, 0.35), 0 10px 20px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(0, 240, 255, 0.2);
         }
 
         /* 3D Parallax Layering inside Creation Cards */
@@ -642,7 +662,7 @@
         .creation-card .form-group,
         .creation-card .btn-action,
         .creation-card button {
-            transition: transform 0.12s cubic-bezier(0.2, 0, 0.2, 1);
+            transition: transform 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
             transform-style: preserve-3d;
         }
 
@@ -4854,16 +4874,29 @@ IMPORTANT RULES:
                 if (card.dataset.parallaxActive) return;
                 card.dataset.parallaxActive = 'true';
 
+                // Add dynamic light sheen layer if missing
+                let sheen = card.querySelector('.card-sheen');
+                if (!sheen) {
+                    sheen = document.createElement('div');
+                    sheen.className = 'card-sheen';
+                    card.appendChild(sheen);
+                }
+
                 card.addEventListener('mousemove', (e) => {
                     const rect = card.getBoundingClientRect();
                     const x = e.clientX - rect.left - rect.width / 2;
                     const y = e.clientY - rect.top - rect.height / 2;
 
-                    // Smooth 3D tilt angles (max ~8 degrees for subtle, crisp response)
-                    const rotateX = (-y / (rect.height / 2)) * 8;
-                    const rotateY = (x / (rect.width / 2)) * 8;
+                    // Smooth 3D tilt angles (max ~7 degrees for subtle, crisp response)
+                    const rotateX = (-y / (rect.height / 2)) * 7;
+                    const rotateY = (x / (rect.width / 2)) * 7;
 
                     card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-6px) scale(1.015)`;
+
+                    // Move dynamic light sheen relative to mouse cursor position
+                    const cursorXPercent = ((e.clientX - rect.left) / rect.width) * 100;
+                    const cursorYPercent = ((e.clientY - rect.top) / rect.height) * 100;
+                    sheen.style.background = `radial-gradient(circle at ${cursorXPercent.toFixed(1)}% ${cursorYPercent.toFixed(1)}%, rgba(255, 255, 255, 0.15), transparent 55%)`;
 
                     // Multi-layer depth displacement
                     const icon = card.querySelector('.card-icon, i.fa-robot');
@@ -4871,8 +4904,8 @@ IMPORTANT RULES:
                     const inputs = card.querySelectorAll('.form-group, .form-input, .form-select');
                     const buttons = card.querySelectorAll('.btn-action, button');
 
-                    if (icon) icon.style.transform = `translateZ(26px) translateX(${(x * 0.05).toFixed(1)}px) translateY(${(y * 0.05).toFixed(1)}px)`;
-                    if (titles) titles.style.transform = `translateZ(18px) translateX(${(x * 0.025).toFixed(1)}px)`;
+                    if (icon) icon.style.transform = `translateZ(26px) translateX(${(x * 0.04).toFixed(1)}px) translateY(${(y * 0.04).toFixed(1)}px)`;
+                    if (titles) titles.style.transform = `translateZ(18px) translateX(${(x * 0.02).toFixed(1)}px)`;
                     inputs.forEach(el => el.style.transform = `translateZ(10px)`);
                     buttons.forEach(el => el.style.transform = `translateZ(22px) scale(1.02)`);
                 });
