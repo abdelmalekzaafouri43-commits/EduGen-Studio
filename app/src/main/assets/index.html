@@ -2573,6 +2573,55 @@
             }
         }
 
+        /**
+         * Dynamically generates a QR Code visual badge element for worksheets, PowerPoint presentations, and lesson plans.
+         * @param {string} url - The URL or content to encode.
+         * @param {object} options - Custom styling options (size, label, themeColor, borderColor, bgColor, textColor, variant).
+         * @returns {string} - HTML string representing the QR code visual element.
+         */
+        function generateQRCodeElement(url, options = {}) {
+            if (!url || typeof url !== 'string' || url.trim() === '') return '';
+            const cleanUrl = url.trim();
+            const size = options.size || 80;
+            const label = options.label || (currentLang === 'fr' ? 'Accès Numérique QR' : 'Interactive QR Portal');
+            const themeColor = options.themeColor || '#047857';
+            const borderColor = options.borderColor || '#10B981';
+            const bgColor = options.bgColor || '#F0FDF4';
+            const textColor = options.textColor || '#1E293B';
+            const variant = options.variant || 'standard';
+
+            const encodedUrl = encodeURIComponent(cleanUrl);
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodedUrl}`;
+
+            if (variant === 'slide') {
+                return `
+                <div class="qr-code-badge slide-qr-badge" style="background: ${bgColor}; border: 1.5px solid ${borderColor}; border-radius: 12px; padding: 8px 12px; text-align: center; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
+                    <div style="font-size: 9px; font-weight: 800; color: ${themeColor}; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <span>📱</span> ${label}
+                    </div>
+                    <div style="background: #FFFFFF; padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.4); display: inline-block;">
+                        <img src="${qrImageUrl}" alt="Interactive QR Code" style="width: ${size}px; height: ${size}px; display: block; border-radius: 4px;">
+                    </div>
+                    <div style="font-size: 8px; color: ${textColor}; margin-top: 4px; word-break: break-all; max-width: ${size + 40}px; font-family: monospace; opacity: 0.9;">
+                        🔗 ${cleanUrl}
+                    </div>
+                </div>`;
+            }
+
+            return `
+            <div class="qr-code-badge asset-qr-badge" style="background: ${bgColor}; border: 1.5px solid ${borderColor}; border-radius: 10px; padding: 10px 12px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                <div style="font-size: 10px; font-weight: 800; color: ${themeColor}; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
+                    <span>📲</span> ${label}
+                </div>
+                <div style="background: #FFFFFF; padding: 4px; border-radius: 8px; border: 1px solid #CBD5E1; display: inline-block;">
+                    <img src="${qrImageUrl}" alt="QR Code" style="width: ${size}px; height: ${size}px; display: block; border-radius: 4px;">
+                </div>
+                <div style="font-size: 8.5px; color: ${textColor}; margin-top: 6px; word-break: break-all; max-width: ${size + 40}px; font-family: monospace; font-weight: 600;">
+                    🔗 ${cleanUrl}
+                </div>
+            </div>`;
+        }
+
         function updateVideoSlideUI() {
             const slide = dummySlides[currentVideoSlide];
             const tag = document.getElementById('videoSlideTag');
@@ -2598,7 +2647,15 @@
             
             if (qrContainer) {
                 if (currentPptQr && (currentVideoSlide === 0 || currentVideoSlide === dummySlides.length - 1)) {
-                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(currentPptQr)}" alt="QR Code" style="width: 60px; height: 60px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); padding: 3px; background: white;"><div style="font-size: 8px; color: #94A3B8; margin-top: 4px; word-break: break-all; max-width: 150px;">🔗 ${currentPptQr}</div>`;
+                    qrContainer.innerHTML = generateQRCodeElement(currentPptQr, {
+                        size: 65,
+                        variant: 'slide',
+                        label: currentLang === 'fr' ? 'Lien Diapo QR' : 'Interactive Slide Link',
+                        themeColor: '#38BDF8',
+                        borderColor: 'rgba(56, 189, 248, 0.4)',
+                        bgColor: 'rgba(15, 23, 42, 0.85)',
+                        textColor: '#94A3B8'
+                    });
                     qrContainer.style.display = 'flex';
                 } else {
                     qrContainer.style.display = 'none';
@@ -2691,7 +2748,13 @@
             if (testTypeVal === 'diagnostic') testTypeTitle = isFrench ? "Évaluation Diagnostique en Langue" : "Diagnostic Language Placement Benchmark";
             if (testTypeVal === 'mock') testTypeTitle = isFrench ? "Examen Blanc de Français / FLE" : "Mock Language Examination & Practice Test";
 
-            const qrCodeDisplay = qrVal ? `<div style="margin-top: 10px; text-align: center; display: flex; flex-direction: column; align-items: center;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qrVal)}" alt="QR Code" style="width: 70px; height: 70px; border-radius: 6px; border: 1.5px solid #CBD5E1; padding: 3px; background: white;"><div style="font-size: 8px; color: #475569; margin-top: 6px; word-break: break-all; max-width: 100px;">🔗 ${qrVal}</div></div>` : '';
+            const qrCodeDisplay = qrVal ? generateQRCodeElement(qrVal, {
+                size: 75,
+                label: isFrench ? 'Ressources Numériques' : 'Interactive QR Portal',
+                themeColor: '#0369A1',
+                borderColor: '#0284C7',
+                bgColor: '#F0F9FF'
+            }) : '';
 
             // Language domain texts
             let passageText = "";
@@ -2700,171 +2763,239 @@
             let tf1 = "", tf2 = "";
             let mcqItems = [];
 
+            const isElementary = (levelVal === 'elem');
+            const isPastTenseTopic = /past|passé|yesterday|hier|imparfait|irregular verb/i.test(rawTopic);
+            const isGrammarTenseTopic = /past|passé|present|présent|future|futur|verb|verbe|tense|conjugat|grammar|grammaire|adjective|adjectif|noun|nom|pronoun|pronom|preposition/i.test(rawTopic);
+
             if (isFrench) {
-                if (domain === 'vocabulary') {
-                    passageText = `L'enrichissement du vocabulaire autour de <b>${rawTopic}</b> est essentiel pour développer une expression fluide, précise et nuancée en français (FLE / Langue française). L'acquisition de termes spécifiques, de collocations et d'expressions idiomatiques permet à l'apprenant d'élargir son champ lexical et d'adapter son discours aux différents registres de langue.`;
+                if (isPastTenseTopic && isElementary) {
+                    passageText = `Le <b>passé composé</b> et l'<b>imparfait</b> permettent de raconter des événements passés !<br>• <b>Le passé composé :</b> S'utilise pour une action précise et terminée dans le passé (<i>ex : Hier, j'ai mangé une pomme</i>). Il se forme avec l'auxiliaire (être ou avoir) + le participe passé.<br>• <b>L'imparfait :</b> S'utilise pour une description ou une habitude passée (<i>ex : Quand j'étais petit, je jouais au parc</i>).`;
+                    vocabTerms = [
+                        { term: "Auxiliaire", def: "Verbe Être ou Avoir utilisé pour former le passé composé" },
+                        { term: "Participe Passé", def: "Forme du verbe après l'auxiliaire (mangé, fini, allé)" },
+                        { term: "Mots Indicateurs", def: "Hier, la semaine dernière, autrefois, soudain" }
+                    ];
+                    q1 = `Complétez les phrases au passé composé avec le verbe entre parenthèses :<br>&nbsp;&nbsp;a) Hier, Paul _________ (manger) une délicieuse tarte.<br>&nbsp;&nbsp;b) Ce matin, nous _________ (aller) à l'école à pied.<br>&nbsp;&nbsp;c) La semaine dernière, tu _________ (finir) tes devoirs.`;
+                    q2 = `Transformez ces verbes au Passé Composé :<br>&nbsp;&nbsp;a) (parler) ➔ Hier, j'ai __________________.<br>&nbsp;&nbsp;b) (choisir) ➔ Elle a __________________.`;
+                    q3 = `Mettez cette phrase au passé : <i>« Thomas regarde un film et joue au ballon. »</i><br>&nbsp;&nbsp;➔ ____________________________________________________________________`;
+                    tf1 = `Le passé composé se forme toujours avec un auxiliaire (être ou avoir) + un participe passé.`;
+                    tf2 = `Le mot « demain » s'utilise pour indiquer une action au passé.`;
+                    mcqItems = [
+                        { q: `Quelle phrase est correctement conjuguée au passé composé ?`, a: "Hier, j'ai fini mon exercice de français.", b: "Hier, je finir mon exercice de français.", c: "Hier, je finis mon exercice." },
+                        { q: `Quel est le participe passé du verbe « manger » ?`, a: "mangé", b: "mangeait", c: "manger" }
+                    ];
+                } else if (domain === 'vocabulary') {
+                    passageText = `L'enrichissement du vocabulaire autour de <b>${rawTopic}</b> est essentiel pour développer une expression fluide, précise et nuancée en français. L'acquisition de termes spécifiques et d'expressions associées permet à l'apprenant d'élargir son champ lexical.`;
                     vocabTerms = [
                         { term: "Champ Lexical", def: "Ensemble des mots se rapportant à une même notion" },
                         { term: "Expression Idiomatique", def: "Tournure propre à la langue française" },
                         { term: "Registre de Langue", def: "Degré de formalité (courant, soutenu, familier)" }
                     ];
-                    q1 = `Relevez dans le texte ou proposez trois termes fondamentaux appartenant au champ lexical de <b>${rawTopic}</b> :`;
-                    q2 = `Expliquez la différence de nuance entre un terme courant et un terme soutenu lié à <b>${rawTopic}</b> :`;
-                    q3 = `Rédigez un court paragraphe de trois phrases intégrant judicieusement deux mots de vocabulaire de <b>${rawTopic}</b> :`;
-                    tf1 = `L'utilisation d'un vocabulaire varié sur <b>${rawTopic}</b> n'a aucun impact sur la qualité de l'expression écrite.`;
-                    tf2 = `L'adaptation du registre de langue dépend directement du destinataire et du contexte de communication.`;
+                    q1 = `Relevez ou proposez trois termes fondamentaux appartenant au champ lexical de <b>${rawTopic}</b> :`;
+                    q2 = `Expliquez la différence de nuance entre deux mots clés liés à <b>${rawTopic}</b> :`;
+                    q3 = `Rédigez un court paragraphe de trois phrases intégrant deux mots de vocabulaire de <b>${rawTopic}</b> :`;
+                    tf1 = `L'utilisation d'un vocabulaire varié sur <b>${rawTopic}</b> améliore la qualité de l'expression écrite.`;
+                    tf2 = `L'adaptation du registre de langue dépend directement du destinataire et du contexte.`;
                     mcqItems = [
                         { q: `Quel est l'objectif principal de l'apprentissage du vocabulaire de ${rawTopic} ?`, a: "Exprimer des idées précises et adapter son registre de langue", b: "Ignorer les nuances de sens", c: "Remplacer la grammaire" },
                         { q: `Comment consolider le vocabulaire appris sur ${rawTopic} ?`, a: "En le réutilisant dans des phrases contextuelles", b: "En apprenant des listes sans jamais écrire", c: "En l'oubliant rapidement" }
                     ];
                 } else if (domain === 'literature') {
-                    passageText = `L'analyse littéraire et la compréhension de texte autour de <b>${rawTopic}</b> développent l'esprit critique et la sensibilité esthétique des élèves. À travers l'étude des procédés stylistiques, de la structure narrative et de la caractérisation, le lecteur apprend à décoder les implicites du texte et à formuler une interprétation argumentée.`;
+                    passageText = `L'analyse littéraire et la compréhension de texte autour de <b>${rawTopic}</b> développent l'esprit critique et la sensibilité esthétique des élèves. À travers l'étude des procédés stylistiques et de la structure narrative, le lecteur apprend à interpréter le texte.`;
                     vocabTerms = [
                         { term: "Procédé Stylistique", def: "Moyen d'expression particulier utilisé par l'auteur" },
                         { term: "Implicite", def: "Information non dite explicitement mais suggérée" },
                         { term: "Schéma Narratif", def: "Organisation de la progression de l'histoire" }
                     ];
                     q1 = `Dégagez l'idée principale du texte étudié concernant <b>${rawTopic}</b> :`;
-                    q2 = `Identifiez une figure de style ou un procédé d'écriture renforçant la portée de <b>${rawTopic}</b> :`;
-                    q3 = `Expliquez ce que révèle l'implicite du texte quant aux intentions de l'auteur sur <b>${rawTopic}</b> :`;
-                    tf1 = `L'analyse littéraire de <b>${rawTopic}</b> consiste uniquement à résumer l'histoire sans analyser le style.`;
-                    tf2 = `Toute interprétation littéraire rigoureuse doit s'appuyer sur des citations précises du texte.`;
+                    q2 = `Identifiez un procédé d'écriture ou une figure de style renforçant la portée de <b>${rawTopic}</b> :`;
+                    q3 = `Expliquez ce que révèle le texte quant au thème principal de <b>${rawTopic}</b> :`;
+                    tf1 = `L'analyse littéraire de <b>${rawTopic}</b> consiste à analyser le style et le sens du texte.`;
+                    tf2 = `Toute interprétation littéraire rigoureuse doit s'appuyer sur des exemples du texte.`;
                     mcqItems = [
                         { q: `Quel est le rôle de l'implicite dans un texte traitant de ${rawTopic} ?`, a: "Suggérer des significations profondes à interpréter par le lecteur", b: "Rendre le texte incompréhensible", c: "Supprimer les personnages" },
                         { q: `Pour justifier une analyse littéraire sur ${rawTopic}, il faut :`, a: "Citer des passages du texte et expliquer leur effet", b: "Donner son avis sans preuve", c: "Ignorer le style de l'auteur" }
                     ];
                 } else if (domain === 'writing') {
-                    passageText = `La maîtrise de l'expression écrite autour de <b>${rawTopic}</b> permet de structurer ses idées avec logique, clarté et précision. L'utilisation appropriée des connecteurs logiques, la variété du vocabulaire et la rigueur de la syntaxe garantissent la cohérence globale d'un essai, d'une lettre ou d'un texte argumentatif.`;
+                    passageText = `La maîtrise de l'expression écrite autour de <b>${rawTopic}</b> permet de structurer ses idées avec logique, clarté et précision. L'utilisation appropriée des connecteurs logiques et la rigueur de la syntaxe garantissent la cohérence d'une rédaction.`;
                     vocabTerms = [
                         { term: "Connecteur Logique", def: "Mot liant deux idées (cause, conséquence, opposition)" },
                         { term: "Cohérence Textuelle", def: "Enchaînement logique et fluide des paragraphes" },
                         { term: "Paragraphe Argumenté", def: "Structure composée d'une idée, d'une preuve et d'un exemple" }
                     ];
-                    q1 = `Formulez une phrase d'introduction claire présentant la problématique de <b>${rawTopic}</b> :`;
-                    q2 = `Proposez deux connecteurs logiques adaptés pour introduire un argument et une concession sur <b>${rawTopic}</b> :`;
+                    q1 = `Formulez une phrase d'introduction claire présentant le sujet de <b>${rawTopic}</b> :`;
+                    q2 = `Proposez deux connecteurs logiques adaptés pour structurer un paragraphe sur <b>${rawTopic}</b> :`;
                     q3 = `Rédigez une conclusion synthétique résumant votre point de vue sur <b>${rawTopic}</b> :`;
-                    tf1 = `Un texte argumentatif sur <b>${rawTopic}</b> ne nécessite aucun connecteur logique entre les paragraphes.`;
+                    tf1 = `Un texte argumentatif sur <b>${rawTopic}</b> s'appuie sur des connecteurs logiques entre les paragraphes.`;
                     tf2 = `La révision de la syntaxe et de l'orthographe est indispensable après toute rédaction.`;
                     mcqItems = [
                         { q: `Quelle est la structure recommandée pour un paragraphe argumenté sur ${rawTopic} ?`, a: "Idée maîtresse + Argument développé + Exemple concret", b: "Une suite de phrases sans lien", c: "Uniquement des questions" },
                         { q: `Quel connecteur exprime une conséquence dans une rédaction sur ${rawTopic} ?`, a: "Par conséquent / Ainsi", b: "Cependant", c: "Bien que" }
                     ];
                 } else if (domain === 'conversation') {
-                    passageText = `Le développement de l'expression orale et de la phonétique autour de <b>${rawTopic}</b> renforce la confiance et la fluidité dans les échanges quotidiens en français. L'attention portée à l'intonation, à la prononciation des sons et aux formules de politesse permet d'interagir efficacement dans des situations concrètes de communication.`;
+                    passageText = `Le développement de l'expression orale autour de <b>${rawTopic}</b> renforce la confiance et la fluidité dans les échanges quotidiens. L'attention portée à la prononciation, à l'intonation et aux formules d'échange permet d'interagir efficacement.`;
                     vocabTerms = [
                         { term: "Phonétique", def: "Étude et prononciation exacte des sons du français" },
                         { term: "Intonation", def: "Mélodie et rythme de la phrase parlée" },
                         { term: "Acte de Parole", def: "Formule utilisée pour saluer, demander, remercier ou négocier" }
                     ];
-                    q1 = `Transcrivez ou citez trois formules de politesse clés utilisées dans la conversation sur <b>${rawTopic}</b> :`;
-                    q2 = `Comment l'intonation modifie-t-elle le sens d'une phrase déclarative devenant interrogative sur <b>${rawTopic}</b> ?`;
-                    q3 = `Composez un dialogue de quatre répliques entre deux personnes échangeant au sujet de <b>${rawTopic}</b> :`;
-                    tf1 = `La prononciation des liaisons et l'intonation n'ont aucune importance en communication orale.`;
-                    tf2 = `Un dialogue fluide nécessite l'écoute active et la réutilisation de relances conversationnelles.`;
+                    q1 = `Cite trois formules de politesse ou expressions clés utilisées dans la conversation sur <b>${rawTopic}</b> :`;
+                    q2 = `Comment l'intonation modifie-t-elle le sens d'une phrase sur <b>${rawTopic}</b> ?`;
+                    q3 = `Composez un court dialogue de quatre répliques échangeant au sujet de <b>${rawTopic}</b> :`;
+                    tf1 = `La prononciation et l'intonation jouent un rôle important en communication orale.`;
+                    tf2 = `Un dialogue fluide nécessite l'écoute active et l'échange réactif.`;
                     mcqItems = [
                         { q: `Comment poser une question polie à l'oral sur ${rawTopic} ?`, a: "En utilisant l'inversion ou « Pourriez-vous... ? »", b: "En criant sans formule d'accueil", c: "En parlant une autre langue" },
                         { q: `Quelle attitude favorise une interaction orale réussie sur ${rawTopic} ?`, a: "Articuler clairement et adapter son débit", b: "Parler très vite sans faire de pauses", c: "Refuser de répondre" }
                     ];
                 } else {
-                    // Grammar / Conjugation domain (Default)
-                    passageText = `La maîtrise de la grammaire et de la conjugaison concernant <b>${rawTopic}</b> est indispensable pour s'exprimer correctement en français. La compréhension des règles morphosyntaxiques, des accords verbaux et nominaux ainsi que la concordance des temps garantissent une communication claire, sans ambiguïté ni fautes de syntaxe.`;
+                    // Grammar / Conjugation domain (Default French)
+                    passageText = `La maîtrise de la grammaire et de la conjugaison concernant <b>${rawTopic}</b> est indispensable pour s'exprimer correctement en français. La compréhension des accords verbaux et de la construction des phrases garantit une communication claire.`;
                     vocabTerms = [
-                        { term: "Morphosyntaxe", def: "Règles combinant la forme et la place des mots dans la phrase" },
+                        { term: "Grammaire", def: "Ensemble des règles régissant la structure de la langue" },
                         { term: "Accord Grammatical", def: "Règle régissant le genre, le nombre ou la personne" },
-                        { term: "Concordance des Temps", def: "Harmonie temporelle entre la proposition principale et subordonnée" }
+                        { term: "Conjugaison", def: "Formes prises par un verbe selon le temps et la personne" }
                     ];
-                    q1 = `Énoncez la règle fondamentale de grammaire ou de conjugaison qui s'applique à <b>${rawTopic}</b> :`;
-                    q2 = `Citez deux pièges ou erreurs fréquentes d'accord à éviter lors de l'emploi de <b>${rawTopic}</b> :`;
-                    q3 = `Rédigez deux phrases correctes illustrant l'usage précis de <b>${rawTopic}</b> :`;
-                    tf1 = `La règle régissant <b>${rawTopic}</b> ne comporte aucune exception ni accord spécifique.`;
-                    tf2 = `L'accord grammatical exact dépend du rôle syntaxique des mots dans la phrase.`;
+                    q1 = `Énoncez la règle principale de grammaire ou de conjugaison qui s'applique à <b>${rawTopic}</b> :`;
+                    q2 = `Complétez la phrase avec la forme correcte concernant <b>${rawTopic}</b> :`;
+                    q3 = `Rédigez deux phrases correctes illustrant l'usage de <b>${rawTopic}</b> :`;
+                    tf1 = `L'accord grammatical dépend du rôle des mots dans la phrase.`;
+                    tf2 = `La relecture permet de corriger les fautes d'accord et de conjugaison.`;
                     mcqItems = [
-                        { q: `Quel est le rôle déterminant dans l'application de ${rawTopic} ?`, a: "Respecter scrupuleusement la cohérence syntaxique et les accords", b: "Ignorer les terminaisons verbales", c: "Écrire phonétiquement sans règle" },
-                        { q: `Dans une phrase complexe appliquant ${rawTopic}, il faut veiller à :`, a: "La concordance des temps et le sens global", b: "Supprimer les connecteurs logiques", c: "Mélanger les modes arbitrairement" }
+                        { q: `Quel est le rôle déterminant dans l'application de ${rawTopic} ?`, a: "Respecter la cohérence de la phrase et les accords", b: "Ignorer les terminaisons verbales", c: "Écrire sans aucune règle" },
+                        { q: `Dans une phrase appliquant ${rawTopic}, il faut veiller à :`, a: "L'accord correct et le sens global de la phrase", b: "Supprimer les verbes", c: "Mélanger les temps au hasard" }
                     ];
                 }
             } else {
                 // English domain content (ESL / EFL)
-                if (domain === 'vocabulary') {
-                    passageText = `Expanding specialized vocabulary and idiomatic phrases around <b>${rawTopic}</b> is essential for developing communicative fluency and precision in English (ESL / EFL). Mastering collocations, phrasal verbs, and context-appropriate terminology enables learners to articulate ideas clearly across everyday, academic, and professional settings.`;
+                if (isPastTenseTopic && isElementary) {
+                    passageText = `We use the <b>simple past tense</b> to talk about things that happened and finished in the past (like <i>yesterday</i>, <i>last week</i>, or <i>two days ago</i>). <br>• <b>Regular verbs:</b> Add <b>-ed</b> to the end of the verb (e.g., <i>walk ➔ walked</i>, <i>play ➔ played</i>, <i>clean ➔ cleaned</i>).<br>• <b>Irregular verbs:</b> These verbs change their form completely (e.g., <i>go ➔ went</i>, <i>eat ➔ ate</i>, <i>see ➔ saw</i>, <i>buy ➔ bought</i>).`;
+                    vocabTerms = [
+                        { term: "Regular Verbs", def: "Verbs that end in -ed in the past (walked, played)" },
+                        { term: "Irregular Verbs", def: "Verbs that change spelling in the past (went, ate, saw)" },
+                        { term: "Time Signals", def: "Words like yesterday, last night, two days ago, last year" }
+                    ];
+                    q1 = `Complete the fill-in-the-blank sentences using the Simple Past form of the verb in parentheses:<br>&nbsp;&nbsp;a) Yesterday, Sarah _________ (walk) to school with her brother.<br>&nbsp;&nbsp;b) Last night, my family _________ (eat) delicious pizza for dinner.<br>&nbsp;&nbsp;c) Two days ago, Liam _________ (play) soccer in the park.`;
+                    q2 = `Change these base verbs into their correct Simple Past forms:<br>&nbsp;&nbsp;a) go ➔ _________ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b) see ➔ _________ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c) visit ➔ _________`;
+                    q3 = `Rewrite this present tense sentence in the Simple Past tense:<br>&nbsp;&nbsp;<i>"Tom buys an apple and goes home."</i><br>&nbsp;&nbsp;➔ ____________________________________________________________________`;
+                    tf1 = `We add -ed to irregular verbs like "go" (for example, "goed").`;
+                    tf2 = `Words like "yesterday" and "last week" show that an action happened in the past.`;
+                    mcqItems = [
+                        { q: `Which sentence uses the Simple Past tense correctly?`, a: "She walked to school yesterday morning.", b: "She walk to school yesterday morning.", c: "She walking to school yesterday morning." },
+                        { q: `What is the correct simple past tense of the verb 'eat'?`, a: "ate", b: "eated", c: "eaten" }
+                    ];
+                } else if (isGrammarTenseTopic && isElementary) {
+                    passageText = `Grammar helps us build clear sentences so we can share our ideas with friends and teachers! In this lesson on <b>${rawTopic}</b>, we practice using correct word order, matching verbs with subjects, and choosing the right words to describe actions.`;
+                    vocabTerms = [
+                        { term: "Subject", def: "The person or thing doing the action in the sentence" },
+                        { term: "Action Verb", def: "A word that shows what someone or something is doing" },
+                        { term: "Punctuation", def: "Capital letters, periods, and question marks used in sentences" }
+                    ];
+                    q1 = `Fill in the blank with the correct word for <b>${rawTopic}</b>:<br>&nbsp;&nbsp;a) The children _________ (play / plays) in the school playground.<br>&nbsp;&nbsp;b) My teacher _________ (gives / give) us exciting books to read.`;
+                    q2 = `Complete this practice sentence about <b>${rawTopic}</b>:<br>&nbsp;&nbsp;Yesterday, we learned that __________________________________________________`;
+                    q3 = `Fix the grammar mistake in this sentence:<br>&nbsp;&nbsp;<i>"The dog runned fast in the yard yesterday."</i><br>&nbsp;&nbsp;➔ ____________________________________________________________________`;
+                    tf1 = `A complete English sentence always starts with a capital letter and ends with a period or question mark.`;
+                    tf2 = `Subject-verb agreement means singular subjects take singular verb forms.`;
+                    mcqItems = [
+                        { q: `Which of these is a complete, correctly written sentence?`, a: "My best friend played soccer yesterday.", b: "Played soccer yesterday my friend.", c: "Friend my played soccer." },
+                        { q: `What type of word describes an action in a sentence?`, a: "A verb", b: "A noun", c: "A punctuation mark" }
+                    ];
+                } else if (isElementary) {
+                    passageText = `Welcome to our fun lesson on <b>${rawTopic}</b>! Read the passage below, practice the vocabulary words, and answer the questions carefully to build your skills.`;
+                    vocabTerms = [
+                        { term: "Core Concept", def: "The main idea or lesson we are learning today" },
+                        { term: "Key Word", def: "An important word related to " + rawTopic },
+                        { term: "Practice", def: "Working through exercises to build your skills" }
+                    ];
+                    q1 = `Write two key facts or interesting details you learned about <b>${rawTopic}</b>:`;
+                    q2 = `Fill in the missing word related to <b>${rawTopic}</b>:<br>&nbsp;&nbsp;a) When we study <b>${rawTopic}</b>, we learn about _________.`;
+                    q3 = `Write a short 2-sentence description showing how you use <b>${rawTopic}</b> in school or daily life:`;
+                    tf1 = `Learning about <b>${rawTopic}</b> helps us become better readers and writers.`;
+                    tf2 = `We should always check our spelling and punctuation when completing our work.`;
+                    mcqItems = [
+                        { q: `What is the main topic of today's lesson?`, a: rawTopic, b: "Unrelated topic", c: "None of the above" },
+                        { q: `Why is practicing ${rawTopic} helpful?`, a: "It builds our knowledge and vocabulary skills", b: "It has no purpose", c: "To make writing harder" }
+                    ];
+                } else if (domain === 'vocabulary') {
+                    passageText = `Expanding specialized vocabulary and phrases around <b>${rawTopic}</b> is essential for developing communicative fluency in English. Mastering collocations, phrasal verbs, and key terms enables learners to express ideas clearly.`;
                     vocabTerms = [
                         { term: "Collocation", def: "A natural combination of words that commonly occur together" },
                         { term: "Phrasal Verb", def: "An idiomatic phrase consisting of a verb and a particle" },
                         { term: "Register", def: "The level of formality used in spoken or written communication" }
                     ];
-                    q1 = `Identify and define three key vocabulary items or collocations related to <b>${rawTopic}</b>:`;
-                    q2 = `Explain the difference in register between informal and formal expressions regarding <b>${rawTopic}</b>:`;
-                    q3 = `Write a short paragraph incorporating two phrasal verbs or key terms related to <b>${rawTopic}</b>:`;
-                    tf1 = `Using varied vocabulary related to <b>${rawTopic}</b> does not affect English communicative clarity.`;
+                    q1 = `Identify and define three key vocabulary items related to <b>${rawTopic}</b>:`;
+                    q2 = `Explain the difference in usage between two key expressions regarding <b>${rawTopic}</b>:`;
+                    q3 = `Write a short paragraph incorporating two key terms related to <b>${rawTopic}</b>:`;
+                    tf1 = `Using varied vocabulary related to <b>${rawTopic}</b> improves English communicative clarity.`;
                     tf2 = `Choosing appropriate word register depends directly on audience and context.`;
                     mcqItems = [
                         { q: `What is the primary benefit of studying vocabulary related to ${rawTopic}?`, a: "To express ideas precisely with appropriate language register", b: "To memorize isolated words without context", c: "To eliminate grammar" },
                         { q: `How can ESL learners effectively retain vocabulary about ${rawTopic}?`, a: "By using target words in contextualized speaking and writing", b: "By avoiding reading in English", c: "By translating every word literally" }
                     ];
                 } else if (domain === 'literature') {
-                    passageText = `Reading comprehension and text analysis regarding <b>${rawTopic}</b> cultivate critical thinking and analytical reading skills. By examining literary devices, narrative structure, thematic motifs, and authorial tone, students learn to decode implicit subtext and support interpretations with textual evidence.`;
+                    passageText = `Reading comprehension and text analysis regarding <b>${rawTopic}</b> cultivate critical thinking and reading skills. By examining key ideas, narrative structure, and authorial tone, students learn to support interpretations with textual evidence.`;
                     vocabTerms = [
                         { term: "Literary Device", def: "A technique used by writers to convey subtle meaning" },
                         { term: "Inference", def: "A logical conclusion drawn from textual evidence and context" },
                         { term: "Authorial Tone", def: "The attitude or emotional perspective expressed in a passage" }
                     ];
                     q1 = `Summarize the main idea and underlying message of the reading passage on <b>${rawTopic}</b>:`;
-                    q2 = `Identify one stylistic or figurative device used to highlight key aspects of <b>${rawTopic}</b>:`;
-                    q3 = `What inferences can be drawn regarding the author's perspective on <b>${rawTopic}</b>?`;
-                    tf1 = `Literary analysis of <b>${rawTopic}</b> involves only summarizing plot points without analyzing style.`;
+                    q2 = `Identify one stylistic device used to highlight key aspects of <b>${rawTopic}</b>:`;
+                    q3 = `What conclusions can be drawn regarding the author's perspective on <b>${rawTopic}</b>?`;
+                    tf1 = `Literary analysis of <b>${rawTopic}</b> involves understanding both plot and stylistic choices.`;
                     tf2 = `Valid reading comprehension responses must be supported by direct textual evidence.`;
                     mcqItems = [
                         { q: `Why do authors use figurative language when discussing ${rawTopic}?`, a: "To create vivid imagery and convey deeper thematic meaning", b: "To confuse the reader", c: "To shorten the text" },
                         { q: `Making an inference while reading about ${rawTopic} requires:`, a: "Combining textual clues with background knowledge", b: "Ignoring the text completely", c: "Guessing randomly" }
                     ];
                 } else if (domain === 'writing') {
-                    passageText = `Writing composition and essay structure focused on <b>${rawTopic}</b> enable learners to construct persuasive, well-organized written responses. Applying appropriate transition words, varied sentence syntax, and clear paragraph structure ensures logical flow from thesis statement to conclusion.`;
+                    passageText = `Writing composition focused on <b>${rawTopic}</b> enables learners to construct well-organized written responses. Applying appropriate transition words, varied sentence syntax, and clear paragraph structure ensures logical flow.`;
                     vocabTerms = [
                         { term: "Transition Word", def: "A word connecting clauses or paragraphs to establish logical flow" },
                         { term: "Thesis Statement", def: "The central argument or purpose of a written composition" },
                         { term: "Textual Cohesion", def: "The logical linking of sentences to form a unified text" }
                     ];
-                    q1 = `Draft a compelling thesis statement for a short essay addressing <b>${rawTopic}</b>:`;
-                    q2 = `List two transition signals appropriate for introducing evidence and contrasting viewpoints on <b>${rawTopic}</b>:`;
+                    q1 = `Draft a compelling introduction sentence addressing <b>${rawTopic}</b>:`;
+                    q2 = `List two transition signals appropriate for connecting ideas on <b>${rawTopic}</b>:`;
                     q3 = `Write a well-structured conclusion paragraph summarizing main arguments on <b>${rawTopic}</b>:`;
-                    tf1 = `Effective essay writing on <b>${rawTopic}</b> requires zero transitional words between paragraphs.`;
+                    tf1 = `Effective writing on <b>${rawTopic}</b> benefits from clear transitional words between paragraphs.`;
                     tf2 = `Proofreading for syntax, spelling, and punctuation is essential before final submission.`;
                     mcqItems = [
-                        { q: `What is the standard structure for a body paragraph when writing about ${rawTopic}?`, a: "Topic sentence + Supporting evidence + Explanation/Analysis", b: "A series of unrelated sentences", c: "Only bullet points" },
+                        { q: `What is the standard structure for a body paragraph when writing about ${rawTopic}?`, a: "Topic sentence + Supporting evidence + Explanation", b: "A series of unrelated sentences", c: "Only bullet points" },
                         { q: `Which transition word signals a cause-and-effect relationship in an essay on ${rawTopic}?`, a: "Consequently / Therefore", b: "However", c: "In contrast" }
                     ];
                 } else if (domain === 'conversation') {
-                    passageText = `Developing oral communication, phonetics, and conversational fluency around <b>${rawTopic}</b> empowers learners to speak English with confidence and clarity. Focusing on word stress, sentence intonation, natural turn-taking, and active listening skills prepares students for real-world interactions.`;
+                    passageText = `Developing oral communication and conversational fluency around <b>${rawTopic}</b> empowers learners to speak English with confidence and clarity. Focusing on word stress, sentence intonation, and active listening prepares students for real-world interactions.`;
                     vocabTerms = [
                         { term: "Word Stress", def: "The emphasis placed on particular syllables in spoken words" },
                         { term: "Intonation", def: "The rise and fall of voice pitch in spoken sentences" },
-                        { term: "Fluency", def: "The ability to express oneself smoothly, easily, and articulate ideas naturally" }
+                        { term: "Fluency", def: "The ability to express oneself smoothly and naturally" }
                     ];
-                    q1 = `Identify three polite expressions or conversational gambits used when discussing <b>${rawTopic}</b>:`;
+                    q1 = `Identify three polite expressions or phrases used when discussing <b>${rawTopic}</b>:`;
                     q2 = `Explain how sentence intonation shifts when asking a polite request versus making a statement about <b>${rawTopic}</b>:`;
                     q3 = `Compose a 4-line dialogue between two speakers engaging in a conversation about <b>${rawTopic}</b>:`;
-                    tf1 = `Pronunciation, word stress, and intonation play no role in spoken English clarity.`;
+                    tf1 = `Pronunciation, word stress, and intonation play an important role in spoken English clarity.`;
                     tf2 = `Active listening and polite conversational turn-taking enhance spoken fluency.`;
                     mcqItems = [
                         { q: `How should an English learner politely express an opinion on ${rawTopic}?`, a: "By using phrases like 'In my view...' or 'From my perspective...'", b: "By interrupting forcefully", c: "By remaining silent" },
                         { q: `Which strategy helps improve spoken fluency when discussing ${rawTopic}?`, a: "Practicing natural phrase chunks and word stress", b: "Translating every word mentally before speaking", c: "Mumbling quickly" }
                     ];
                 } else {
-                    // Grammar / Tenses domain (Default)
-                    passageText = `Mastering English grammar, sentence syntax, and verb tenses concerning <b>${rawTopic}</b> is fundamental for effective language acquisition. Understanding grammatical agreement, clause structure, and verb aspects allows learners to eliminate ambiguity and communicate accurately in both written and spoken English.`;
+                    // Grammar / Tenses domain (Default English)
+                    passageText = `Mastering English grammar, sentence syntax, and verb tenses concerning <b>${rawTopic}</b> is fundamental for effective communication. Understanding grammatical agreement and verb forms allows learners to communicate accurately in both written and spoken English.`;
                     vocabTerms = [
-                        { term: "Syntax", def: "The grammatical arrangement of words in a sentence" },
-                        { term: "Verb Aspect", def: "The duration or completion of an action expressed by a verb" },
-                        { term: "Grammatical Agreement", def: "Correspondence in person, number, and tense between words" }
+                        { term: "Grammar Rules", def: "The principles governing word order and verb forms" },
+                        { term: "Verb Tense", def: "Indicates whether an action happens in the past, present, or future" },
+                        { term: "Subject-Verb Agreement", def: "Correspondence in person and number between subject and verb" }
                     ];
-                    q1 = `State the primary grammatical rule or tense formation structure governing <b>${rawTopic}</b>:`;
-                    q2 = `Identify two common grammatical errors or tense confusion pitfalls associated with <b>${rawTopic}</b>:`;
-                    q3 = `Write two original sentences correctly applying the rules of <b>${rawTopic}</b> in distinct contexts:`;
-                    tf1 = `Correct sentence structure in <b>${rawTopic}</b> disregards subject-verb agreement and tense markers.`;
-                    tf2 = `Careful sentence editing ensures clarity and adherence to standard English grammar rules.`;
+                    q1 = `State the primary rule or verb formation structure for <b>${rawTopic}</b>:`;
+                    q2 = `Complete the practice sentence applying the correct rule of <b>${rawTopic}</b>:`;
+                    q3 = `Write two original sentences correctly applying <b>${rawTopic}</b> in distinct contexts:`;
+                    tf1 = `Correct sentence structure in <b>${rawTopic}</b> requires subject-verb agreement and proper tense usage.`;
+                    tf2 = `Careful sentence editing ensures clarity and adherence to standard English rules.`;
                     mcqItems = [
                         { q: `What is the primary goal when studying English grammar rules for ${rawTopic}?`, a: "To construct accurate, clear, and coherent sentences", b: "To ignore word order", c: "To write without punctuation" },
-                        { q: `When constructing a complex sentence involving ${rawTopic}, one must ensure:`, a: "Tense consistency and logical clause connections", b: "Arbitrary word placement", c: "Omission of auxiliary verbs" }
+                        { q: `When constructing a sentence involving ${rawTopic}, one must ensure:`, a: "Tense consistency and correct verb agreement", b: "Arbitrary word placement", c: "Omission of main verbs" }
                     ];
                 }
             }
@@ -3587,10 +3718,13 @@
                                         <div style="border-bottom: 1px dotted #94A3B8; height: 18px; margin-top: 2px;"></div>
                                     </div>
                                 </div>
-                                ${qrVal ? `<div style="background: #FFFFFF; border: 1px solid #D1FAE5; border-radius: 8px; padding: 8px; text-align: center;">
-                                    <div style="font-size: 9px; font-weight: 800; color: #047857; margin-bottom: 4px;">📲 ${isFrench ? 'Ressources Numériques' : 'Digital QR Portal'}</div>
-                                    ${qrCodeDisplay}
-                                </div>` : ''}
+                                ${qrVal ? generateQRCodeElement(qrVal, {
+                                    size: 70,
+                                    label: isFrench ? 'Ressources Numériques' : 'Digital QR Portal',
+                                    themeColor: '#047857',
+                                    borderColor: '#10B981',
+                                    bgColor: '#FFFFFF'
+                                }) : ''}
                             </div>
 
                             <div style="margin-top: 10px; padding-top: 6px; border-top: 1px solid #D1FAE5; display: flex; justify-content: space-between; align-items: center; font-size: 9px; color: #065F46; font-weight: 700;">
@@ -3709,11 +3843,19 @@
                     const isFrench = currentLang === 'fr' || isFrenchTopic(topic);
                     const targetLangName = isFrench ? "French (Français)" : "English";
 
+                    const levelDesc = level === 'elem' 
+                        ? "Elementary School children (Grades 1-5, ages 6-10). MANDATORY FOR ELEMENTARY: Use simple, friendly, age-appropriate language. NEVER use academic jargon like 'practitioners', 'scholars', 'theoretical principles', or 'critical inquiry'. For grammar tenses (e.g., Simple Past, Present Tense, Passé Composé), create REAL CONCRETE EXERCISES: fill-in-the-blank verb conjugations (e.g. 'Yesterday, Sarah _____ (walk) to school.'), verb transformation drills (e.g. 'go ➔ went'), simple past sentence rewrites, and child-friendly multiple choice questions." 
+                        : (level === 'high' 
+                            ? "High School students (Grades 9-12)." 
+                            : (level === 'college' 
+                                ? "Higher Education / University students." 
+                                : "Middle School students (Grades 6-8)."));
+
                     const prompt = `Act as an expert English and French teacher and professional curriculum designer. Generate the complete inner HTML content for an educational classroom worksheet that STRICTLY AND FAITHFULLY matches the following user prompt and parameters:
 
 USER TOPIC / SUBJECT: "${topic}"
 TARGET LANGUAGE: ${targetLangName} (Write the entire worksheet, instructions, reading material, questions, and vocabulary in ${targetLangName}, tailored exclusively for English or French language acquisition).
-STUDENT EDUCATION LEVEL / DIFFICULTY: ${level} (Beginner, Intermediate, or Advanced as appropriate)
+STUDENT EDUCATION LEVEL / DIFFICULTY: ${levelDesc}
 WORKSHEET TEMPLATE TYPE: ${tmplType} (${tmplSelect ? tmplSelect.options[tmplSelect.selectedIndex].text : ''})
 ASSESSMENT TYPE: ${testType}
 SKILLS FOCUS: ${skillsFocus}
@@ -3721,17 +3863,19 @@ QUESTION FORMAT: ${formatSelect ? formatSelect.value : 'mixed'}
 
 CRITICAL CONSTRAINTS & LAYOUT STRUCTURE:
 1. HEADER: Start directly with a standard classroom header (<div style="...">Student Name: ___________ &nbsp;&nbsp; Date: ___________ &nbsp;&nbsp; Class Period: ___________</div>).
-2. TOPIC & LANGUAGE SCOPE: Focus exclusively on "${topic}" (grammar, vocabulary, reading comprehension, literature, writing, or conversation). Do not introduce unrelated concepts outside this scope.
-3. QUESTION FORMAT & QUANTITY (STRICTLY REQUIRED):
+2. TOPIC & LANGUAGE SCOPE: Focus exclusively on "${topic}". Do not introduce unrelated abstract concepts.
+3. AGE & LEVEL APPROPRIATENESS (MANDATORY):
+   - For Elementary (Grades 1-5): Write sentences, reading text, and questions that a 7-10 year old child can easily understand and solve. If the topic is a grammar tense (e.g., "The simple past"), write concrete grammar drill questions (e.g., fill-in-the-blank with verb in parentheses, sentence rewrites, multiple choice choosing the correct past verb form). DO NOT ask abstract open-ended questions like "How do practitioners apply knowledge of this topic".
+4. QUESTION FORMAT & QUANTITY (STRICTLY REQUIRED):
    - Section A: Exactly 5 Multiple Choice Questions (with options A, B, C, D).
    - Section B: Exactly 3 Fill-in-the-Blank Questions with clear blank spaces (___________).
-   - Section C: Exactly 2 Short-Answer Analysis Questions with dotted lines for student responses.
-4. READING PASSAGE / CONCEPT SUMMARY: Include a concise, age-appropriate reading passage or grammar concept summary on "${topic}".
-5. KEY VOCABULARY: Include a Key Terms / Vocabulary box with 3-5 essential terms.
-6. SEPARATE ANSWER KEY (NEGATIVE CONSTRAINT):
+   - Section C: Exactly 2 Short-Answer or Sentence Rewrite Questions with dotted lines for student responses.
+5. READING PASSAGE / CONCEPT SUMMARY: Include a concise, age-appropriate reading passage or grammar concept summary on "${topic}".
+6. KEY VOCABULARY: Include a Key Terms / Vocabulary box with 3-5 essential terms.
+7. SEPARATE ANSWER KEY (NEGATIVE CONSTRAINT):
    - Do NOT include any answers within the student worksheet section.
    - Place a completely separate Answer Key (<div class="worksheet-section answer-key-section" style="..."><h3>🔑 Teacher Answer Key & Solutions</h3>...</div>) at the VERY BOTTOM of the response, preceded by <div class="page-break"></div>.
-7. NO META-LANGUAGE / CONVERSATIONAL FILLER: Do NOT include introductory phrases like "Sure, here is your worksheet". Start immediately with the HTML content.
+8. NO META-LANGUAGE / CONVERSATIONAL FILLER: Do NOT include introductory phrases like "Sure, here is your worksheet". Start immediately with the HTML content.
 
 FORMATTING RULES:
 - Output ONLY valid raw HTML (no markdown \`\`\`html backticks). Do NOT include <html>, <head>, or <body> tags.
@@ -3746,7 +3890,13 @@ FORMATTING RULES:
                         if (fontStyle === 'clean') fontFamily = "'Inter', sans-serif";
                         if (fontStyle === 'playful') fontFamily = "'Quicksand', 'Comic Sans MS', sans-serif";
                         
-                        const qrCodeDisplay = qr ? `<div style="margin-top: 10px; text-align: center; display: flex; flex-direction: column; align-items: center;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qr)}" alt="QR Code" style="width: 70px; height: 70px; border-radius: 6px; border: 1.5px solid #CBD5E1; padding: 3px; background: white;"><div style="font-size: 8px; color: #475569; margin-top: 6px; word-break: break-all; max-width: 100px;">🔗 ${qr}</div></div>` : '';
+                        const qrCodeDisplay = qr ? generateQRCodeElement(qr, {
+                            size: 75,
+                            label: currentLang === 'fr' ? 'Ressources Numériques' : 'Interactive QR Portal',
+                            themeColor: '#1E3A8A',
+                            borderColor: '#2563EB',
+                            bgColor: '#EFF6FF'
+                        }) : '';
                         
                         const layoutContent = qr 
                             ? `<div style="display: grid; grid-template-columns: 3fr 1fr; gap: 14px; align-items: start;"><div>${cleanHtml}</div><div>${qrCodeDisplay}</div></div>`
@@ -3924,7 +4074,13 @@ IMPORTANT RULES:
                     if (aiContent) {
                         let cleanHtml = aiContent.replace(/```html/g, '').replace(/```/g, '').trim();
 
-                        const qrCodeDisplay = qr ? `<div style="margin-top: 10px; text-align: center; display: flex; flex-direction: column; align-items: center;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qr)}" alt="QR Code" style="width: 70px; height: 70px; border-radius: 6px; border: 1.5px solid #CBD5E1; padding: 3px; background: white;"><div style="font-size: 8px; color: #047857; margin-top: 6px; word-break: break-all; max-width: 100px;">🔗 ${qr}</div></div>` : '';
+                        const qrCodeDisplay = qr ? generateQRCodeElement(qr, {
+                            size: 75,
+                            label: currentLang === 'fr' ? 'Portail Pédagogique' : 'Interactive Portal',
+                            themeColor: '#047857',
+                            borderColor: '#10B981',
+                            bgColor: '#F0FDF4'
+                        }) : '';
                         
                         const layoutContent = (qr && !cleanHtml.includes('qrserver.com'))
                             ? `<div style="display: grid; grid-template-columns: 3fr 1fr; gap: 14px; align-items: start;"><div>${cleanHtml}</div><div style="background: #F0FDF4; border: 1.5px solid #10B981; border-radius: 10px; padding: 10px; text-align: center;"><div style="font-size: 10px; font-weight: 800; color: #047857; margin-bottom: 6px;">📲 Interactive Portal</div>${qrCodeDisplay}</div></div>`
@@ -4171,7 +4327,7 @@ IMPORTANT RULES:
                         </html>`;
                 } else if (videoContainer && videoContainer.style.display !== 'none') {
                     fileName = `${topic}_Presentation.doc`;
-                    const qrDoc = currentPptQr ? `<div style="text-align: center; margin-bottom: 20px;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentPptQr)}" alt="QR Code"><br><small>🔗 ${currentPptQr}</small></div>` : '';
+                    const qrDoc = currentPptQr ? `<div style="text-align: center; margin-bottom: 20px;">${generateQRCodeElement(currentPptQr, { size: 120, label: 'Interactive Slide Deck Link', themeColor: '#1E3A8A', borderColor: '#2563EB', bgColor: '#F8FAFC' })}</div>` : '';
                     const slidesList = dummySlides.map((s, i) => `
                         <div style="border: 2px solid #2563EB; padding: 16px; margin-bottom: 16px; border-radius: 8px;">
                             <h3 style="color: #2563EB; margin-top: 0;">Slide ${i + 1}: ${s.title}</h3>
