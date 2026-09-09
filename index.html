@@ -2631,6 +2631,9 @@
 
         function detectTopicDomain(t) {
             const s = (t || '').toLowerCase();
+            if (/london|paris|rome|tokyo|new york|monument|landmark|wonder|travel|geograph|country|city|culture|heritage|thames|tower bridge|big ben|colosseum|pyramid|eiffel|taj mahal|buckingham|westminster|merveille|ville|monument|géographie|pays|tourisme/.test(s)) {
+                return 'landmarks';
+            }
             if (/math|algebra|geometry|calculus|fraction|equation|arithmetic|triangle|pythagor|matrix|derivative|integral|probability|percent|nombre|géométrie|équation|multiplication|division/.test(s)) {
                 return 'math';
             }
@@ -2713,6 +2716,32 @@
                     mcqItems = [
                         { q: `Quelle compétence est directement renforcée par l'apprentissage de ${rawTopic} ?`, a: "La déduction logique et l'analyse méthodique", b: "La mémorisation passive sans calcul", c: "L'estimation aléatoire" },
                         { q: `Pour valider un résultat impliquant ${rawTopic}, il faut :`, a: "Vérifier la cohérence des étapes et substituer les valeurs", b: "Changer arbitrairement les signes", c: "Ne rien consigner par écrit" }
+                    ];
+                } else if (domain === 'landmarks') {
+                    const isLondon = /london|londres|thames|big ben|tower bridge/.test(rawTopic.toLowerCase());
+                    passageText = isLondon
+                        ? `Londres est l'une des métropoles les plus emblématiques du monde, réputée pour son patrimoine architectural et ses merveilles séculaires. Le long de la Tamise, des monuments historiques majeurs tels que la <b>Tour de Londres</b> (forteresse normande édifiée par Guillaume le Conquérant en 1078), l'illustre <b>Big Ben</b> (la tour Elizabeth du Parlement britannique), le majestueux <b>Tower Bridge</b> (achevé en 1894) et l'abbaye de Westminster témoignent des grandes étapes de l'histoire. Aujourd'hui, ces trésors architecturaux côtoient des prouesses contemporaines comme le <b>London Eye</b>, faisant de la capitale un carrefour universel où se mêlent royauté, génie civil et rayonnement mondial.`
+                        : `L'exploration de <b>${rawTopic}</b> met en lumière la richesse du patrimoine architectural, géographique et culturel. À travers l'histoire, les grandes cités et leurs merveilles monumentales ont façonné l'identité des peuples. L'étude de leurs origines, de leurs prouesses d'ingénierie et de leur préservation permet de comprendre comment l'homme transforme son environnement pour ériger des chefs-d'œuvre universels.`;
+                    vocabTerms = isLondon ? [
+                        { term: "Tour de Londres", def: "Forteresse médiévale normande et gardienne des Joyaux de la Couronne" },
+                        { term: "Tower Bridge", def: "Pont basculant et suspendu victorien emblématique franchissant la Tamise" },
+                        { term: "Big Ben", def: "Cloche historique de 13 tonnes au sommet de la tour Elizabeth du Parlement" }
+                    ] : [
+                        { term: "Monument", def: "Ouvrage architectural érigé pour célébrer la mémoire ou l'art" },
+                        { term: "Patrimoine", def: "Bien culturel et historique transmis de génération en génération" },
+                        { term: "Ingénierie", def: "Art de concevoir et construire des édifices remarquables" }
+                    ];
+                    q1 = isLondon ? `Identifiez trois monuments majeurs de Londres et précisez leur rôle historique ou civique :` : `Quels éléments caractéristiques définissent l'importance culturelle et patrimoniale de <b>${rawTopic}</b> ?`;
+                    q2 = isLondon ? `Expliquez pourquoi la Tamise a constitué l'axe vital pour l'implantation et la défense des monuments de Londres :` : `Comment l'architecture et l'ingénierie de <b>${rawTopic}</b> reflètent-elles l'époque de leur création ?`;
+                    q3 = isLondon ? `En quoi la coexistence de monuments médiévaux, victoriens et modernes fait-elle la grandeur de Londres ?` : `Pourquoi est-il crucial de protéger et restaurer ces merveilles pour les générations futures ?`;
+                    tf1 = isLondon ? `Big Ben est le nom officiel du fleuve qui traverse Londres.` : `Les monuments remarquables de <b>${rawTopic}</b> n'ont aucune valeur historique ou touristique.`;
+                    tf2 = isLondon ? `La Tour de Londres a servi de résidence royale, de forteresse militaire et de prison d'État.` : `La conservation du patrimoine architectural nécessite des techniques de restauration rigoureuses.`;
+                    mcqItems = isLondon ? [
+                        { q: `Quel fleuve emblématique traverse Londres et relie ses principaux monuments ?`, a: "La Tamise", b: "La Seine", c: "Le Danube" },
+                        { q: `Quelle prouesse d'ingénierie caractérise le Tower Bridge ?`, a: "C'est un pont basculant et suspendu victorien", b: "C'est un viaduc romain", c: "C'est un tunnel ferroviaire sous-marin" }
+                    ] : [
+                        { q: `Quel est l'intérêt fondamental de préserver ${rawTopic} ?`, a: "Transmettre l'héritage culturel et historique aux générations futures", b: "Démolir les édifices anciens", c: "Empêcher toute visite" },
+                        { q: `L'étude des monuments emblématiques permet d'apprécier :`, a: "L'ingéniosité technique et l'histoire des civilisations", b: "Uniquement leur coût financier", c: "La destruction des paysages" }
                     ];
                 } else if (domain === 'history') {
                     passageText = `L'histoire de <b>${rawTopic}</b> met en lumière les transformations sociales, politiques et économiques qui ont façonné notre époque. L'analyse critique des documents d'époque, la contextualisation des événements et la confrontation des témoignages permettent aux historiens de comprendre les causes profondes et la portée durable de cette période charnière.`;
@@ -2812,6 +2841,32 @@
                     mcqItems = [
                         { q: `Which analytical ability is directly developed through ${rawTopic}?`, a: "Deductive logic and systematic computation", b: "Passive memorization without operational steps", c: "Unchecked estimation" },
                         { q: `To confirm the validity of an equation involving ${rawTopic}, one must:`, a: "Substitute values back into the original expression", b: "Invert numbers arbitrarily", c: "Skip error checking" }
+                    ];
+                } else if (domain === 'landmarks') {
+                    const isLondon = /london|thames|big ben|tower bridge|buckingham|westminster/.test(rawTopic.toLowerCase());
+                    passageText = isLondon
+                        ? `London stands as one of the world's greatest cultural and historical capitals, celebrated for its breathtaking architectural marvels and world-renowned wonders. Situated along the winding <b>River Thames</b>, iconic landmarks such as the <b>Tower of London</b> (a Norman fortress and royal palace founded in 1078 by William the Conqueror), the grand <b>Palace of Westminster</b> and <b>Big Ben</b> (Elizabeth Tower), and the monumental <b>Tower Bridge</b> (opened in 1894) reflect centuries of British heritage. These historic treasures coexist harmoniously with modern wonders like the <b>London Eye</b> and the Shard, creating an extraordinary urban landscape that showcases royal history, naval power, and civic achievement.`
+                        : `Exploring <b>${rawTopic}</b> reveals the intersection of human engineering, cultural identity, and historical memory. Throughout world history, remarkable landmarks and urban wonders have served as monuments of civic pride, defensive bastions, and spiritual sanctuaries. By examining their architectural design, geographic placement, and social significance, students uncover the enduring stories of civilizations that shaped our modern world.`;
+                    vocabTerms = isLondon ? [
+                        { term: "Tower of London", def: "Historic Norman castle and royal fortress on the Thames housing the Crown Jewels" },
+                        { term: "Big Ben", def: "The famous 13-ton great bell inside the Elizabeth Tower at the Houses of Parliament" },
+                        { term: "Tower Bridge", def: "Iconic Victorian bascule and suspension bridge opened in 1894 over the River Thames" }
+                    ] : [
+                        { term: "Landmark", def: "A prominent or well-known feature of landscape or architecture" },
+                        { term: "Heritage Site", def: "A place of recognized outstanding cultural, historic, or physical value" },
+                        { term: "Bascule Bridge", def: "A movable bridge with a counterweight that swings open for boats" }
+                    ];
+                    q1 = isLondon ? `Identify three iconic London wonders from the passage and describe their historical or civic functions:` : `Describe the architectural marvels and historical significance associated with <b>${rawTopic}</b>:`;
+                    q2 = isLondon ? `Analyze the geographic importance of the River Thames in the development and placement of London's wonders:` : `How does the engineering of <b>${rawTopic}</b> reflect the technology and values of its era?`;
+                    q3 = isLondon ? `How does the contrast between medieval, Victorian, and modern architecture define London's unique identity?` : `Why is global conservation and heritage protection crucial for landmarks like <b>${rawTopic}</b>?`;
+                    tf1 = isLondon ? `The Tower of London was constructed during the Victorian era solely as a clock tower.` : `Landmarks and monuments associated with <b>${rawTopic}</b> hold zero historical relevance.`;
+                    tf2 = isLondon ? `Tower Bridge is a combined bascule and suspension bridge designed to allow river traffic to pass.` : `Preserving historic wonders requires ongoing architectural conservation and care.`;
+                    mcqItems = isLondon ? [
+                        { q: `Which historic river flows through London alongside its most famous landmarks?`, a: "The River Thames", b: "The River Seine", c: "The Hudson River" },
+                        { q: `What famous historic artifact collection is protected within the Tower of London?`, a: "The Crown Jewels", b: "The Dead Sea Scrolls", c: "The Rosetta Stone original" }
+                    ] : [
+                        { q: `Why are cultural landmarks such as ${rawTopic} studied worldwide?`, a: "To understand how architecture and culture express human history", b: "To replace historic sites with parking lots", c: "To disregard engineering achievements" },
+                        { q: `What factor often dictates where major landmarks and wonders were constructed?`, a: "Strategic geographic features such as waterways and harbors", b: "Pure coincidence with no planning", c: "Avoidance of human settlements" }
                     ];
                 } else if (domain === 'history') {
                     passageText = `Historical investigation into <b>${rawTopic}</b> examines the political, social, and economic forces that transformed societies. By analyzing primary source documents, archaeological artifacts, and contextual timelines, historians reconstruct pivotal moments and assess how the causes and consequences of ${rawTopic} continue to influence modern governance and cultural identity.`;
@@ -3265,7 +3320,48 @@
                     indepTask = `Rédaction individuelle d'un paragraphe de synthèse structuré (Introduction, deux arguments documentés, conclusion).`;
                     exitQ1 = `Citez deux causes majeures ou dates charnières liées à ${rawTopic}.`;
                     exitQ2 = `Quel groupe social ou figure clé a joué un rôle déterminant dans cet événement ?`;
-                } else {
+                } else if (domain === 'landmarks') {
+                    const isLondon = /london|londres|thames|big ben|tower bridge|buckingham|westminster/.test(rawTopic.toLowerCase());
+                    cogObj = isLondon
+                        ? `Identifier et analyser le rôle historique, architectural et symbolique des grandes merveilles de Londres (la Tour de Londres, Big Ben / Palais de Westminster, le Tower Bridge et la Tamise).`
+                        : `Comprendre l'origine, les caractéristiques architecturales et la portée historique et culturelle de <b>${rawTopic}</b> dans l'évolution des sociétés.`;
+                    skillObj = isLondon
+                        ? `Situer les monuments sur un plan de la Tamise, comparer les styles architecturaux (médiéval normand, néogothique victorien, contemporain) et concevoir un guide d'exploration commenté.`
+                        : `Relever des indices historiques et architecturaux sur des documents visuels, schématiser l'implantation géographique et argumenter sur la préservation du patrimoine.`;
+                    vocabList = isLondon ? [
+                        { term: "Tour de Londres", def: "Forteresse médiévale normande et palais royal fondé en 1078 par Guillaume le Conquérant." },
+                        { term: "Tower Bridge", def: "Chef-d'œuvre d'ingénierie victorienne (1894), pont basculant et suspendu franchissant la Tamise." },
+                        { term: "Big Ben (Tour Elizabeth)", def: "Cloche emblématique de 13 tonnes logée au sommet du Parlement britannique (Westminster)." }
+                    ] : [
+                        { term: "Monument Historique", def: "Édifice protégé pour sa valeur artistique, architecturale et mémorielle." },
+                        { term: "Patrimoine Mondial", def: "Bien culturel d'importance universelle exceptionnelle préservé pour l'humanité." },
+                        { term: "Génie Civil & Architecture", def: "Ensemble des techniques de conception et de construction des édifices remarquables." }
+                    ];
+                    materials = isLondon
+                        ? "Plan illustré de Londres et de la Tamise, Fiches repères EduGen des monuments, Vidéoprojection / Visite virtuelle 3D, Mini-ardoises."
+                        : "Dossier documentaire illustré EduGen, Planisphère / Carte régionale, Fiches repères patrimoniales, Mini-ardoises.";
+                    hookQ = isLondon
+                        ? `Si vous traversiez la passerelle en verre du Tower Bridge au-dessus de la Tamise, quels monuments célèbres apercevriez-vous, et lequel a plus de 900 ans d'histoire ?`
+                        : `Regardez la silhouette majestueuse de <b>${rawTopic}</b> : selon vous, quelle fonction essentielle ce monument remplissait-il à son époque ?`;
+                    hookTask = isLondon
+                        ? `Défi visuel : les élèves associent en 90 secondes sur ardoise 4 silhouettes de monuments londoniens à leur nom (Big Ben, Tower Bridge, London Eye, Tour de Londres).`
+                        : `Observation silencieuse d'un visuel de <b>${rawTopic}</b> (60 s), puis recueil des premières hypothèses en binôme (Think-Pair-Share).`;
+                    directSteps = isLondon
+                        ? `L'enseignant présente la chronologie architecturale de Londres : la forteresse médiévale (Tour de Londres), le siège du pouvoir royal et parlementaire (Westminster & Big Ben), l'essor industriel victorien (Tower Bridge) et les icônes modernes (London Eye). Explication guidée de l'importance vitale de la Tamise.`
+                        : `Exposé structuré sur le contexte de création de <b>${rawTopic}</b>, son style architectural et ses techniques de construction. Modélisation au tableau de l'analyse d'un monument historique.`;
+                    guidedSteps = isLondon
+                        ? `Atelier en binômes « Conservateurs du Patrimoine » : les élèves analysent un dossier documentaire (Tour de Londres vs Tower Bridge) et complètent une grille comparative (date, fonction initiale, rôle défensif ou commercial).`
+                        : `En binômes, les élèves étudient une fiche descriptive de <b>${rawTopic}</b> et répondent à 3 questions de guidage sur son rôle historique et son ingénierie.`;
+                    indepTask = isLondon
+                        ? `Mission individuelle d'exploration : chaque élève annote une carte de la Tamise avec 4 merveilles londoniennes et rédige une notice explicative de 4 phrases valorisant l'héritage de ces monuments.`
+                        : `Rédaction individuelle d'un court texte de valorisation patrimoniale et complétion d'un schéma d'analyse sur <b>${rawTopic}</b>.`;
+                    exitQ1 = isLondon
+                        ? `Citez deux merveilles de Londres et précisez la fonction initiale ou le rôle historique de chacune.`
+                        : `Quelle est la fonction première ou l'intérêt historique fondamental de ${rawTopic} ?`;
+                    exitQ2 = isLondon
+                        ? `Pourquoi la Tamise a-t-elle été déterminante dans l'implantation des plus grands monuments londoniens ?`
+                        : `Citez un élément architectural ou technique marquant qui caractérise ${rawTopic}.`;
+                } else if (domain === 'grammar') {
                     cogObj = `Identifier les règles morphosyntaxiques, les accords grammaticaux et les registres de langue de <b>${rawTopic}</b>.`;
                     skillObj = `Employer <b>${rawTopic}</b> avec exactitude dans des productions écrites et adapter son expression à la situation de communication.`;
                     vocabList = [
@@ -3281,6 +3377,22 @@
                     indepTask = `Exercices individuels d'application : réécriture de 3 phrases et rédaction d'un court paragraphe intégrant <b>${rawTopic}</b>.`;
                     exitQ1 = `Quelle règle essentielle faut-il appliquer pour utiliser correctement ${rawTopic} ?`;
                     exitQ2 = `Complétez ou reformulez la phrase test proposée en respectant la syntaxe.`;
+                } else {
+                    cogObj = `Comprendre les notions fondamentales, la structure logique et les enjeux clés de <b>${rawTopic}</b>.`;
+                    skillObj = `Analyser des situations concrètes, argumenter de manière structurée et synthétiser les apprentissages sur <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Notion Clé", def: "Concept fondamental structurant la compréhension du sujet." },
+                        { term: "Démarche d'Analyse", def: "Méthode rigoureuse d'observation et de questionnement critique." },
+                        { term: "Synthèse", def: "Formulation claire reliant les points essentiels abordés." }
+                    ];
+                    materials = "Dossier d'apprentissage EduGen, Tableau interactif, Fiche d'activités guidées, Mini-ardoises.";
+                    hookQ = `Quelle question essentielle ou idée reçue faut-il clarifier d'emblée à propos de <b>${rawTopic}</b> ?`;
+                    hookTask = `Échange éclair en binôme (Think-Pair-Share) : formulation d'une première définition sur ardoise en 2 minutes.`;
+                    directSteps = `Présentation modélisée des concepts directeurs de <b>${rawTopic}</b> avec schéma récapitulatif au tableau.`;
+                    guidedSteps = `Travail d'équipe : analyse guidée d'une étude de cas ou d'un exemple concret sur <b>${rawTopic}</b> avec restitution collective.`;
+                    indepTask = `Exercices individuels d'approfondissement : complétion d'une grille de synthèse et rédaction d'une courte conclusion argumentée.`;
+                    exitQ1 = `Quel enseignement ou concept central retenez-vous aujourd'hui sur ${rawTopic} ?`;
+                    exitQ2 = `Citez un exemple d'application concrète ou une question restante sur ce thème.`;
                 }
             } else {
                 if (domain === 'science') {
@@ -3315,6 +3427,47 @@
                     indepTask = `Independent mastery task: complete 3 tiered computation problems ranging from standard drills to real-world word problems.`;
                     exitQ1 = `Write out the core formula or rule required to solve problems regarding ${rawTopic}.`;
                     exitQ2 = `Apply the formula to find the value in a simple benchmark problem.`;
+                } else if (domain === 'landmarks') {
+                    const isLondon = /london|thames|big ben|tower bridge|buckingham|westminster/.test(rawTopic.toLowerCase());
+                    cogObj = isLondon
+                        ? `Identify and explain the historical origins, architectural evolution, and cultural significance of London's iconic wonders (including the Tower of London, Big Ben / Westminster Palace, Tower Bridge, and the River Thames).`
+                        : `Analyze the historical context, architectural achievements, and cultural significance of <b>${rawTopic}</b> as enduring wonders of human civilization.`;
+                    skillObj = isLondon
+                        ? `Map London landmarks along the River Thames corridor, contrast medieval fortress defenses with Victorian hydraulic engineering, and formulate an evidence-based curator tour narrative.`
+                        : `Interpret visual and architectural blueprints, locate landmarks on geographical maps, and evaluate heritage preservation challenges related to <b>${rawTopic}</b>.`;
+                    vocabList = isLondon ? [
+                        { term: "Tower of London", def: "Historic Norman fortress, royal palace, and castle founded in 1078 by William the Conqueror." },
+                        { term: "Tower Bridge", def: "Iconic Victorian bascule and suspension bridge (1894) engineered to allow tall sailing ships on the Thames." },
+                        { term: "Big Ben (Elizabeth Tower)", def: "The famous 13-ton great bell and clock tower of the British Houses of Parliament at Westminster." }
+                    ] : [
+                        { term: "Landmark / Monument", def: "A prominent architectural or geographical feature of recognized historical and cultural significance." },
+                        { term: "Heritage Site", def: "A location acknowledged for outstanding human cultural, architectural, or natural importance." },
+                        { term: "Civil Engineering", def: "The design, construction, and preservation of monumental infrastructure and civic structures." }
+                    ];
+                    materials = isLondon
+                        ? "Illustrated London Landmarks & Thames Map, EduGen Curator Explorer Cards, 3D Architectural Models / Slides, Dry-Erase Whiteboards."
+                        : "EduGen Archival Landmark Dossier, Regional Geography Maps, Architectural Factsheets, Mini Whiteboards.";
+                    hookQ = isLondon
+                        ? `If you stood on the high glass walkway of Tower Bridge looking across the River Thames, which world-famous wonders would you see, and which one is over 900 years old?`
+                        : `Observe this striking architectural view of <b>${rawTopic}</b>: what clues reveal its original purpose and the society that built it?`;
+                    hookTask = isLondon
+                        ? `Quick Silhouette Match: Students view 4 landmark silhouettes (Big Ben, Tower Bridge, Tower of London, London Eye) and write their names on mini-whiteboards within 90 seconds.`
+                        : `Silent image viewing (60 seconds) followed by partner hypothesis sharing (Think-Pair-Share) on the landmark's design and purpose.`;
+                    directSteps = isLondon
+                        ? `Teacher delivers a visual architectural journey along the River Thames: from medieval fortress defense (Tower of London & White Tower), to parliamentary democracy (Palace of Westminster & Big Ben), to Victorian steam-hydraulic engineering (Tower Bridge), to 21st-century icons (London Eye, The Shard). Teacher models how geography and history intersect.`
+                        : `Teacher models architectural analysis of <b>${rawTopic}</b>: unpacking historical catalysts, structural engineering innovations, and long-term cultural symbolism.`;
+                    guidedSteps = isLondon
+                        ? `Collaborative Curator Challenge: In pairs, students examine a 'Landmark Dossier' comparing two London wonders (e.g. Tower Bridge vs. Tower of London) to complete a comparative inquiry matrix examining builder, purpose, architectural style, and river access.`
+                        : `Paired investigation: students examine blueprint diagrams and primary historical accounts of <b>${rawTopic}</b>, completing 3 guided inquiry prompts.`;
+                    indepTask = isLondon
+                        ? `Independent Explorer Task: Students plot 4 London landmarks along an annotated River Thames route, highlighting key construction dates, and write a 4-sentence curator guide on why these wonders define London's global identity.`
+                        : `Independent synthesis: students produce a structured landmark profile analyzing the design, historical impact, and preservation needs of <b>${rawTopic}</b>.`;
+                    exitQ1 = isLondon
+                        ? `Name two iconic London wonders and explain the original historical or civic purpose of each.`
+                        : `What was the primary historical purpose or engineering feat behind ${rawTopic}?`;
+                    exitQ2 = isLondon
+                        ? `Why has the River Thames been essential to the location, trade, and defense of London's greatest monuments?`
+                        : `Identify one key architectural feature or cultural impact associated with ${rawTopic}.`;
                 } else if (domain === 'history') {
                     cogObj = `Situate <b>${rawTopic}</b> in its broader chronological and socioeconomic context, identifying key historical actors.`;
                     skillObj = `Analyze conflicting primary documents and craft an evidence-based historical claim regarding <b>${rawTopic}</b>.`;
@@ -3331,7 +3484,7 @@
                     indepTask = `Individual written response: compose a structured paragraph with 1 claim, 2 pieces of documentary evidence, and commentary.`;
                     exitQ1 = `Name two key causes that catalyzed ${rawTopic}.`;
                     exitQ2 = `Identify one lasting legacy or transformation produced by this historical development.`;
-                } else {
+                } else if (domain === 'grammar') {
                     cogObj = `Deconstruct syntactic patterns, idiomatic usage, and communicative intent within <b>${rawTopic}</b>.`;
                     skillObj = `Produce accurate written sentences and engage in structured spoken discourse incorporating <b>${rawTopic}</b>.`;
                     vocabList = [
@@ -3347,6 +3500,22 @@
                     indepTask = `Independent creative writing: students compose a 5-sentence application paragraph correctly incorporating <b>${rawTopic}</b>.`;
                     exitQ1 = `What is the key grammatical or communicative rule for correctly applying ${rawTopic}?`;
                     exitQ2 = `Fill in or complete the sample prompt using the correct syntax.`;
+                } else {
+                    cogObj = `Analyze key concepts, structural frameworks, and core principles of <b>${rawTopic}</b>.`;
+                    skillObj = `Apply analytical inquiry, formulate reasoned arguments, and synthesize findings regarding <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Core Principle", def: "A fundamental concept or truth serving as a foundation for reasoning." },
+                        { term: "Inquiry Framework", def: "A structured methodology for investigating evidence and drawing conclusions." },
+                        { term: "Synthesis", def: "The combination of diverse ideas into a coherent and structured whole." }
+                    ];
+                    materials = "EduGen Study Dossier, Interactive Display / Visual Media, Guided Analysis Worksheet, Dry-Erase Boards.";
+                    hookQ = `What is one fundamental question or surprising fact that makes <b>${rawTopic}</b> essential to understand?`;
+                    hookTask = `Think-Pair-Share: 2 minutes of independent reflection followed by quick partner exchange on mini-whiteboards.`;
+                    directSteps = `Teacher models structured conceptual deconstruction of <b>${rawTopic}</b>, establishing clear definitions and real-world examples.`;
+                    guidedSteps = `Collaborative team problem-solving: pairs analyze a sample case study or scenario on <b>${rawTopic}</b> and complete 3 guided questions.`;
+                    indepTask = `Independent application: students synthesize insights to complete 3 structured evaluation exercises on <b>${rawTopic}</b>.`;
+                    exitQ1 = `State the most important principle or takeaway you learned today regarding ${rawTopic}.`;
+                    exitQ2 = `How does this concept connect to real-world applications or previous lessons?`;
                 }
             }
 
@@ -3371,11 +3540,11 @@
                         </div>
                     </div>
 
-                    <!-- Section 1: Pedagogical Objectives & Bloom's Taxonomy -->
+                    <!-- Section 1: Lesson Objectives & Core Competencies -->
                     <div class="worksheet-section" style="margin-bottom: 14px;">
                         <div style="background: #F0FDF4; border: 1.5px solid #10B981; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;">
                             <div style="font-size: 12px; font-weight: 800; color: #065F46; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                                <span>🎯</span> ${isFrench ? 'Objectifs Pédagogiques & Taxonomie de Bloom' : 'Pedagogical Learning Objectives (Bloom\'s Taxonomy)'}
+                                <span>🎯</span> ${isFrench ? 'Objectifs Pédagogiques & Compétences Clés' : 'Lesson Objectives & Core Competencies'} : <span style="color: #047857; text-transform: none; font-weight: 700;">${rawTopic}</span>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                                 <div style="background: #FFFFFF; border: 1px solid #D1FAE5; border-radius: 8px; padding: 10px;">
@@ -3851,29 +4020,40 @@ Return strictly a raw JSON array of objects, each with 'title' (string) and 'des
                 let generatedHtml = null;
 
                 if (hasApiKey) {
-                    const prompt = `You are an expert curriculum designer and master teacher. Generate a comprehensive, professional Lesson Plan HTML structure for the topic: "${topic}".
+                    const prompt = `You are an expert curriculum designer and master educator. Generate a rich, comprehensive, and professional Lesson Plan HTML structure strictly teaching the subject: "${topic}".
 Duration: ${duration} minutes.
 Pedagogical Framework: ${pedagogy} model.
 Language: ${isFrench ? 'French' : 'English'}.
 
-CRITICAL PEDAGOGICAL STRUCTURE (MANDATORY):
-1. TOP HEADER & OBJECTIVES:
-   - Header with topic title: <h2 id="tbTopicHeader">${topic}</h2>, duration badge (${duration} min), pedagogical badge (${pedagogy}), and teacher/class/date blanks.
-   - Objectives (Bloom's Taxonomy): Cognitive knowledge objective, skill/application objective, 3 essential vocabulary terms, and required instructional materials. Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
-2. STRUCTURED TIMELINE & INSTRUCTIONAL PHASES TABLE (CRITICAL):
+CRITICAL CONTENT REQUIREMENT:
+- The entire lesson plan content must be 100% SPECIFIC TO "${topic}". For example, if the topic is "London Wonders", every objective, vocabulary item, teacher explanation, student task, timeline phase, and exit ticket question MUST focus on London's wonders (such as the Tower of London, Big Ben / Palace of Westminster, Tower Bridge, Buckingham Palace, the River Thames, their history, architecture, engineering, and cultural impact).
+- DO NOT generate a lesson about teaching theories, Bloom's Taxonomy, or meta-pedagogy. The lesson is for teaching "${topic}" to students!
+
+MANDATORY HTML STRUCTURE & SECTIONS:
+1. TOP BANNER & OBJECTIVES:
+   - Banner with topic title: <h2 id="tbTopicHeader">${topic}</h2>, duration badge (${duration} min), pedagogical framework badge (${pedagogy}), and blank lines for Teacher, Class, and Date.
+   - Section Title: "${isFrench ? 'Objectifs de la Leçon & Compétences Clés' : 'Lesson Objectives & Core Competencies'} : ${topic}" (DO NOT use "Bloom's Taxonomy" as the heading).
+   - 2 concrete student learning objectives directly about "${topic}": 1 Knowledge & Conceptual Understanding objective, and 1 Inquiry, Skill & Application objective.
+   - 3 essential vocabulary terms directly defining key concepts/monuments/elements of "${topic}".
+   - Required instructional materials specifically relevant to "${topic}".
    - Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
-   - Create a clean, elegant HTML <table> with borders, padding, and subtle alternating row backgrounds.
-   - Columns: [Phase & Timing | Teacher Role & Strategy | Student Activity & Tasks | Formative Check & Evidence].
-   - Must include these 5 distinct instructional phases with minute breakdowns adding up to ${duration} minutes:
-     * Phase 1: Hook & Prior Knowledge Activation (Warm-Up)
-     * Phase 2: Direct Instruction & Explicit Modeling (I Do)
-     * Phase 3: Guided Collaborative Practice (We Do)
-     * Phase 4: Independent Practice & Deep Application (You Do)
+
+2. STRUCTURED TIMELINE & INSTRUCTIONAL PHASES TABLE:
+   - Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
+   - Clean, elegant HTML <table> with header row, borders, and clear padding.
+   - Columns: [Phase & Timing | Teacher Role & Strategy | Student Activity & Engagement | Formative Check & Evidence].
+   - Must cover 5 distinct pedagogical phases adding up to ${duration} minutes, with all questions and tasks directly about "${topic}":
+     * Phase 1: Hook & Prior Knowledge Activation (Warm-Up diagnostic question/visual about "${topic}")
+     * Phase 2: Direct Instruction & Explicit Modeling (I Do - teacher breaks down "${topic}" concepts, history, and key details)
+     * Phase 3: Guided Collaborative Practice (We Do - paired or small-group inquiry/analysis about "${topic}")
+     * Phase 4: Independent Practice & Deep Application (You Do - individual synthesis, mapping, or problem set on "${topic}")
      * Phase 5: Exit Ticket, Wrap-Up & Metacognitive Synthesis
+
 3. DIFFERENTIATION & ACCOMMODATIONS:
-   - Two styled columns/boxes: Scaffolding for struggling learners and Extension for advanced students. Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
+   - Two styled columns/boxes: Scaffolding for struggling learners and Extension for advanced students, tailored to learning "${topic}". Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
+
 4. DETACHABLE EXIT TICKET:
-   - A distinct dashed-border box (<div class="worksheet-section">) containing Student Name/Date line, 2 formative concept check questions tailored specifically to "${topic}", and 1 metacognitive reflection question.
+   - A distinct dashed-border box (<div class="worksheet-section">) containing Student Name/Date line, 2 formative concept check questions testing student mastery of "${topic}", and 1 metacognitive reflection question.
 
 IMPORTANT RULES:
 - Output ONLY valid raw HTML. No markdown backticks or explanations.

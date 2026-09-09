@@ -2631,22 +2631,19 @@
 
         function detectTopicDomain(t) {
             const s = (t || '').toLowerCase();
-            if (/math|algebra|geometry|calculus|fraction|equation|arithmetic|triangle|pythagor|matrix|derivative|integral|probability|percent|nombre|géométrie|équation|multiplication|division/.test(s)) {
-                return 'math';
-            }
-            if (/science|biology|cell|photo|physics|chemistry|atom|molecule|gravity|solar|planet|ecosystem|dna|organ|genetic|climate|energy|water|chimie|physique|biologie|cellule|photosynthèse|atome/.test(s)) {
-                return 'science';
-            }
-            if (/history|war|revolution|empire|century|president|king|queen|egypt|rome|greek|civilization|medieval|renaissance|historique|siècle|guerre|révolution|napoléon|pharaon/.test(s)) {
-                return 'history';
-            }
-            if (/literature|poetry|poem|novel|author|shakespeare|character|playwright|molière|roman|poésie|théâtre|drame|hugo|balzac|essay|writing/.test(s)) {
+            if (/literature|poetry|poem|novel|author|shakespeare|molière|roman|poésie|théâtre|drame|hugo|balzac|reading|comprehension|text|extrait|analyse|fiction|prose/.test(s)) {
                 return 'literature';
             }
-            if (/grammar|tense|verb|adjective|noun|vocabulary|phrasal|pronoun|conjugaison|imparfait|passé|accord|syntax|idiom|temps|participe/.test(s)) {
-                return 'grammar';
+            if (/vocabulary|lexicon|idiom|phrasal|collocation|word|lexique|champ lexical|expression|business|gastronomie|restaurant|travel|work|salutation|job|interview/.test(s)) {
+                return 'vocabulary';
             }
-            return 'general';
+            if (/writing|essay|email|letter|composition|rédaction|écrit|lettre|courriel|paragraph|syntaxe|structure|dissertation|argumentation/.test(s)) {
+                return 'writing';
+            }
+            if (/speaking|conversation|phonetic|pronunciation|dialogue|oral|phonétique|prononciation|accent|stress|intonation|communication|ecoute|listening/.test(s)) {
+                return 'conversation';
+            }
+            return 'grammar';
         }
 
         function buildDynamicWorksheetHTML(topic, levelVal, tmplType, testTypeVal, skillsFocusVal, fontChoice, illusChoice, qrVal) {
@@ -2667,218 +2664,188 @@
             if (levelVal === 'college') levelLabel = isFrench ? "Enseignement Supérieur" : "Higher Education / University";
 
             // Test Type Title
-            let testTypeTitle = isFrench ? "Fiche d'Exercices Thématique" : "Topic Skills Mastery Worksheet";
-            if (testTypeVal === 'diagnostic') testTypeTitle = isFrench ? "Évaluation Diagnostique" : "Diagnostic Placement Benchmark";
-            if (testTypeVal === 'mock') testTypeTitle = isFrench ? "Examen Blanc & Entraînement" : "Mock Examination & Practice Test";
+            let testTypeTitle = isFrench ? "Fiche d'Exercices Thématique (FLE)" : "Language Skills Mastery Worksheet (ESL)";
+            if (testTypeVal === 'diagnostic') testTypeTitle = isFrench ? "Évaluation Diagnostique en Langue" : "Diagnostic Language Placement Benchmark";
+            if (testTypeVal === 'mock') testTypeTitle = isFrench ? "Examen Blanc de Français / FLE" : "Mock Language Examination & Practice Test";
 
             const qrCodeDisplay = qrVal ? `<div style="margin-top: 10px; text-align: center; display: flex; flex-direction: column; align-items: center;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qrVal)}" alt="QR Code" style="width: 70px; height: 70px; border-radius: 6px; border: 1.5px solid #CBD5E1; padding: 3px; background: white;"><div style="font-size: 8px; color: #475569; margin-top: 6px; word-break: break-all; max-width: 100px;">🔗 ${qrVal}</div></div>` : '';
 
-            // Domain-specific texts
+            // Language domain texts
             let passageText = "";
             let vocabTerms = [];
             let q1 = "", q2 = "", q3 = "";
             let tf1 = "", tf2 = "";
             let mcqItems = [];
-            let matchingPairs = [];
 
             if (isFrench) {
-                if (domain === 'science') {
-                    passageText = `L'étude scientifique de <b>${rawTopic}</b> permet de comprendre les mécanismes fondamentaux qui régissent les systèmes vivants et physiques. En analysant ce processus, les scientifiques observent comment la matière, les flux d'énergie et les interactions cellulaires ou chimiques maintiennent l'équilibre de notre environnement. L'expérimentation et l'observation rigoureuse constituent la base de toute découverte dans ce domaine.`;
+                if (domain === 'vocabulary') {
+                    passageText = `L'enrichissement du vocabulaire autour de <b>${rawTopic}</b> est essentiel pour développer une expression fluide, précise et nuancée en français (FLE / Langue française). L'acquisition de termes spécifiques, de collocations et d'expressions idiomatiques permet à l'apprenant d'élargir son champ lexical et d'adapter son discours aux différents registres de langue.`;
                     vocabTerms = [
-                        { term: "Hypothèse", def: "Proposition admise provisoirement" },
-                        { term: "Processus", def: "Enchaînement ordonné d'étapes" },
-                        { term: "Équilibre", def: "État de stabilité d'un système" }
+                        { term: "Champ Lexical", def: "Ensemble des mots se rapportant à une même notion" },
+                        { term: "Expression Idiomatique", def: "Tournure propre à la langue française" },
+                        { term: "Registre de Langue", def: "Degré de formalité (courant, soutenu, familier)" }
                     ];
-                    q1 = `Expliquez le principe fondamental de <b>${rawTopic}</b> tel que présenté dans le texte :`;
-                    q2 = `Quels éléments ou facteurs influent directement sur le déroulement de <b>${rawTopic}</b> ?`;
-                    q3 = `Pourquoi l'observation empirique et l'expérimentation sont-elles indispensables dans l'étude de <b>${rawTopic}</b> ?`;
-                    tf1 = `L'étude de <b>${rawTopic}</b> ne repose sur aucune méthode expérimentale.`;
-                    tf2 = `<b>${rawTopic}</b> joue un rôle direct dans la régulation et l'équilibre des systèmes étudiés.`;
+                    q1 = `Relevez dans le texte ou proposez trois termes fondamentaux appartenant au champ lexical de <b>${rawTopic}</b> :`;
+                    q2 = `Expliquez la différence de nuance entre un terme courant et un terme soutenu lié à <b>${rawTopic}</b> :`;
+                    q3 = `Rédigez un court paragraphe de trois phrases intégrant judicieusement deux mots de vocabulaire de <b>${rawTopic}</b> :`;
+                    tf1 = `L'utilisation d'un vocabulaire varié sur <b>${rawTopic}</b> n'a aucun impact sur la qualité de l'expression écrite.`;
+                    tf2 = `L'adaptation du registre de langue dépend directement du destinataire et du contexte de communication.`;
                     mcqItems = [
-                        { q: `Quel est l'objectif principal de l'étude de ${rawTopic} ?`, a: "Comprendre les lois et mécanismes naturels", b: "Ignorer les résultats expérimentaux", c: "Remplacer les lois de la physique" },
-                        { q: `Quelle méthode valide les théories sur ${rawTopic} ?`, a: "L'expérimentation méthodique et rigoureuse", b: "L'intuition non vérifiée", c: "Le hasard" }
-                    ];
-                } else if (domain === 'math') {
-                    passageText = `En mathématiques, la notion de <b>${rawTopic}</b> constitue un outil analytique indispensable pour modéliser des relations quantitatives et résoudre des problèmes complexes. La rigueur logique, l'application de formules précises et la vérification des résultats permettent aux élèves de développer une pensée déductive solide et transférable à d'autres disciplines.`;
-                    vocabTerms = [
-                        { term: "Théorème", def: "Proposition démontrée rigoureusement" },
-                        { term: "Variable", def: "Grandeur pouvant changer de valeur" },
-                        { term: "Résolution", def: "Procédure menant à la solution" }
-                    ];
-                    q1 = `Définissez avec précision les propriétés mathématiques essentielles de <b>${rawTopic}</b> :`;
-                    q2 = `Décrivez la démarche étape par étape permettant d'appliquer <b>${rawTopic}</b> à un problème concret :`;
-                    q3 = `Quelle méthode de vérification permet de s'assurer de l'exactitude d'un calcul lié à <b>${rawTopic}</b> ?`;
-                    tf1 = `En mathématiques, <b>${rawTopic}</b> ne nécessite aucune démonstration logique.`;
-                    tf2 = `La manipulation rigoureuse des variables est essentielle pour maîtriser <b>${rawTopic}</b>.`;
-                    mcqItems = [
-                        { q: `Quelle compétence est directement renforcée par l'apprentissage de ${rawTopic} ?`, a: "La déduction logique et l'analyse méthodique", b: "La mémorisation passive sans calcul", c: "L'estimation aléatoire" },
-                        { q: `Pour valider un résultat impliquant ${rawTopic}, il faut :`, a: "Vérifier la cohérence des étapes et substituer les valeurs", b: "Changer arbitrairement les signes", c: "Ne rien consigner par écrit" }
-                    ];
-                } else if (domain === 'history') {
-                    passageText = `L'histoire de <b>${rawTopic}</b> met en lumière les transformations sociales, politiques et économiques qui ont façonné notre époque. L'analyse critique des documents d'époque, la contextualisation des événements et la confrontation des témoignages permettent aux historiens de comprendre les causes profondes et la portée durable de cette période charnière.`;
-                    vocabTerms = [
-                        { term: "Chronologie", def: "Succession temporelle des faits" },
-                        { term: "Source primaire", def: "Document d'époque témoignant des faits" },
-                        { term: "Postérité", def: "Impact et héritage historique" }
-                    ];
-                    q1 = `Quels sont les facteurs historiques majeurs ayant déclenché ou favorisé <b>${rawTopic}</b> ?`;
-                    q2 = `Identifiez les principaux acteurs ou groupes sociaux impliqués dans <b>${rawTopic}</b> :`;
-                    q3 = `Quelles conséquences durables de <b>${rawTopic}</b> peut-on observer dans les sociétés modernes ?`;
-                    tf1 = `Les événements liés à <b>${rawTopic}</b> n'ont laissé aucune trace historique documentée.`;
-                    tf2 = `L'analyse des sources primaires est indispensable pour comprendre <b>${rawTopic}</b>.`;
-                    mcqItems = [
-                        { q: `Quelle est l'importance de contextualiser ${rawTopic} ?`, a: "Comprendre les motivations et les enjeux de l'époque", b: "Juger le passé avec anachronisme", c: "Mémoriser des dates sans signification" },
-                        { q: `Quel héritage retient-on principalement de ${rawTopic} ?`, a: "Des évolutions sociétales et institutionnelles durables", b: "Un effacement complet de la mémoire collective", c: "Une stagnation générale" }
+                        { q: `Quel est l'objectif principal de l'apprentissage du vocabulaire de ${rawTopic} ?`, a: "Exprimer des idées précises et adapter son registre de langue", b: "Ignorer les nuances de sens", c: "Remplacer la grammaire" },
+                        { q: `Comment consolider le vocabulaire appris sur ${rawTopic} ?`, a: "En le réutilisant dans des phrases contextuelles", b: "En apprenant des listes sans jamais écrire", c: "En l'oubliant rapidement" }
                     ];
                 } else if (domain === 'literature') {
-                    passageText = `Dans l'étude littéraire, l'analyse de <b>${rawTopic}</b> révèle la richesse du style, la complexité des personnages et la force des thèmes abordés. À travers l'art des figures de style, le choix des registres et la structure narrative, l'auteur interpelle le lecteur et l'invite à une réflexion philosophique et esthétique approfondie.`;
+                    passageText = `L'analyse littéraire et la compréhension de texte autour de <b>${rawTopic}</b> développent l'esprit critique et la sensibilité esthétique des élèves. À travers l'étude des procédés stylistiques, de la structure narrative et de la caractérisation, le lecteur apprend à décoder les implicites du texte et à formuler une interprétation argumentée.`;
                     vocabTerms = [
-                        { term: "Métaphore", def: "Figure d'analogie sans mot de comparaison" },
-                        { term: "Registre", def: "Tonalité émotionnelle d'un texte" },
-                        { term: "Implicite", def: "Sens sous-entendu à décoder" }
+                        { term: "Procédé Stylistique", def: "Moyen d'expression particulier utilisé par l'auteur" },
+                        { term: "Implicite", def: "Information non dite explicitement mais suggérée" },
+                        { term: "Schéma Narratif", def: "Organisation de la progression de l'histoire" }
                     ];
-                    q1 = `Dégagez le thème principal et la portée philosophique de <b>${rawTopic}</b> :`;
-                    q2 = `Quels procédés d'écriture ou figures de style renforcent l'impact de <b>${rawTopic}</b> ?`;
-                    q3 = `Comment l'auteur suscite-t-il la réflexion ou l'émotion du lecteur autour de <b>${rawTopic}</b> ?`;
-                    tf1 = `Dans <b>${rawTopic}</b>, le style de l'auteur ne joue aucun rôle dans la transmission du sens.`;
-                    tf2 = `L'interprétation d'un texte littéraire s'appuie sur des indices textuels précis.`;
+                    q1 = `Dégagez l'idée principale du texte étudié concernant <b>${rawTopic}</b> :`;
+                    q2 = `Identifiez une figure de style ou un procédé d'écriture renforçant la portée de <b>${rawTopic}</b> :`;
+                    q3 = `Expliquez ce que révèle l'implicite du texte quant aux intentions de l'auteur sur <b>${rawTopic}</b> :`;
+                    tf1 = `L'analyse littéraire de <b>${rawTopic}</b> consiste uniquement à résumer l'histoire sans analyser le style.`;
+                    tf2 = `Toute interprétation littéraire rigoureuse doit s'appuyer sur des citations précises du texte.`;
                     mcqItems = [
-                        { q: `Quel procédé stylistique apporte du relief à l'évocation de ${rawTopic} ?`, a: "L'emploi d'images évocatrices et de figures d'analogie", b: "La suppression de toute ponctuation", c: "L'usage exclusif de termes techniques" },
-                        { q: `Analyser l'implicite dans ${rawTopic} permet de :`, a: "Découvrir la véritable intention de l'auteur", b: "Modifier l'histoire originelle", c: "Éviter la lecture attentive" }
+                        { q: `Quel est le rôle de l'implicite dans un texte traitant de ${rawTopic} ?`, a: "Suggérer des significations profondes à interpréter par le lecteur", b: "Rendre le texte incompréhensible", c: "Supprimer les personnages" },
+                        { q: `Pour justifier une analyse littéraire sur ${rawTopic}, il faut :`, a: "Citer des passages du texte et expliquer leur effet", b: "Donner son avis sans preuve", c: "Ignorer le style de l'auteur" }
                     ];
-                } else if (domain === 'grammar') {
-                    passageText = `La maîtrise linguistique de <b>${rawTopic}</b> est essentielle pour construire des énoncés rigoureux et adaptés à chaque contexte de communication. Les apprenants doivent analyser les accords, les concordances de temps et les nuances de sens pour éliminer les ambiguïtés et s'exprimer avec aisance aussi bien à l'écrit qu'à l'oral.`;
+                } else if (domain === 'writing') {
+                    passageText = `La maîtrise de l'expression écrite autour de <b>${rawTopic}</b> permet de structurer ses idées avec logique, clarté et précision. L'utilisation appropriée des connecteurs logiques, la variété du vocabulaire et la rigueur de la syntaxe garantissent la cohérence globale d'un essai, d'une lettre ou d'un texte argumentatif.`;
                     vocabTerms = [
-                        { term: "Syntaxe", def: "Ordre et règles de liaison des mots" },
-                        { term: "Concordance", def: "Harmonie temporelle et grammaticale" },
-                        { term: "Nuance", def: "Degré subtil de sens d'une expression" }
+                        { term: "Connecteur Logique", def: "Mot liant deux idées (cause, conséquence, opposition)" },
+                        { term: "Cohérence Textuelle", def: "Enchaînement logique et fluide des paragraphes" },
+                        { term: "Paragraphe Argumenté", def: "Structure composée d'une idée, d'une preuve et d'un exemple" }
+                    ];
+                    q1 = `Formulez une phrase d'introduction claire présentant la problématique de <b>${rawTopic}</b> :`;
+                    q2 = `Proposez deux connecteurs logiques adaptés pour introduire un argument et une concession sur <b>${rawTopic}</b> :`;
+                    q3 = `Rédigez une conclusion synthétique résumant votre point de vue sur <b>${rawTopic}</b> :`;
+                    tf1 = `Un texte argumentatif sur <b>${rawTopic}</b> ne nécessite aucun connecteur logique entre les paragraphes.`;
+                    tf2 = `La révision de la syntaxe et de l'orthographe est indispensable après toute rédaction.`;
+                    mcqItems = [
+                        { q: `Quelle est la structure recommandée pour un paragraphe argumenté sur ${rawTopic} ?`, a: "Idée maîtresse + Argument développé + Exemple concret", b: "Une suite de phrases sans lien", c: "Uniquement des questions" },
+                        { q: `Quel connecteur exprime une conséquence dans une rédaction sur ${rawTopic} ?`, a: "Par conséquent / Ainsi", b: "Cependant", c: "Bien que" }
+                    ];
+                } else if (domain === 'conversation') {
+                    passageText = `Le développement de l'expression orale et de la phonétique autour de <b>${rawTopic}</b> renforce la confiance et la fluidité dans les échanges quotidiens en français. L'attention portée à l'intonation, à la prononciation des sons et aux formules de politesse permet d'interagir efficacement dans des situations concrètes de communication.`;
+                    vocabTerms = [
+                        { term: "Phonétique", def: "Étude et prononciation exacte des sons du français" },
+                        { term: "Intonation", def: "Mélodie et rythme de la phrase parlée" },
+                        { term: "Acte de Parole", def: "Formule utilisée pour saluer, demander, remercier ou négocier" }
+                    ];
+                    q1 = `Transcrivez ou citez trois formules de politesse clés utilisées dans la conversation sur <b>${rawTopic}</b> :`;
+                    q2 = `Comment l'intonation modifie-t-elle le sens d'une phrase déclarative devenant interrogative sur <b>${rawTopic}</b> ?`;
+                    q3 = `Composez un dialogue de quatre répliques entre deux personnes échangeant au sujet de <b>${rawTopic}</b> :`;
+                    tf1 = `La prononciation des liaisons et l'intonation n'ont aucune importance en communication orale.`;
+                    tf2 = `Un dialogue fluide nécessite l'écoute active et la réutilisation de relances conversationnelles.`;
+                    mcqItems = [
+                        { q: `Comment poser une question polie à l'oral sur ${rawTopic} ?`, a: "En utilisant l'inversion ou « Pourriez-vous... ? »", b: "En criant sans formule d'accueil", c: "En parlant une autre langue" },
+                        { q: `Quelle attitude favorise une interaction orale réussie sur ${rawTopic} ?`, a: "Articuler clairement et adapter son débit", b: "Parler très vite sans faire de pauses", c: "Refuser de répondre" }
+                    ];
+                } else {
+                    // Grammar / Conjugation domain (Default)
+                    passageText = `La maîtrise de la grammaire et de la conjugaison concernant <b>${rawTopic}</b> est indispensable pour s'exprimer correctement en français. La compréhension des règles morphosyntaxiques, des accords verbaux et nominaux ainsi que la concordance des temps garantissent une communication claire, sans ambiguïté ni fautes de syntaxe.`;
+                    vocabTerms = [
+                        { term: "Morphosyntaxe", def: "Règles combinant la forme et la place des mots dans la phrase" },
+                        { term: "Accord Grammatical", def: "Règle régissant le genre, le nombre ou la personne" },
+                        { term: "Concordance des Temps", def: "Harmonie temporelle entre la proposition principale et subordonnée" }
                     ];
                     q1 = `Énoncez la règle fondamentale de grammaire ou de conjugaison qui s'applique à <b>${rawTopic}</b> :`;
-                    q2 = `Citez deux pièges ou erreurs fréquentes à éviter lors de l'emploi de <b>${rawTopic}</b> :`;
+                    q2 = `Citez deux pièges ou erreurs fréquentes d'accord à éviter lors de l'emploi de <b>${rawTopic}</b> :`;
                     q3 = `Rédigez deux phrases correctes illustrant l'usage précis de <b>${rawTopic}</b> :`;
                     tf1 = `La règle régissant <b>${rawTopic}</b> ne comporte aucune exception ni accord spécifique.`;
                     tf2 = `L'accord grammatical exact dépend du rôle syntaxique des mots dans la phrase.`;
                     mcqItems = [
-                        { q: `Quel est le rôle déterminant dans l'application de ${rawTopic} ?`, a: "Respecter scrupuleusement la cohérence syntaxique", b: "Ignorer les terminaisons verbales", c: "Écrire phonétiquement sans règle" },
+                        { q: `Quel est le rôle déterminant dans l'application de ${rawTopic} ?`, a: "Respecter scrupuleusement la cohérence syntaxique et les accords", b: "Ignorer les terminaisons verbales", c: "Écrire phonétiquement sans règle" },
                         { q: `Dans une phrase complexe appliquant ${rawTopic}, il faut veiller à :`, a: "La concordance des temps et le sens global", b: "Supprimer les connecteurs logiques", c: "Mélanger les modes arbitrairement" }
-                    ];
-                } else {
-                    passageText = `L'analyse méthodique de <b>${rawTopic}</b> permet d'en explorer les concepts clés, les causes et les applications concrètes. Qu'il s'agisse de comprendre une théorie, d'acquérir une compétence pratique ou de structurer un raisonnement, une démarche pas-à-pas fournit un cadre d'apprentissage solide et formateur.`;
-                    vocabTerms = [
-                        { term: "Concept clé", def: "Notion centrale structurant la réflexion" },
-                        { term: "Application", def: "Mise en pratique d'un savoir" },
-                        { term: "Synthèse", def: "Résumé cohérent des éléments essentiels" }
-                    ];
-                    q1 = `Présentez les principes directeurs de <b>${rawTopic}</b> et leur utilité :`;
-                    q2 = `Comment peut-on appliquer concrètement les connaissances issues de <b>${rawTopic}</b> ?`;
-                    q3 = `Quels défis majeurs rencontre-t-on lors de l'apprentissage de <b>${rawTopic}</b> ?`;
-                    tf1 = `<b>${rawTopic}</b> peut être abordé sans aucune méthode ni préparation.`;
-                    tf2 = `Une pratique régulière consolide la compréhension durable de <b>${rawTopic}</b>.`;
-                    mcqItems = [
-                        { q: `Pour assimiler efficacement ${rawTopic}, la meilleure méthode consiste à :`, a: "Structurer ses révisions et pratiquer activement", b: "Survoler les définitions sans s'exercer", c: "Remettre à plus tard la consolidation" },
-                        { q: `L'intérêt majeur d'étudier ${rawTopic} réside dans :`, a: "Le développement de compétences transversales et pratiques", b: "L'absence totale d'application concrète", c: "L'apprentissage purement théorique" }
                     ];
                 }
             } else {
-                // English domain content
-                if (domain === 'science') {
-                    passageText = `The scientific study of <b>${rawTopic}</b> provides crucial insights into how natural laws and physical systems operate. By examining energy transformations, structural interactions, and empirical measurements, scientists develop models to explain observable phenomena. Through hypothesis testing, laboratory investigations, and controlled experiments, researchers continue to expand our understanding of ${rawTopic}.`;
+                // English domain content (ESL / EFL)
+                if (domain === 'vocabulary') {
+                    passageText = `Expanding specialized vocabulary and idiomatic phrases around <b>${rawTopic}</b> is essential for developing communicative fluency and precision in English (ESL / EFL). Mastering collocations, phrasal verbs, and context-appropriate terminology enables learners to articulate ideas clearly across everyday, academic, and professional settings.`;
                     vocabTerms = [
-                        { term: "Hypothesis", def: "A testable explanation for an observed phenomenon" },
-                        { term: "Empirical", def: "Based on verifiable observation or experience" },
-                        { term: "Equilibrium", def: "A state of balance within an active system" }
+                        { term: "Collocation", def: "A natural combination of words that commonly occur together" },
+                        { term: "Phrasal Verb", def: "An idiomatic phrase consisting of a verb and a particle" },
+                        { term: "Register", def: "The level of formality used in spoken or written communication" }
                     ];
-                    q1 = `Explain the core scientific mechanism of <b>${rawTopic}</b> as detailed in the passage:`;
-                    q2 = `Which variables or external factors directly influence the outcomes of <b>${rawTopic}</b>?`;
-                    q3 = `Why is controlled laboratory experimentation vital when evaluating theories about <b>${rawTopic}</b>?`;
-                    tf1 = `Scientific investigations into <b>${rawTopic}</b> discard empirical data.`;
-                    tf2 = `<b>${rawTopic}</b> plays an integral role in maintaining systemic stability.`;
+                    q1 = `Identify and define three key vocabulary items or collocations related to <b>${rawTopic}</b>:`;
+                    q2 = `Explain the difference in register between informal and formal expressions regarding <b>${rawTopic}</b>:`;
+                    q3 = `Write a short paragraph incorporating two phrasal verbs or key terms related to <b>${rawTopic}</b>:`;
+                    tf1 = `Using varied vocabulary related to <b>${rawTopic}</b> does not affect English communicative clarity.`;
+                    tf2 = `Choosing appropriate word register depends directly on audience and context.`;
                     mcqItems = [
-                        { q: `What is the primary scientific purpose of investigating ${rawTopic}?`, a: "To formulate testable principles based on observable data", b: "To disregard verified physical laws", c: "To rely solely on speculation" },
-                        { q: `Which procedure validates hypotheses concerning ${rawTopic}?`, a: "Rigorous, repeatable experimentation and measurement", b: "Unsubstantiated assumptions", c: "Random guesswork" }
-                    ];
-                } else if (domain === 'math') {
-                    passageText = `In mathematics, mastering <b>${rawTopic}</b> provides students with powerful analytical frameworks and problem-solving techniques. By understanding symbolic representations, geometric or algebraic relations, and step-by-step algorithms, learners build deductive reasoning skills that allow them to model real-world problems and verify solutions with mathematical certainty.`;
-                    vocabTerms = [
-                        { term: "Theorem", def: "A statement proven on the basis of established truths" },
-                        { term: "Variable", def: "A symbol representing a quantity that can change" },
-                        { term: "Algorithm", def: "A finite sequence of well-defined procedural steps" }
-                    ];
-                    q1 = `State the precise mathematical definition and key operational properties of <b>${rawTopic}</b>:`;
-                    q2 = `Outline the sequential method required to solve a multi-step problem involving <b>${rawTopic}</b>:`;
-                    q3 = `How can you check and confirm that your computed answer for <b>${rawTopic}</b> is mathematically sound?`;
-                    tf1 = `Solutions in <b>${rawTopic}</b> do not require logical proof or systematic calculation.`;
-                    tf2 = `Consistent application of algebraic properties is essential when evaluating <b>${rawTopic}</b>.`;
-                    mcqItems = [
-                        { q: `Which analytical ability is directly developed through ${rawTopic}?`, a: "Deductive logic and systematic computation", b: "Passive memorization without operational steps", c: "Unchecked estimation" },
-                        { q: `To confirm the validity of an equation involving ${rawTopic}, one must:`, a: "Substitute values back into the original expression", b: "Invert numbers arbitrarily", c: "Skip error checking" }
-                    ];
-                } else if (domain === 'history') {
-                    passageText = `Historical investigation into <b>${rawTopic}</b> examines the political, social, and economic forces that transformed societies. By analyzing primary source documents, archaeological artifacts, and contextual timelines, historians reconstruct pivotal moments and assess how the causes and consequences of ${rawTopic} continue to influence modern governance and cultural identity.`;
-                    vocabTerms = [
-                        { term: "Primary Source", def: "An artifact or document created during the period of study" },
-                        { term: "Chronology", def: "The arrangement of events in the order of occurrence" },
-                        { term: "Legacy", def: "Lasting historical consequences inherited by future generations" }
-                    ];
-                    q1 = `Identify the underlying socio-political causes that led to the development of <b>${rawTopic}</b>:`;
-                    q2 = `Describe the perspectives and roles of key figures or societal groups during <b>${rawTopic}</b>:`;
-                    q3 = `What lasting institutional or cultural effects did <b>${rawTopic}</b> produce on later generations?`;
-                    tf1 = `Events surrounding <b>${rawTopic}</b> occurred in total isolation with zero documented evidence.`;
-                    tf2 = `Primary source evaluation is essential to construct accurate historical accounts of <b>${rawTopic}</b>.`;
-                    mcqItems = [
-                        { q: `Why is historical contextualization essential when studying ${rawTopic}?`, a: "It illuminates the motives, conditions, and constraints of that era", b: "It promotes biased anachronistic judgments", c: "It minimizes the importance of archival records" },
-                        { q: `What primary legacy is attributed to ${rawTopic}?`, a: "Enduring political, social, or institutional evolution", b: "Total historical insignificance", c: "Complete loss of historical documentation" }
+                        { q: `What is the primary benefit of studying vocabulary related to ${rawTopic}?`, a: "To express ideas precisely with appropriate language register", b: "To memorize isolated words without context", c: "To eliminate grammar" },
+                        { q: `How can ESL learners effectively retain vocabulary about ${rawTopic}?`, a: "By using target words in contextualized speaking and writing", b: "By avoiding reading in English", c: "By translating every word literally" }
                     ];
                 } else if (domain === 'literature') {
-                    passageText = `Literary analysis of <b>${rawTopic}</b> explores narrative structure, thematic depth, and character development. Authors utilize figurative devices, stylistic tone, and symbolic motifs to convey profound insights into the human condition, challenging readers to interpret nuanced subtext and articulate well-supported textual interpretations.`;
+                    passageText = `Reading comprehension and text analysis regarding <b>${rawTopic}</b> cultivate critical thinking and analytical reading skills. By examining literary devices, narrative structure, thematic motifs, and authorial tone, students learn to decode implicit subtext and support interpretations with textual evidence.`;
                     vocabTerms = [
-                        { term: "Metaphor", def: "A figure of speech comparing two unlike things directly" },
-                        { term: "Motif", def: "A recurring element or idea that develops a theme" },
-                        { term: "Subtext", def: "The underlying or implicit meaning behind explicit dialogue" }
+                        { term: "Literary Device", def: "A technique used by writers to convey subtle meaning" },
+                        { term: "Inference", def: "A logical conclusion drawn from textual evidence and context" },
+                        { term: "Authorial Tone", def: "The attitude or emotional perspective expressed in a passage" }
                     ];
-                    q1 = `Identify the central theme and emotional resonance conveyed through <b>${rawTopic}</b>:`;
-                    q2 = `How do specific stylistic devices and tone choices enhance the author's portrayal of <b>${rawTopic}</b>?`;
-                    q3 = `Provide textual evidence demonstrating how character actions or conflicts reflect <b>${rawTopic}</b>:`;
-                    tf1 = `Literary techniques such as symbolism have zero bearing on the meaning of <b>${rawTopic}</b>.`;
-                    tf2 = `Effective textual analysis requires citing specific quotations and narrative evidence.`;
+                    q1 = `Summarize the main idea and underlying message of the reading passage on <b>${rawTopic}</b>:`;
+                    q2 = `Identify one stylistic or figurative device used to highlight key aspects of <b>${rawTopic}</b>:`;
+                    q3 = `What inferences can be drawn regarding the author's perspective on <b>${rawTopic}</b>?`;
+                    tf1 = `Literary analysis of <b>${rawTopic}</b> involves only summarizing plot points without analyzing style.`;
+                    tf2 = `Valid reading comprehension responses must be supported by direct textual evidence.`;
                     mcqItems = [
-                        { q: `Which literary device provides greater thematic depth to ${rawTopic}?`, a: "Symbolic motifs and evocative imagery", b: "Uniform literal dialogue without figurative language", c: "Omission of character motivation" },
-                        { q: `Interpreting subtext in ${rawTopic} allows the reader to:`, a: "Uncover nuanced psychological and thematic dimensions", b: "Rewrite the narrative arbitrarily", c: "Ignore context" }
+                        { q: `Why do authors use figurative language when discussing ${rawTopic}?`, a: "To create vivid imagery and convey deeper thematic meaning", b: "To confuse the reader", c: "To shorten the text" },
+                        { q: `Making an inference while reading about ${rawTopic} requires:`, a: "Combining textual clues with background knowledge", b: "Ignoring the text completely", c: "Guessing randomly" }
                     ];
-                } else if (domain === 'grammar') {
-                    passageText = `Language mastery of <b>${rawTopic}</b> is fundamental to achieving accuracy, nuance, and fluency in academic and professional communication. Students must understand sentence architecture, grammatical agreement, and stylistic conventions to articulate ideas clearly and eliminate unintended ambiguity in spoken and written discourse.`;
+                } else if (domain === 'writing') {
+                    passageText = `Writing composition and essay structure focused on <b>${rawTopic}</b> enable learners to construct persuasive, well-organized written responses. Applying appropriate transition words, varied sentence syntax, and clear paragraph structure ensures logical flow from thesis statement to conclusion.`;
                     vocabTerms = [
-                        { term: "Syntax", def: "The grammatical arrangement of words in sentences" },
-                        { term: "Agreement", def: "Grammatical correspondence in person, number, or gender" },
-                        { term: "Nuance", def: "A subtle distinction in expression or meaning" }
+                        { term: "Transition Word", def: "A word connecting clauses or paragraphs to establish logical flow" },
+                        { term: "Thesis Statement", def: "The central argument or purpose of a written composition" },
+                        { term: "Textual Cohesion", def: "The logical linking of sentences to form a unified text" }
                     ];
-                    q1 = `Formulate the foundational grammatical rule that governs <b>${rawTopic}</b>:`;
-                    q2 = `Explain two common grammatical errors or structural pitfalls associated with <b>${rawTopic}</b>:`;
-                    q3 = `Write two original sentences that correctly apply the rules of <b>${rawTopic}</b> in distinct contexts:`;
-                    tf1 = `Correct usage of <b>${rawTopic}</b> ignores subject-verb agreement and tense markers.`;
-                    tf2 = `Careful sentence editing ensures clarity and adherence to standard linguistic rules.`;
+                    q1 = `Draft a compelling thesis statement for a short essay addressing <b>${rawTopic}</b>:`;
+                    q2 = `List two transition signals appropriate for introducing evidence and contrasting viewpoints on <b>${rawTopic}</b>:`;
+                    q3 = `Write a well-structured conclusion paragraph summarizing main arguments on <b>${rawTopic}</b>:`;
+                    tf1 = `Effective essay writing on <b>${rawTopic}</b> requires zero transitional words between paragraphs.`;
+                    tf2 = `Proofreading for syntax, spelling, and punctuation is essential before final submission.`;
                     mcqItems = [
-                        { q: `What is the primary objective when studying ${rawTopic}?`, a: "To construct coherent, grammatically sound expressions", b: "To disregard syntactic rules", c: "To avoid structured writing" },
-                        { q: `In a complex sentence involving ${rawTopic}, one must ensure:`, a: "Accurate tense consistency and logical phrasing", b: "Arbitrary omission of prepositions", c: "Unchecked spelling errors" }
+                        { q: `What is the standard structure for a body paragraph when writing about ${rawTopic}?`, a: "Topic sentence + Supporting evidence + Explanation/Analysis", b: "A series of unrelated sentences", c: "Only bullet points" },
+                        { q: `Which transition word signals a cause-and-effect relationship in an essay on ${rawTopic}?`, a: "Consequently / Therefore", b: "However", c: "In contrast" }
+                    ];
+                } else if (domain === 'conversation') {
+                    passageText = `Developing oral communication, phonetics, and conversational fluency around <b>${rawTopic}</b> empowers learners to speak English with confidence and clarity. Focusing on word stress, sentence intonation, natural turn-taking, and active listening skills prepares students for real-world interactions.`;
+                    vocabTerms = [
+                        { term: "Word Stress", def: "The emphasis placed on particular syllables in spoken words" },
+                        { term: "Intonation", def: "The rise and fall of voice pitch in spoken sentences" },
+                        { term: "Fluency", def: "The ability to express oneself smoothly, easily, and articulate ideas naturally" }
+                    ];
+                    q1 = `Identify three polite expressions or conversational gambits used when discussing <b>${rawTopic}</b>:`;
+                    q2 = `Explain how sentence intonation shifts when asking a polite request versus making a statement about <b>${rawTopic}</b>:`;
+                    q3 = `Compose a 4-line dialogue between two speakers engaging in a conversation about <b>${rawTopic}</b>:`;
+                    tf1 = `Pronunciation, word stress, and intonation play no role in spoken English clarity.`;
+                    tf2 = `Active listening and polite conversational turn-taking enhance spoken fluency.`;
+                    mcqItems = [
+                        { q: `How should an English learner politely express an opinion on ${rawTopic}?`, a: "By using phrases like 'In my view...' or 'From my perspective...'", b: "By interrupting forcefully", c: "By remaining silent" },
+                        { q: `Which strategy helps improve spoken fluency when discussing ${rawTopic}?`, a: "Practicing natural phrase chunks and word stress", b: "Translating every word mentally before speaking", c: "Mumbling quickly" }
                     ];
                 } else {
-                    passageText = `Comprehensive mastery of <b>${rawTopic}</b> demands structured critical inquiry, clear conceptual understanding, and consistent practical application. By dissecting its fundamental elements, analyzing real-world applications, and evaluating key cause-and-effect relationships, students build a resilient foundation of knowledge.`;
+                    // Grammar / Tenses domain (Default)
+                    passageText = `Mastering English grammar, sentence syntax, and verb tenses concerning <b>${rawTopic}</b> is fundamental for effective language acquisition. Understanding grammatical agreement, clause structure, and verb aspects allows learners to eliminate ambiguity and communicate accurately in both written and spoken English.`;
                     vocabTerms = [
-                        { term: "Core Principle", def: "A fundamental truth serving as the foundation for reasoning" },
-                        { term: "Application", def: "The practical execution of theoretical knowledge" },
-                        { term: "Synthesis", def: "Combining diverse elements into a coherent whole" }
+                        { term: "Syntax", def: "The grammatical arrangement of words in a sentence" },
+                        { term: "Verb Aspect", def: "The duration or completion of an action expressed by a verb" },
+                        { term: "Grammatical Agreement", def: "Correspondence in person, number, and tense between words" }
                     ];
-                    q1 = `Explain the core concepts and real-world significance of <b>${rawTopic}</b>:`;
-                    q2 = `How do practitioners or scholars apply knowledge of <b>${rawTopic}</b> to solve complex challenges?`;
-                    q3 = `What are the most frequent challenges or misconceptions encountered when studying <b>${rawTopic}</b>?`;
-                    tf1 = `Thorough comprehension of <b>${rawTopic}</b> can be achieved without analytical practice.`;
-                    tf2 = `Synthesizing multiple perspectives leads to deeper mastery of <b>${rawTopic}</b>.`;
+                    q1 = `State the primary grammatical rule or tense formation structure governing <b>${rawTopic}</b>:`;
+                    q2 = `Identify two common grammatical errors or tense confusion pitfalls associated with <b>${rawTopic}</b>:`;
+                    q3 = `Write two original sentences correctly applying the rules of <b>${rawTopic}</b> in distinct contexts:`;
+                    tf1 = `Correct sentence structure in <b>${rawTopic}</b> disregards subject-verb agreement and tense markers.`;
+                    tf2 = `Careful sentence editing ensures clarity and adherence to standard English grammar rules.`;
                     mcqItems = [
-                        { q: `What approach ensures sustained mastery of ${rawTopic}?`, a: "Active problem solving and systematic review", b: "Superficial memorization", c: "Passive reading without engagement" },
-                        { q: `Understanding the practical implications of ${rawTopic} enables learners to:`, a: "Apply solutions effectively across diverse scenarios", b: "Avoid critical evaluation", c: "Remain purely theoretical" }
+                        { q: `What is the primary goal when studying English grammar rules for ${rawTopic}?`, a: "To construct accurate, clear, and coherent sentences", b: "To ignore word order", c: "To write without punctuation" },
+                        { q: `When constructing a complex sentence involving ${rawTopic}, one must ensure:`, a: "Tense consistency and logical clause connections", b: "Arbitrary word placement", c: "Omission of auxiliary verbs" }
                     ];
                 }
             }
+
 
             let mainContentHTML = "";
 
@@ -3217,136 +3184,171 @@
             let cogObj = "", skillObj = "", vocabList = [], materials = "", hookQ = "", hookTask = "", directSteps = "", guidedSteps = "", indepTask = "", exitQ1 = "", exitQ2 = "";
 
             if (isFrench) {
-                if (domain === 'science') {
-                    cogObj = `Comprendre et expliciter les principes physico-chimiques ou biologiques régissant <b>${rawTopic}</b>, ainsi que les lois de conservation et d'équilibre associées.`;
-                    skillObj = `Schématiser un modèle fonctionnel, formuler des hypothèses testables et interpréter des données expérimentales relatives à <b>${rawTopic}</b>.`;
+                if (domain === 'vocabulary') {
+                    cogObj = `Acquérir, structurer et réinvestir le vocabulaire thématique et le champ lexical de <b>${rawTopic}</b> dans divers registres de langue.`;
+                    skillObj = `Utiliser avec précision les collocations, les mots d'esprit et les tournures idiomatiques relatives à <b>${rawTopic}</b>.`;
                     vocabList = [
-                        { term: "Hypothèse", def: "Énoncé explicatif prédictif soumis au test expérimental." },
-                        { term: "Équilibre Dynamique", def: "État où des processus opposés s'équilibrent en continu." },
-                        { term: "Régulation", def: "Mécanisme rétroactif assurant la stabilité d'un paramètre clé." }
+                        { term: "Champ Lexical", def: "Réseau de mots associés à un même thème ou domaine d'expérience." },
+                        { term: "Expression Idiomatique", def: "Tournure propre à la langue dont le sens global est figuré." },
+                        { term: "Registre de Langue", def: "Niveau d'expression adapté au destinataire (soutenu, courant, familier)." }
                     ];
-                    materials = "Manuel de Sciences, Fiche de laboratoire EduGen, Vidéoprojecteur / Modèles 3D, Mini-ardoises.";
-                    hookQ = `D'après vous, que se passerait-il si l'équilibre naturel de <b>${rawTopic}</b> était brutalement rompu ?`;
-                    hookTask = `Les élèves notent en 2 minutes leur prédiction sur mini-ardoise avant un échange rapide en binôme (Think-Pair-Share).`;
-                    directSteps = `Modélisation au tableau des flux et interactions de <b>${rawTopic}</b>. L'enseignant verbalise sa démarche (« penser à voix haute ») pour démontrer la relation de cause à effet.`;
-                    guidedSteps = `En binômes, les élèves analysent un jeu de données ou graphique sur <b>${rawTopic}</b> et résolvent 3 questions de guidage avec étayage de l'enseignant.`;
-                    indepTask = `Chaque élève complète individuellement la grille d'analyse et rédige une explication scientifique argumentée.`;
-                    exitQ1 = `Définissez en une phrase claire le rôle ou mécanisme central de ${rawTopic}.`;
-                    exitQ2 = `Citez un facteur déterminant qui régule ou perturbe ce phénomène.`;
-                } else if (domain === 'math') {
-                    cogObj = `Définir avec exactitude les formules fondamentales, théorèmes et conditions de validité liés à <b>${rawTopic}</b>.`;
-                    skillObj = `Appliquer une démarche algorithmique rigoureuse pour résoudre des problèmes complexes et vérifier les calculs liés à <b>${rawTopic}</b>.`;
+                    materials = "Corpus lexical EduGen, Cartes mémoires (Flashcards), Tableau interactif, Grille d'auto-évaluation.";
+                    hookQ = `Quel est le premier mot ou la première association d'idées qui vous vient à l'esprit quand on évoque <b>${rawTopic}</b> ?`;
+                    hookTask = `Carte mentale au tableau : recueil des propositions d'élèves sur ardoise en 2 minutes (Brainstorming).`;
+                    directSteps = `Présentation structurée du champ lexical de <b>${rawTopic}</b> avec classification par catégories grammaticales (noms, verbes, adjectifs) et étude des nuances de sens.`;
+                    guidedSteps = `Atelier en binômes : association de définitions, déduction du sens en contexte et entraînement aux collocations sur fiche guidée.`;
+                    indepTask = `Production écrite autonome : rédaction d'un paragraphe descriptif ou narratif de 5 phrases réinvestissant au moins 4 mots cibles.`;
+                    exitQ1 = `Définissez deux mots de vocabulaire clés appris aujourd'hui sur ${rawTopic}.`;
+                    exitQ2 = `Complétez la phrase lacunaire avec le terme approprié.`;
+                } else if (domain === 'literature') {
+                    cogObj = `Analyser un extrait littéraire ou un texte de compréhension portant sur <b>${rawTopic}</b>, en identifiant le style, les figures et les thèmes.`;
+                    skillObj = `Repérer les procédés stylistiques, formuler des inférences et justifier une interprétation textuelle étayée sur <b>${rawTopic}</b>.`;
                     vocabList = [
-                        { term: "Propriété / Axiome", def: "Proposition admise ou démontrée servant de base déductive." },
-                        { term: "Variable / Inconnue", def: "Grandeur algébrique susceptible de prendre différentes valeurs." },
-                        { term: "Algorithme", def: "Suite logique d'étapes systématiques menant à la solution." }
+                        { term: "Procédé Stylistique", def: "Technique d'écriture visant à produire un effet expressif particulier." },
+                        { term: "Inférance", def: "Déduction logique tirée d'indices implicites présents dans le texte." },
+                        { term: "Schéma Narratif", def: "Enchaînement structuré des étapes d'un récit ou d'une analyse." }
                     ];
-                    materials = "Fiche méthode EduGen, Calculatrice / Instruments de géométrie, Tableau interactif, Grille d'auto-évaluation.";
-                    hookQ = `Comment estimer le résultat d'un calcul sur <b>${rawTopic}</b> sans poser l'opération complète ?`;
-                    hookTask = `Défi éclair d'estimation : les élèves notent leur ordre de grandeur sur ardoise en 60 secondes.`;
-                    directSteps = `Démonstration de la règle de <b>${rawTopic}</b> en 4 étapes numérotées au tableau. Décomposition d'un exemple type et avertissement sur les erreurs de signe courantes.`;
-                    guidedSteps = `Travail en binômes : résolution guidée de 2 problèmes d'application progressifs avec fiches d'indices à disposition.`;
-                    indepTask = `Résolution autonome de 3 exercices gradués : vérification des calculs et justification rigoureuse de la méthode.`;
-                    exitQ1 = `Énoncez la formule ou la règle clé permettant de traiter ${rawTopic}.`;
-                    exitQ2 = `Résolvez l'application numérique rapide : appliquez la démarche au cas fourni.`;
-                } else if (domain === 'history') {
-                    cogObj = `Situer <b>${rawTopic}</b> dans sa chronologie historique et identifier les causes économiques, sociales et politiques majeures.`;
-                    skillObj = `Analyser et confronter des documents sources (textes, gravures, cartes) pour bâtir une argumentation historique sur <b>${rawTopic}</b>.`;
+                    materials = "Extrait de texte étudié, Fiche d'analyse littéraire EduGen, Surligneurs de couleur, Mini-ardoises.";
+                    hookQ = `À la lecture du titre ou du premier paragraphe sur <b>${rawTopic}</b>, quelle atmosphère ou intention de l'auteur décelez-vous ?`;
+                    hookTask = `Lecture silencieuse guidée (2 min) puis repérage au surligneur du mot-clé le plus expressif du texte.`;
+                    directSteps = `Lecture à voix haute modélisée par l'enseignant. Explication pas-à-pas de l'analyse linéaire et du repérage des procédés de style sur <b>${rawTopic}</b>.`;
+                    guidedSteps = `Travail en binômes : étude d'un passage clé, repérage d'une figure de style et rédaction d'une réponse justifiée à une question d'analyse.`;
+                    indepTask = `Réponse rédigée individuelle : synthèse critique en 4 phrases répondant à la problématique littéraire de la leçon.`;
+                    exitQ1 = `Nommez une figure de style ou un procédé marquant identifié dans le texte sur ${rawTopic}.`;
+                    exitQ2 = `Formulez l'idée maîtresse ou le message implicite transmis par l'auteur.`;
+                } else if (domain === 'writing') {
+                    cogObj = `Comprendre la structure formelle et les exigences discursives de la rédaction / composition écrite sur <b>${rawTopic}</b>.`;
+                    skillObj = `Organiser ses idées selon un plan logique, employer les connecteurs appropriés et rédiger un texte cohérent sur <b>${rawTopic}</b>.`;
                     vocabList = [
-                        { term: "Causalité Historique", def: "Ensemble des facteurs structurels et déclencheurs d'un événement." },
-                        { term: "Source Primaire", def: "Document d'époque produit par un acteur ou témoin direct." },
-                        { term: "Rupture", def: "Moment charnière marquant un changement profond des structures." }
+                        { term: "Connecteur Logique", def: "Mot de liaison établissant un rapport de cause, conséquence ou opposition." },
+                        { term: "Cohérence Textuelle", def: "Progression fluide et enchaînement harmonieux des paragraphes." },
+                        { term: "Paragraphe Argumenté", def: "Structure composée d'une idée directrice, d'explications et d'exemples." }
                     ];
-                    materials = "Dossier documentaire EduGen, Frise chronologique murale, Cartes historiques, Fiche d'analyse critique.";
-                    hookQ = `Regardez cette image d'époque : quel détail surprenant illustre les tensions entourant <b>${rawTopic}</b> ?`;
-                    hookTask = `Observation silencieuse de 90 secondes d'un document visuel marquant, suivie d'un partage d'impressions par deux.`;
-                    directSteps = `Exposé magistral structuré et mise en perspective de <b>${rawTopic}</b>. L'enseignant modélise l'analyse critique d'une source d'époque au tableau.`;
-                    guidedSteps = `En îlots de 3 : confrontation de deux sources contradictoires sur <b>${rawTopic}</b> pour en extraire les arguments essentiels.`;
-                    indepTask = `Rédaction individuelle d'un paragraphe de synthèse structuré (Introduction, deux arguments documentés, conclusion).`;
-                    exitQ1 = `Citez deux causes majeures ou dates charnières liées à ${rawTopic}.`;
-                    exitQ2 = `Quel groupe social ou figure clé a joué un rôle déterminant dans cet événement ?`;
+                    materials = "Guide de rédaction EduGen, Grille de relecture critique, Tableau interactif, Fiche d'outils de liaison.";
+                    hookQ = `Comment transformer une idée simple en un argument convaincant et bien structuré au sujet de <b>${rawTopic}</b> ?`;
+                    hookTask = `Analyse rapide de deux paragraphes : identification collective du paragraphe le mieux structuré et argumentation.`;
+                    directSteps = `Modélisation de la méthode de rédaction au tableau : formulation de l'idée maîtresse, intégration d'un connecteur et choix des exemples.`;
+                    guidedSteps = `Co-rédaction en binômes : élaboration du plan détaillé d'un paragraphe sur <b>${rawTopic}</b> et rédaction croisée avec grille de relecture.`;
+                    indepTask = `Rédaction autonome d'un texte structuré d'environ 10 lignes avec auto-correction à l'aide de la grille méthodologique.`;
+                    exitQ1 = `Citez deux connecteurs logiques essentiels pour structurer un paragraphe sur ${rawTopic}.`;
+                    exitQ2 = `Écrivez la phrase d'introduction de votre paragraphe argumenté.`;
+                } else if (domain === 'conversation') {
+                    cogObj = `Maîtriser les actes de parole, la phonétique et les codes sociolinguistiques de la communication orale sur <b>${rawTopic}</b>.`;
+                    skillObj = `S'exprimer oralement avec fluidité, adopter l'intonation adéquate et maintenir un dialogue interactif sur <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Phonétique", def: "Étude et articulation exacte des phonèmes et sons de la langue." },
+                        { term: "Intonation", def: "Variation de la hauteur de la voix qui donne son rythme à la phrase." },
+                        { term: "Acte de Parole", def: "Expression verbale permettant d'accomplir une action (demander, proposer, refuser)." }
+                    ];
+                    materials = "Supports audio/dialogues EduGen, Fiches de mise en situation orale, Enregistreur / Chronomètre, Ardoises.";
+                    hookQ = `Comment exprimer poliment son accord ou son désaccord lors d'un échange spontané sur <b>${rawTopic}</b> ?`;
+                    hookTask = `Écoute ou lecture d'un court dialogue déclencheur : repérage des expressions clés de communication orale en 90 secondes.`;
+                    directSteps = `Démonstration orale par l'enseignant : répétition rythmée des modèles phonétiques et explication des schémas intonatifs sur <b>${rawTopic}</b>.`;
+                    guidedSteps = `Jeux de rôles en binômes : simulation d'un dialogue authentique à partir d'une carte de situation sur <b>${rawTopic}</b> avec réutilisation des formules cibles.`;
+                    indepTask = `Prestation orale autonome ou enregistrement d'une prise de parole de 1 minute restituant le dialogue élaboré.`;
+                    exitQ1 = `Prononcez ou citez une formule d'amorce conversationnelle indispensable pour ${rawTopic}.`;
+                    exitQ2 = `Comment adapte-t-on l'intonation pour transformer une affirmation en question polie ?`;
                 } else {
-                    cogObj = `Identifier les règles morphosyntaxiques, les accords grammaticaux et les registres de langue de <b>${rawTopic}</b>.`;
-                    skillObj = `Employer <b>${rawTopic}</b> avec exactitude dans des productions écrites et adapter son expression à la situation de communication.`;
+                    // Grammar / Conjugation domain (Default)
+                    cogObj = `Identifier les règles morphosyntaxiques, les structures grammaticales et les valeurs des temps concernant <b>${rawTopic}</b>.`;
+                    skillObj = `Appliquer avec exactitude les règles de grammaire et de conjugaison dans des énoncés écrits et oraux sur <b>${rawTopic}</b>.`;
                     vocabList = [
-                        { term: "Morphosyntaxe", def: "Règles combinant la forme des mots et leur organisation en phrases." },
-                        { term: "Registre de Langue", def: "Niveau de style adapté au destinataire (courant, soutenu, familier)." },
-                        { term: "Champ Lexical", def: "Ensemble de vocables convergeant vers un même champ thématique." }
+                        { term: "Morphosyntaxe", def: "Règles régissant la forme des mots et leur agencement dans la phrase." },
+                        { term: "Concordance des Temps", def: "Relations temporelles logiques entre verbes de la même phrase." },
+                        { term: "Accord Grammatical", def: "Variation en genre, nombre ou personne selon la fonction syntaxique." }
                     ];
-                    materials = "Corpus de textes littéraires EduGen, Guide grammatical, Fiche de réinvestissement, Mini-ardoises.";
-                    hookQ = `Trouvez l'erreur subtile ou la nuance de sens entre ces deux phrases illustrant <b>${rawTopic}</b> !`;
-                    hookTask = `Sondage à main levée : choix de la phrase correcte et justification orale en 1 phrase par binôme.`;
-                    directSteps = `Présentation synthétique de la règle de <b>${rawTopic}</b> sous forme de tableau comparatif. Modélisation de la transformation d'une phrase type.`;
-                    guidedSteps = `Pratique guidée en binômes : manipulation et complétion d'énoncés avec verbalisation obligatoire de la justification.`;
-                    indepTask = `Exercices individuels d'application : réécriture de 3 phrases et rédaction d'un court paragraphe intégrant <b>${rawTopic}</b>.`;
-                    exitQ1 = `Quelle règle essentielle faut-il appliquer pour utiliser correctement ${rawTopic} ?`;
-                    exitQ2 = `Complétez ou reformulez la phrase test proposée en respectant la syntaxe.`;
+                    materials = "Corpus de phrases EduGen, Guide de conjugaison/grammaire, Tableau interactif, Fiche d'exercices, Ardoises.";
+                    hookQ = `Trouvez l'erreur d'accord ou la faute de temps cachée dans cette phrase modèle sur <b>${rawTopic}</b> !`;
+                    hookTask = `Sondage express sur ardoise : correction de la phrase erronée et explication orale par un élève référent.`;
+                    directSteps = `Présentation synthétique de la règle de <b>${rawTopic}</b> sous forme de tableau comparatif (formes, valeurs, exceptions). Démonstration de la démarche d'analyse.`;
+                    guidedSteps = `Pratique guidée en binômes : manipulation d'énoncés, transformation de phrases et justification orale de la règle appliquée.`;
+                    indepTask = `Exercices individuels d'application : réécriture de 4 phrases complexes et rédaction de 2 énoncés originaux intégrant <b>${rawTopic}</b>.`;
+                    exitQ1 = `Énoncez la règle clé de grammaire ou la terminaison verbale à retenir pour ${rawTopic}.`;
+                    exitQ2 = `Conjuguez ou accordez correctement le verbe/mot dans la phrase test de fermeture.`;
                 }
             } else {
-                if (domain === 'science') {
-                    cogObj = `Explain the biological/physical mechanisms and conservation principles governing <b>${rawTopic}</b>.`;
-                    skillObj = `Construct functional diagrams, analyze quantitative trends, and formulate testable predictions regarding <b>${rawTopic}</b>.`;
+                // English domain content (ESL / EFL)
+                if (domain === 'vocabulary') {
+                    cogObj = `Understand, categorize, and apply target thematic vocabulary and lexical sets related to <b>${rawTopic}</b>.`;
+                    skillObj = `Utilize specialized terminology, phrasal verbs, and appropriate language register when discussing <b>${rawTopic}</b>.`;
                     vocabList = [
-                        { term: "Hypothesis", def: "A testable and falsifiable explanation for observable natural phenomena." },
-                        { term: "Dynamic Equilibrium", def: "A state in which opposing processes occur at equal rates." },
-                        { term: "Homeostasis / Regulation", def: "Self-regulating biological process that maintains internal stability." }
+                        { term: "Collocation", def: "A natural combination of words that frequently occur together." },
+                        { term: "Phrasal Verb", def: "An idiomatic phrase combining a verb with a particle." },
+                        { term: "Language Register", def: "The level of formality suitable for a specific communicative context." }
                     ];
-                    materials = "Curriculum Science Manual, EduGen Lab Scaffolding Sheet, Interactive Visual Models, Mini Dry-Erase Boards.";
-                    hookQ = `What happens to an entire ecosystem when <b>${rawTopic}</b> is suddenly accelerated or removed?`;
-                    hookTask = `Think-Pair-Share: 2 minutes of silent reflection followed by partner brainstorm on mini dry-erase boards.`;
-                    directSteps = `Explicit modeling on board of key pathways in <b>${rawTopic}</b> using a step-by-step flowchart and think-aloud explanation.`;
-                    guidedSteps = `Paired data analysis: dyads analyze a sample experimental dataset on <b>${rawTopic}</b> and resolve 3 guided prompts.`;
-                    indepTask = `Independent problem set: students interpret an unseen graph and answer 2 synthesis evaluation questions.`;
-                    exitQ1 = `State in one sentence the primary biological or physical function of ${rawTopic}.`;
-                    exitQ2 = `Identify one critical variable that regulates or alters this process.`;
-                } else if (domain === 'math') {
-                    cogObj = `Define the core formulas, theorems, and structural relationships that dictate <b>${rawTopic}</b>.`;
-                    skillObj = `Execute multi-step procedural computations and verify arithmetic/algebraic validity in problems featuring <b>${rawTopic}</b>.`;
+                    materials = "EduGen Vocabulary Cards, Mind-mapping Worksheet, Smartboard, Self-assessment Rubric.";
+                    hookQ = `What is the first word or idiom that comes to mind when you hear the topic <b>${rawTopic}</b>?`;
+                    hookTask = `Word Association Warm-up: 2-minute whiteboard brainstorm in pairs listing related English vocabulary.`;
+                    directSteps = `Explicit instruction on vocabulary for <b>${rawTopic}</b>: categorization by part of speech, pronunciation practice, and collocation mapping.`;
+                    guidedSteps = `Paired vocabulary practice: matching definitions, fill-in-the-blank contextual exercises, and guided sentence construction.`;
+                    indepTask = `Independent writing task: compose a 5-sentence paragraph incorporating at least 4 new vocabulary items correctly.`;
+                    exitQ1 = `Define two key vocabulary terms or phrasal verbs learned today regarding ${rawTopic}.`;
+                    exitQ2 = `Use one target vocabulary word in a complete, grammatically correct English sentence.`;
+                } else if (domain === 'literature') {
+                    cogObj = `Analyze an ESL reading text or literary excerpt on <b>${rawTopic}</b>, identifying theme, tone, and stylistic features.`;
+                    skillObj = `Decode implicit meaning, identify figurative language, and justify text-based inferences regarding <b>${rawTopic}</b>.`;
                     vocabList = [
-                        { term: "Theorem / Identity", def: "A mathematical statement that has been proven based on axioms." },
-                        { term: "Variable", def: "A symbolic quantity that can take on different values within an equation." },
-                        { term: "Algorithm", def: "An unambiguous step-by-step protocol for arriving at a mathematical solution." }
+                        { term: "Literary Device", def: "A technique used by writers to convey subtle thematic meaning." },
+                        { term: "Textual Inference", def: "A logical conclusion drawn from implicit clues in the reading text." },
+                        { term: "Authorial Tone", def: "The overall mood or emotional attitude expressed by the writer." }
                     ];
-                    materials = "EduGen Step-by-Step Worksheet, Graph Paper / Scientific Calculator, Digital Board, Rubric Checklist.";
-                    hookQ = `How can you estimate the outcome of a complex problem involving <b>${rawTopic}</b> in under 10 seconds?`;
-                    hookTask = `Quick visual puzzle: students test an estimation heuristic on their scratch paper before reviewing answers.`;
-                    directSteps = `Teacher models the 4-stage algorithmic approach for <b>${rawTopic}</b>, explicitly highlighting common sign and notation errors.`;
-                    guidedSteps = `Scaffolded pair practice: students solve 2 tiered problems together, alternating roles between solver and coach.`;
-                    indepTask = `Independent mastery task: complete 3 tiered computation problems ranging from standard drills to real-world word problems.`;
-                    exitQ1 = `Write out the core formula or rule required to solve problems regarding ${rawTopic}.`;
-                    exitQ2 = `Apply the formula to find the value in a simple benchmark problem.`;
-                } else if (domain === 'history') {
-                    cogObj = `Situate <b>${rawTopic}</b> in its broader chronological and socioeconomic context, identifying key historical actors.`;
-                    skillObj = `Analyze conflicting primary documents and craft an evidence-based historical claim regarding <b>${rawTopic}</b>.`;
+                    materials = "EduGen Reading Passage, Textual Analysis Organizer, Highlighters, Mini Whiteboards.";
+                    hookQ = `Based on the title and opening sentence about <b>${rawTopic}</b>, what mood or main message do you predict?`;
+                    hookTask = `Silent reading (2 mins) followed by highlighting the single most powerful word in the passage.`;
+                    directSteps = `Teacher models active reading strategies and annotation techniques, breaking down narrative structure and literary devices in <b>${rawTopic}</b>.`;
+                    guidedSteps = `Collaborative pair analysis: students answer 3 analytical comprehension questions, citing specific textual evidence.`;
+                    indepTask = `Independent written response: synthesize reading insights in a 4-sentence analytical reflection paragraph.`;
+                    exitQ1 = `Identify one literary or stylistic device used in the passage about ${rawTopic}.`;
+                    exitQ2 = `State the author's central argument or theme in your own words.`;
+                } else if (domain === 'writing') {
+                    cogObj = `Understand paragraph architecture, essay structure, and cohesive writing conventions for topics on <b>${rawTopic}</b>.`;
+                    skillObj = `Construct well-organized essays using appropriate transition words, thesis statements, and logical progression on <b>${rawTopic}</b>.`;
                     vocabList = [
-                        { term: "Causality", def: "The complex web of political, social, and economic factors leading to an event." },
-                        { term: "Primary Source", def: "An artifact or text created during the historical era under investigation." },
-                        { term: "Historiography", def: "The study of historical methodology and how interpretations shift over time." }
+                        { term: "Transition Signal", def: "A word or phrase that links sentences and paragraphs logically." },
+                        { term: "Thesis Statement", def: "The central argument or controlling idea of a written essay." },
+                        { term: "Textual Cohesion", def: "The smooth logical flow and connection between ideas in a text." }
                     ];
-                    materials = "Primary Source Reader, Historical Timeline Display, Graphic Organizer for document analysis.";
-                    hookQ = `Look at this historic photograph / headline: what detail challenges our common assumptions about <b>${rawTopic}</b>?`;
-                    hookTask = `Silent viewing (90 seconds), followed by 2 minutes of partner note comparison on immediate observations.`;
-                    directSteps = `Teacher lectures using a high-impact chronological narrative and demonstrates source deconstruction using the SOAPSTone method.`;
-                    guidedSteps = `Triad collaborative analysis: student teams compare two contrasting perspectives on <b>${rawTopic}</b> to establish common ground.`;
-                    indepTask = `Individual written response: compose a structured paragraph with 1 claim, 2 pieces of documentary evidence, and commentary.`;
-                    exitQ1 = `Name two key causes that catalyzed ${rawTopic}.`;
-                    exitQ2 = `Identify one lasting legacy or transformation produced by this historical development.`;
+                    materials = "EduGen Writing Scaffold Sheet, Peer-editing Checklist, Interactive Display, Transition Cards.";
+                    hookQ = `How do you transform a rough idea into a persuasive, structured English paragraph on <b>${rawTopic}</b>?`;
+                    hookTask = `Quick paragraph comparison: student pairs identify thesis statements and transition words in two sample texts.`;
+                    directSteps = `Direct modeling of paragraph construction: drafting a topic sentence, adding supporting evidence, and selecting transition words for <b>${rawTopic}</b>.`;
+                    guidedSteps = `Co-writing in pairs: creating an outline and drafting a cohesive body paragraph with peer feedback using a rubric.`;
+                    indepTask = `Independent composition: write a complete 10-line structured paragraph on <b>${rawTopic}</b>, followed by self-editing.`;
+                    exitQ1 = `List two transition words used to contrast ideas or show cause-and-effect regarding ${rawTopic}.`;
+                    exitQ2 = `Write the topic sentence for your composition on this topic.`;
+                } else if (domain === 'conversation') {
+                    cogObj = `Master speech acts, pronunciation patterns, and conversational turn-taking required to discuss <b>${rawTopic}</b>.`;
+                    skillObj = `Engage in spontaneous English conversation with appropriate intonation, fluency, and polite gambits regarding <b>${rawTopic}</b>.`;
+                    vocabList = [
+                        { term: "Word Stress & Rhythm", def: "The emphasis on key syllables that creates spoken English rhythm." },
+                        { term: "Intonation Pattern", def: "The pitch movement in speech indicating questions, certainty, or mood." },
+                        { term: "Conversational Gambit", def: "A phrase used to initiate, interrupt, or politely redirect dialogue." }
+                    ];
+                    materials = "EduGen Dialogue Prompts, Role-play Prompt Cards, Timer / Audio Recording App, Mini Whiteboards.";
+                    hookQ = `How can you politely agree, disagree, or ask for clarification during a conversation about <b>${rawTopic}</b>?`;
+                    hookTask = `Listen/read a benchmark dialogue: student pairs identify 3 target conversational gambits within 90 seconds.`;
+                    directSteps = `Teacher models spoken English pronunciation, word stress, and natural intonation patterns for key communicative phrases on <b>${rawTopic}</b>.`;
+                    guidedSteps = `Paired role-play: students simulate an authentic dialogue using prompt cards on <b>${rawTopic}</b> and target phrases.`;
+                    indepTask = `Independent speaking evaluation: pairs present a 1-minute live dialogue or record an audio snippet demonstrating fluency.`;
+                    exitQ1 = `Demonstrate or state one polite phrase used to initiate a conversation on ${rawTopic}.`;
+                    exitQ2 = `How does sentence intonation change when asking a open-ended vs yes/no question?`;
                 } else {
-                    cogObj = `Deconstruct syntactic patterns, idiomatic usage, and communicative intent within <b>${rawTopic}</b>.`;
-                    skillObj = `Produce accurate written sentences and engage in structured spoken discourse incorporating <b>${rawTopic}</b>.`;
+                    // Grammar / Tenses domain (Default)
+                    cogObj = `Deconstruct syntactic rules, subject-verb agreement, and verb tense aspects governing <b>${rawTopic}</b>.`;
+                    skillObj = `Formulate accurate, complex English sentences incorporating correct grammar and tense structures for <b>${rawTopic}</b>.`;
                     vocabList = [
-                        { term: "Syntax", def: "The arrangement of words and phrases to create well-formed sentences in a language." },
-                        { term: "Discourse Register", def: "The scale of formality and communicative tone adopted for a given audience." },
-                        { term: "Collocation", def: "A habitual juxtaposition of a particular word with another word with frequency." }
+                        { term: "Syntax & Clause", def: "The rule-governed arrangement of words to form meaningful sentences." },
+                        { term: "Subject-Verb Agreement", def: "The grammatical alignment in number and person between subject and verb." },
+                        { term: "Aspect & Tense", def: "Grammatical markers indicating time, duration, or completion of an action." }
                     ];
-                    materials = "Reading Passage Corpus, Student Grammar & Vocabulary Cards, Interactive Smartboard, Exit Slips.";
-                    hookQ = `Can you spot the subtle error in tone or syntax across these two sample sentences regarding <b>${rawTopic}</b>?`;
-                    hookTask = `Thumbs-up / thumbs-down diagnostic poll, followed by quick partner justification of the correct sentence.`;
-                    directSteps = `Direct concept explanation of <b>${rawTopic}</b> with a contrasting matrix showing proper usage vs. common errors.`;
-                    guidedSteps = `Guided sentence manipulation in pairs: students rewrite 3 sentences and debate choices before whole-group check.`;
-                    indepTask = `Independent creative writing: students compose a 5-sentence application paragraph correctly incorporating <b>${rawTopic}</b>.`;
-                    exitQ1 = `What is the key grammatical or communicative rule for correctly applying ${rawTopic}?`;
-                    exitQ2 = `Fill in or complete the sample prompt using the correct syntax.`;
+                    materials = "EduGen Grammar Corpus, Interactive Rule Matrix, Practice Worksheet, Mini Whiteboards, Exit Slips.";
+                    hookQ = `Can you spot the subtle tense or agreement error in this benchmark sentence regarding <b>${rawTopic}</b>?`;
+                    hookTask = `Error Hunt Diagnostic: students identify and correct a grammar error on mini whiteboards within 60 seconds.`;
+                    directSteps = `Explicit grammar instruction: step-by-step breakdown of <b>${rawTopic}</b> rules, contrasting correct vs incorrect usage on the board.`;
+                    guidedSteps = `Guided sentence manipulation in pairs: students rewrite sentences, transform verb tenses, and justify choices aloud.`;
+                    indepTask = `Independent mastery exercises: complete 4 sentence transformations and compose 2 original complex sentences on <b>${rawTopic}</b>.`;
+                    exitQ1 = `State the core grammatical rule or verb formation formula for ${rawTopic}.`;
+                    exitQ2 = `Complete the exit ticket sentence using the correct verb form or syntactic structure.`;
                 }
             }
 
@@ -3371,11 +3373,11 @@
                         </div>
                     </div>
 
-                    <!-- Section 1: Pedagogical Objectives & Bloom's Taxonomy -->
+                    <!-- Section 1: Lesson Objectives & Core Competencies -->
                     <div class="worksheet-section" style="margin-bottom: 14px;">
                         <div style="background: #F0FDF4; border: 1.5px solid #10B981; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;">
                             <div style="font-size: 12px; font-weight: 800; color: #065F46; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                                <span>🎯</span> ${isFrench ? 'Objectifs Pédagogiques & Taxonomie de Bloom' : 'Pedagogical Learning Objectives (Bloom\'s Taxonomy)'}
+                                <span>🎯</span> ${isFrench ? 'Objectifs Pédagogiques & Compétences Clés' : 'Lesson Objectives & Core Competencies'} : <span style="color: #047857; text-transform: none; font-weight: 700;">${rawTopic}</span>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                                 <div style="background: #FFFFFF; border: 1px solid #D1FAE5; border-radius: 8px; padding: 10px;">
@@ -3684,31 +3686,33 @@
                     const isFrench = currentLang === 'fr' || isFrenchTopic(topic);
                     const targetLangName = isFrench ? "French (Français)" : "English";
 
-                    const prompt = `You are an expert pedagogical curriculum and worksheet author. Generate the complete inner HTML content for an educational classroom worksheet that STRICTLY AND FAITHFULLY matches the following user prompt and parameters:
+                    const prompt = `Act as an expert English and French teacher and professional curriculum designer. Generate the complete inner HTML content for an educational classroom worksheet that STRICTLY AND FAITHFULLY matches the following user prompt and parameters:
 
 USER TOPIC / SUBJECT: "${topic}"
-TARGET LANGUAGE: ${targetLangName} (Write the entire worksheet, instructions, reading material, questions, and vocabulary in ${targetLangName}, perfectly matching the topic).
-STUDENT EDUCATION LEVEL: ${level}
+TARGET LANGUAGE: ${targetLangName} (Write the entire worksheet, instructions, reading material, questions, and vocabulary in ${targetLangName}, tailored exclusively for English or French language acquisition).
+STUDENT EDUCATION LEVEL / DIFFICULTY: ${level} (Beginner, Intermediate, or Advanced as appropriate)
 WORKSHEET TEMPLATE TYPE: ${tmplType} (${tmplSelect ? tmplSelect.options[tmplSelect.selectedIndex].text : ''})
 ASSESSMENT TYPE: ${testType}
 SKILLS FOCUS: ${skillsFocus}
 QUESTION FORMAT: ${formatSelect ? formatSelect.value : 'mixed'}
 
-CRITICAL RULES:
-1. TOPIC ACCURACY & RELEVANCE (MANDATORY):
-   - Every single question, reading passage, vocabulary term, and exercise MUST directly focus on "${topic}".
-   - Under no circumstances should you generate generic filler, unrelated travel stories, or off-topic grammar exercises unless explicitly requested.
-2. CONTENT SECTIONS:
-   - Wrap each distinct major section in <div class="worksheet-section" style="margin-bottom: 14px;">...</div>.
-   - Section 1: An engaging, accurate, informative Reading Passage or Core Theoretical Stimulus explaining "${topic}".
-   - Section 2: Comprehensive Assessment Exercises matching "${tmplType}" (e.g., matching definitions, fill-in-the-blanks, multiple choice, or analytical problems) directly testing concepts from "${topic}".
-   - Section 3: Critical Thinking & Synthesis Questions specifically analyzing "${topic}" with clean dotted answer lines.
-   - Section 4: Key Terms & Vocabulary Box containing 3-5 real terms specifically related to "${topic}".
-3. FORMATTING & MULTI-PAGE PRINTING:
-   - Output ONLY valid raw HTML. Do NOT include markdown code fences (\`\`\`html).
-   - Do NOT include <html>, <head>, or <body> tags.
-   - Insert <div class="page-break"></div> between Section 2 and Section 3 for clean multi-page printing.
-   - Use high-contrast, polished styling with clean badges, rounded cards, and dotted answer lines.`;
+CRITICAL CONSTRAINTS & LAYOUT STRUCTURE:
+1. HEADER: Start directly with a standard classroom header (<div style="...">Student Name: ___________ &nbsp;&nbsp; Date: ___________ &nbsp;&nbsp; Class Period: ___________</div>).
+2. TOPIC & LANGUAGE SCOPE: Focus exclusively on "${topic}" (grammar, vocabulary, reading comprehension, literature, writing, or conversation). Do not introduce unrelated concepts outside this scope.
+3. QUESTION FORMAT & QUANTITY (STRICTLY REQUIRED):
+   - Section A: Exactly 5 Multiple Choice Questions (with options A, B, C, D).
+   - Section B: Exactly 3 Fill-in-the-Blank Questions with clear blank spaces (___________).
+   - Section C: Exactly 2 Short-Answer Analysis Questions with dotted lines for student responses.
+4. READING PASSAGE / CONCEPT SUMMARY: Include a concise, age-appropriate reading passage or grammar concept summary on "${topic}".
+5. KEY VOCABULARY: Include a Key Terms / Vocabulary box with 3-5 essential terms.
+6. SEPARATE ANSWER KEY (NEGATIVE CONSTRAINT):
+   - Do NOT include any answers within the student worksheet section.
+   - Place a completely separate Answer Key (<div class="worksheet-section answer-key-section" style="..."><h3>🔑 Teacher Answer Key & Solutions</h3>...</div>) at the VERY BOTTOM of the response, preceded by <div class="page-break"></div>.
+7. NO META-LANGUAGE / CONVERSATIONAL FILLER: Do NOT include introductory phrases like "Sure, here is your worksheet". Start immediately with the HTML content.
+
+FORMATTING RULES:
+- Output ONLY valid raw HTML (no markdown \`\`\`html backticks). Do NOT include <html>, <head>, or <body> tags.
+- Wrap each distinct section in <div class="worksheet-section" style="margin-bottom: 14px;">...</div>.`;
                     
                     const aiContent = await callGeminiApi(prompt);
                     if (aiContent) {
@@ -3851,29 +3855,40 @@ Return strictly a raw JSON array of objects, each with 'title' (string) and 'des
                 let generatedHtml = null;
 
                 if (hasApiKey) {
-                    const prompt = `You are an expert curriculum designer and master teacher. Generate a comprehensive, professional Lesson Plan HTML structure for the topic: "${topic}".
+                    const prompt = `You are an expert curriculum designer and master educator. Generate a rich, comprehensive, and professional Lesson Plan HTML structure strictly teaching the subject: "${topic}".
 Duration: ${duration} minutes.
 Pedagogical Framework: ${pedagogy} model.
 Language: ${isFrench ? 'French' : 'English'}.
 
-CRITICAL PEDAGOGICAL STRUCTURE (MANDATORY):
-1. TOP HEADER & OBJECTIVES:
-   - Header with topic title: <h2 id="tbTopicHeader">${topic}</h2>, duration badge (${duration} min), pedagogical badge (${pedagogy}), and teacher/class/date blanks.
-   - Objectives (Bloom's Taxonomy): Cognitive knowledge objective, skill/application objective, 3 essential vocabulary terms, and required instructional materials. Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
-2. STRUCTURED TIMELINE & INSTRUCTIONAL PHASES TABLE (CRITICAL):
+CRITICAL CONTENT REQUIREMENT:
+- The entire lesson plan content must be 100% SPECIFIC TO "${topic}". For example, if the topic is "London Wonders", every objective, vocabulary item, teacher explanation, student task, timeline phase, and exit ticket question MUST focus on London's wonders (such as the Tower of London, Big Ben / Palace of Westminster, Tower Bridge, Buckingham Palace, the River Thames, their history, architecture, engineering, and cultural impact).
+- DO NOT generate a lesson about teaching theories, Bloom's Taxonomy, or meta-pedagogy. The lesson is for teaching "${topic}" to students!
+
+MANDATORY HTML STRUCTURE & SECTIONS:
+1. TOP BANNER & OBJECTIVES:
+   - Banner with topic title: <h2 id="tbTopicHeader">${topic}</h2>, duration badge (${duration} min), pedagogical framework badge (${pedagogy}), and blank lines for Teacher, Class, and Date.
+   - Section Title: "${isFrench ? 'Objectifs de la Leçon & Compétences Clés' : 'Lesson Objectives & Core Competencies'} : ${topic}" (DO NOT use "Bloom's Taxonomy" as the heading).
+   - 2 concrete student learning objectives directly about "${topic}": 1 Knowledge & Conceptual Understanding objective, and 1 Inquiry, Skill & Application objective.
+   - 3 essential vocabulary terms directly defining key concepts/monuments/elements of "${topic}".
+   - Required instructional materials specifically relevant to "${topic}".
    - Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
-   - Create a clean, elegant HTML <table> with borders, padding, and subtle alternating row backgrounds.
-   - Columns: [Phase & Timing | Teacher Role & Strategy | Student Activity & Tasks | Formative Check & Evidence].
-   - Must include these 5 distinct instructional phases with minute breakdowns adding up to ${duration} minutes:
-     * Phase 1: Hook & Prior Knowledge Activation (Warm-Up)
-     * Phase 2: Direct Instruction & Explicit Modeling (I Do)
-     * Phase 3: Guided Collaborative Practice (We Do)
-     * Phase 4: Independent Practice & Deep Application (You Do)
+
+2. STRUCTURED TIMELINE & INSTRUCTIONAL PHASES TABLE:
+   - Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
+   - Clean, elegant HTML <table> with header row, borders, and clear padding.
+   - Columns: [Phase & Timing | Teacher Role & Strategy | Student Activity & Engagement | Formative Check & Evidence].
+   - Must cover 5 distinct pedagogical phases adding up to ${duration} minutes, with all questions and tasks directly about "${topic}":
+     * Phase 1: Hook & Prior Knowledge Activation (Warm-Up diagnostic question/visual about "${topic}")
+     * Phase 2: Direct Instruction & Explicit Modeling (I Do - teacher breaks down "${topic}" concepts, history, and key details)
+     * Phase 3: Guided Collaborative Practice (We Do - paired or small-group inquiry/analysis about "${topic}")
+     * Phase 4: Independent Practice & Deep Application (You Do - individual synthesis, mapping, or problem set on "${topic}")
      * Phase 5: Exit Ticket, Wrap-Up & Metacognitive Synthesis
+
 3. DIFFERENTIATION & ACCOMMODATIONS:
-   - Two styled columns/boxes: Scaffolding for struggling learners and Extension for advanced students. Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
+   - Two styled columns/boxes: Scaffolding for struggling learners and Extension for advanced students, tailored to learning "${topic}". Wrap in <div class="worksheet-section" style="margin-bottom: 14px;">.
+
 4. DETACHABLE EXIT TICKET:
-   - A distinct dashed-border box (<div class="worksheet-section">) containing Student Name/Date line, 2 formative concept check questions tailored specifically to "${topic}", and 1 metacognitive reflection question.
+   - A distinct dashed-border box (<div class="worksheet-section">) containing Student Name/Date line, 2 formative concept check questions testing student mastery of "${topic}", and 1 metacognitive reflection question.
 
 IMPORTANT RULES:
 - Output ONLY valid raw HTML. No markdown backticks or explanations.
